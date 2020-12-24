@@ -11,6 +11,7 @@
 #define UTILITIES_EVENT_HXX_
 
 #include <rtthread.h>
+#include <memory>
 
 //TODO: event pool
 class Event {
@@ -19,7 +20,7 @@ public:
     void set();
     void wait();
 private:
-    shared_ptr<rt_event> event = shared_ptr<rt_event>(rt_event_create("tt", RT_IPC_FLAG_FIFO), [](auto p) {
+    std::shared_ptr<rt_event> event = std::shared_ptr<rt_event>(rt_event_create("tt", RT_IPC_FLAG_FIFO), [](auto p) {
         rt_event_delete(p);
     });
 };

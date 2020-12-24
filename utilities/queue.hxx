@@ -17,10 +17,11 @@
 
 template <class T>
 class Queue {
+public:
     Queue() { }
-    void push(T&& t) {
+    void push(T t) {
         auto lock = rtthread::Lock(m);
-        q.push(std::forward(t));
+        q.push(t);
         e.set();
     }
 
@@ -36,6 +37,7 @@ class Queue {
         return result;
     }
 
+private:
     std::queue<T> q = {};
     rtthread::Mutex m = {};
     Event e = {};
