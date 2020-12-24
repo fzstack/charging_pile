@@ -27,6 +27,11 @@ template<class T> struct Signals;
 
 class DeliverBase;
 
+enum class PollType {
+    OneShot,
+    Forever,
+};
+
 class Post {
     template<class T> friend struct Signals;
     using id_t = rt_uint32_t;
@@ -36,20 +41,23 @@ class Post {
 public:
     Post(): event(std::shared_ptr<rt_event>(rt_event_create("post", RT_IPC_FLAG_FIFO), [](auto p) {
         rt_event_delete(p);
+        rt_kprintf("delete event: %08x\n", p);
     })) {
-        throw not_implemented{"ctor not impl"};
+        rt_kprintf("post event is: %08x\n", event.get());
+        //throw not_implemented{"ctor not impl"};
     }
-    void poll();
+    void poll(PollType type = PollType::Forever);
 
     template<class F>
     auto& operator()(F&& f) {
-
         if(nextId >= std::numeric_limits<event_t>::digits)
             throw std::out_of_range{"deliver id is out of range"};
 
         auto deliver = std::make_shared<Deliver<F>>(this, std::forward<F>(f), nextId);
         delivers[nextId] = deliver;
         nextId++;
+
+        rt_kprintf("deliver created\n");
 
         return *deliver;
     }
