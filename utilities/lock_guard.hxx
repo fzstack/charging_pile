@@ -12,6 +12,7 @@
 
 #include <rtthread.h>
 
+//TODO: DEPRESSED
 class LockGuard {
 public:
     LockGuard(rt_mutex_t mutex): mutex(mutex) {
