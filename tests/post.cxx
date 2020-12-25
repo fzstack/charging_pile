@@ -13,6 +13,8 @@
 #include <string>
 #include <applications/json.hxx>
 #include <Thread.h>
+#include <vector>
+#include <numeric>
 
 #define LOG_TAG "test.post"
 #define LOG_LVL LOG_LVL_DBG
@@ -66,25 +68,26 @@ static void test_post_async_ret() {
     test.join();
 }
 
+//TODO: json移动构造器可能存在问题
 static void test_post_json() {
+    constexpr int kTimes = 5;
     using signals_t = Signals<Json(Json, Json)>;
     class TestThread: public Thread {
     public:
         TestThread(signals_t& signal): Thread(), signal(signal) { }
         virtual void run(void *p) override {
             auto post = Post();
-            rt_kprintf("{%08x}post created\n", rt_thread_self());
-            signal += post([](Json a, Json b) -> Json {
-                rt_kprintf("{%08x}, a=%s, b=%s\n", rt_thread_self(), to_string(a).c_str(), to_string(b).c_str());
+            signal += post([](signals_t::param_t<0> a, signals_t::param_t<1> b) -> signals_t::result_t {
                 return {
                     {"a", a},
                     {"b", b},
                 };
             });
-            rt_kprintf("{%08x}sig callback reged\n", rt_thread_self());
 
             emitRegEvent();
-            post.poll(PollType::OneShot);
+            for(auto i = 0; i < kTimes; i++) {
+                post.poll(PollType::OneShot);
+            }
         }
         void waitReg() {
             rt_event_recv(event.get(), 1, RT_EVENT_FLAG_AND | RT_EVENT_FLAG_CLEAR, RT_WAITING_FOREVER, nullptr);
@@ -105,25 +108,29 @@ static void test_post_json() {
     test.start();
     test.waitReg();
     auto post = Post();
-    signal(post([](Json result){
-        rt_kprintf("{%08x}, result=%s\n", rt_thread_self(), to_string(result).c_str());
-    }), "2", 3);
-    rt_kprintf("{%08x}test sig called\n", rt_thread_self());
-    post.poll(PollType::OneShot);
+    for(auto i = 0; i < kTimes; i++) {
+        signal(post([=](signals_t::result_t result){
+            rt_kprintf("{%08x}, a=%d, b=%d, result=%s\n", rt_thread_self(), 2, i, to_string(result).c_str());
+        }), 2, i);
+    }
+
+    for(auto i = 0; i < kTimes; i++) {
+        post.poll(PollType::OneShot);
+    }
     test.join();
 }
 
 static void test_post_copy_param_ret() {
-    using signals_t = Signals<string(string, int)>;
+    using signals_t = Signals<int(vector<int>)>;
     class TestThread: public Thread {
     public:
         TestThread(signals_t& signal): Thread(), signal(signal) { }
         virtual void run(void *p) override {
             auto post = Post();
             rt_kprintf("{%08x}post created\n", rt_thread_self());
-            signal += post([](string a, int b) {
-                rt_kprintf("{%08x}, a=%s, b=%d\n", rt_thread_self(), a.c_str(), b);
-                return a + to_string(b);
+            signal += post([](vector<int> input) {
+                auto sum = accumulate(input.begin(), input.end(), 0);
+                return sum;
             });
             rt_kprintf("{%08x}sig callback reged\n", rt_thread_self());
 
@@ -149,9 +156,9 @@ static void test_post_copy_param_ret() {
     test.start();
     test.waitReg();
     auto post = Post();
-    signal(post([](string result){
-        rt_kprintf("{%08x}, result=%s\n", rt_thread_self(), result.c_str());
-    }), "2", 3);
+    signal(post([](signals_t::result_t result){
+        rt_kprintf("{%08x}, result=%d\n", rt_thread_self(), result);
+    }), {2, 3, 4, 5});
     rt_kprintf("{%08x}test sig called\n", rt_thread_self());
     post.poll(PollType::OneShot);
     test.join();
@@ -159,44 +166,56 @@ static void test_post_copy_param_ret() {
 
 
 static void test_post_closure() {
-    class Test{
-    public:
-        Signals<Json(Json, Json)> testSig = {};
-        shared_ptr<rt_event> event = shared_ptr<rt_event>(rt_event_create("tt", RT_IPC_FLAG_FIFO), [](auto p) {
-            rt_event_delete(p);
-        });
-    } test;
+    constexpr int kTimes = 5;
+    using signals_t = Signals<int(int, int)>;
+        class TestThread: public Thread {
+        public:
+            TestThread(signals_t& signal): Thread(), signal(signal) { }
+            virtual void run(void *p) override {
+                auto post = Post();
+                rt_kprintf("{%08x}post created\n", rt_thread_self());
+                signal += post([](int a, int b) {
+                    rt_kprintf("{%08x}, a=%d, b=%d\n", rt_thread_self(), a, b);
+                    return a + b;
+                });
+                rt_kprintf("{%08x}sig callback reged\n", rt_thread_self());
 
-    auto testThread = shared_ptr<rt_thread>(rt_thread_create("test", [](auto p) {
+                emitRegEvent();
+
+                for(auto i = 0; i < kTimes; i++) {
+                    post.poll(PollType::OneShot);
+                }
+            }
+            void waitReg() {
+                rt_event_recv(event.get(), 1, RT_EVENT_FLAG_AND | RT_EVENT_FLAG_CLEAR, RT_WAITING_FOREVER, nullptr);
+            }
+        private:
+            void emitRegEvent() {
+                rt_event_send(event.get(), 1);
+            }
+        private:
+            signals_t& signal;
+            shared_ptr<rt_event> event = shared_ptr<rt_event>(rt_event_create("tt", RT_IPC_FLAG_FIFO), [](auto p) {
+                rt_event_delete(p);
+            });
+        };
+
+        signals_t signal;
+        auto test = TestThread(signal);
+        test.start();
+        test.waitReg();
         auto post = Post();
-        auto t = (Test*)p;
-        rt_kprintf("{%08x}post created\n", rt_thread_self());
+        for(auto i = 0; i < kTimes; i++) {
+            signal(post([i](int result){
+                rt_kprintf("{%08x}, a=2, b=%d, result=%d\n", rt_thread_self(), i, result);
+            }), 2, i);
+        }
 
-        t->testSig += post([](Json a, Json b) -> Json {
-            rt_kprintf("{%08x}, a=%s, b=%s\n", rt_thread_self(), to_string(a).c_str(), to_string(b).c_str());
-            return {
-                {"a", a},
-                {"b", b},
-            };
-        });
-        rt_kprintf("{%08x}sig callback reged\n", rt_thread_self());
-
-        rt_event_send(t->event.get(), 1);
-        post.poll(PollType::OneShot);
-        for(;;);
-    }, &test, 2048, 30, 5), [](auto p ) {
-        rt_thread_delete(p);
-    });
-    rt_thread_startup(testThread.get());
-
-    rt_event_recv(test.event.get(), 1, RT_EVENT_FLAG_AND | RT_EVENT_FLAG_CLEAR, RT_WAITING_FOREVER, nullptr);
-
-    auto post = Post();
-    test.testSig(post([](Json result){
-        rt_kprintf("{%08x}, result=%s\n", rt_thread_self(), to_string(result).c_str());
-    }), "2", 3);
-    rt_kprintf("{%08x}test sig called\n", rt_thread_self());
-    post.poll(PollType::OneShot);
+        rt_kprintf("{%08x}test sig called\n", rt_thread_self());
+        for(auto i = 0; i < kTimes; i++) {
+            post.poll(PollType::OneShot);
+        }
+        test.join();
 }
 
 
@@ -217,6 +236,7 @@ static int init_test_post() {
 MSH_CMD_EXPORT(test_post_async_ret, );
 MSH_CMD_EXPORT(test_post_copy_param_ret, );
 MSH_CMD_EXPORT(test_post_json, );
+MSH_CMD_EXPORT(test_post_closure, );
 INIT_APP_EXPORT(init_test_post);
 #endif
 

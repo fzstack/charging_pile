@@ -37,6 +37,11 @@ public:
         return result;
     }
 
+    bool empty() {
+        auto lock = rtthread::Lock(m);
+        return q.empty();
+    }
+
 private:
     std::queue<T> q = {};
     rtthread::Mutex m = {};

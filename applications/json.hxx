@@ -44,6 +44,7 @@ public:
     Json(int value);
     Json(nullptr_t);
     Json(const Json& other);
+    Json(Json&& other);
     Json(std::initializer_list<Json> obj);
 private:
     Json(std::shared_ptr<cJSON> root, cJSON* self, cJSON* parent);
@@ -51,7 +52,7 @@ private:
     Json(private_ctor, std::string_view value);
     //Json(JsonWrapper<void> wrapper);
 public:
-//    ~Json();
+    ~Json();
 public:
     static Json parse(std::string_view value);
 
@@ -88,7 +89,6 @@ private:
     void deleteRoot(cJSON* rootPtr);
     void reset(int newType = cJSON_NULL); //重置为Null对象
     void updateRootWith(cJSON* rootPtr);
-    void replaceWith(cJSON* other);
     Json getItem(const char* itemName) const;
     Json getOrCreateItem(const char* itemName);
     static char* copyStr(char* str);
@@ -96,12 +96,11 @@ private:
 private:
     struct Extra {
         cJSON *self = nullptr, *parent = nullptr;
-        bool moving = false;
-
     };
 
     std::shared_ptr<cJSON> root;
     std::shared_ptr<Extra> extra;
+    bool moving = false;
 };
 
 class json_error: public std::runtime_error {

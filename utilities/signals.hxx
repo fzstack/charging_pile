@@ -16,6 +16,7 @@
 #include "post.hxx"
 #include "deliver.hxx"
 #include <rtthread.h>
+#include <tuple>
 
 template<class T>
 struct Signals;
@@ -26,6 +27,11 @@ class Deliver;
 //如果是DeliverProxy, 则不返回，转而调用onReturn, onReturn是function<void(R)>
 template<class R, class ...P>
 struct Signals<R(P...)> {
+    using result_t = R;
+    using params_t = std::tuple<P...>;
+    template<int N>
+    using param_t = std::tuple_element_t<N, params_t>;
+
     void operator+=(std::function<void(Signals<void(R)> r, P...)> cb) {
         cbs.push_back(cb);
     }
@@ -78,6 +84,11 @@ struct Signals<R(P...)> {
 
 template<class ...P>
 struct Signals<void(P...)> {
+    using result_t = void;
+    using params_t = std::tuple<P...>;
+    template<int N>
+    using param_t = std::tuple_element_t<N, params_t>;
+
     using func_type = std::function<void(P...)>;
     void operator+=(func_type cb) {
         cbs.push_back(cb);

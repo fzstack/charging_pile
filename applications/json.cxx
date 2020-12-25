@@ -50,11 +50,20 @@ Json::Json(nullptr_t): Json() {
 
 }
 
+Json::~Json() {
+
+}
 
 
 //拷贝构造器是拷贝引用
 //拷贝赋值是深拷贝
 Json::Json(const Json& other): root(other.root), extra(make_shared<Extra>()) {
+    extra->parent = other.extra->parent;
+    extra->self = other.extra->self;
+}
+
+//TODO: 完善move语义
+Json::Json(Json&& other): root(other.root), extra(make_shared<Extra>()) {
     extra->parent = other.extra->parent;
     extra->self = other.extra->self;
 }
@@ -81,7 +90,6 @@ Json::Json(initializer_list<Json> obj): Json() {
 
                 //pOtherRoot是根
                 auto childName = child.extra->self->child->string;
-                //rt_kprintf("child name: %s\n", childName);
                 getOrCreateItem(childName) = move(child.getItem(childName));
             }
         } else {
@@ -232,9 +240,9 @@ Json& Json::operator=(Json&& _other) {
 
     if(!selfParent) {
         auto guard = shared_ptr<void>(nullptr, [this](auto) {
-            extra->moving = false;
+            moving = false;
         });
-        extra->moving = true;
+        moving = true;
         updateRootWith(other);
     }
 
@@ -262,9 +270,9 @@ Json& Json::operator=(Json&& _other) {
     if(!otherParent) {
         //更新智能指针
         auto guard = shared_ptr<void>(nullptr, [&_other](auto) {
-            _other.extra->moving = false;
+            _other.moving = false;
         });
-        _other.extra->moving = true;
+        _other.moving = true;
         _other.updateRootWith(null);
     }
 
@@ -284,7 +292,7 @@ Json& Json::operator=(const Json& other) {
 }
 
 void Json::deleteRoot(cJSON* rootPtr) {
-    if(extra->moving) {
+    if(moving) {
         //cJSON_free(rootPtr);
     } else {
         cJSON_Delete(rootPtr);
@@ -308,46 +316,6 @@ void Json::reset(int newType) {
 void Json::updateRootWith(cJSON* rootPtr) {
     root.reset(rootPtr, signal(&Json::deleteRoot, this));
     extra->self = rootPtr;
-}
-
-void Json::replaceWith(cJSON* other) {
-    auto self = extra->self;
-    const auto selfParent = extra->parent;
-    auto selfPrev = self->prev;
-    auto selfNext = self->next;
-    auto selfName = self->string;
-
-    //删除self子树
-    cJSON_Delete(self->child);
-    if(self->valuestring != nullptr)
-        cJSON_free(self->valuestring);
-    cJSON_free(self);
-
-    //other代替原来self的位置
-    other->string = selfName; //替换名字
-    if(selfPrev == nullptr) { //首个元素
-        if(selfParent)
-            selfParent->child = other;
-        other->prev = nullptr;
-    } else {
-        selfPrev->next = other;
-        other->prev = selfPrev;
-    }
-
-    if(selfNext != nullptr) {
-        selfNext->prev = other;
-        other->next = selfNext;
-    } else {
-        other->next = nullptr;
-    }
-
-    if(!selfParent) {
-        auto guard = shared_ptr<void>(nullptr, [this](auto) {
-            extra->moving = false;
-        });
-        extra->moving = true;
-        updateRootWith(other);
-    }
 }
 
 Json Json::getItem(const char* itemName) const {
