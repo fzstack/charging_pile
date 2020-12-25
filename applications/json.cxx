@@ -22,7 +22,7 @@
 using namespace std;
 using namespace std::string_literals;
 
-Json::Json(): root(shared_ptr<cJSON>(cJSON_CreateNull(), signal(&Json::deleteRoot, this))), extra(make_shared<Extra>()) {
+Json::Json(): root(shared_ptr<cJSON>(cJSON_CreateObject(), signal(&Json::deleteRoot, this))), extra(make_shared<Extra>()) {
     extra->self = root.get();
     if(!extra->self) throw json_error{"json create failed"};
 }
@@ -104,6 +104,8 @@ Json::Json(initializer_list<Json> obj): Json() {
         //if(!last) throw json_cast_error{"value not valid json"}; //TODO: 字面量支持
         //(*(Json*)this)[(string)*pKey] = move(*last);
         auto keyName = first->extra->self->valuestring;
+        //TODO: 以下写法无法通过test_json_init_list
+        ///getOrCreateItem(keyName) = move(Json(*last));
         getOrCreateItem(keyName) = move(*last);
     }
 }

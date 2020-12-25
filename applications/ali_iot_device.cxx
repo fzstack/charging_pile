@@ -14,20 +14,69 @@
 #include "json.hxx"
 #include <string_view>
 #include <components/http_form_request_builder.hxx>
+#include <utilities/string.hxx>
 
 #define LOG_TAG "app.ali_iot"
 #define LOG_LVL LOG_LVL_DBG
 #include <ulog.h>
 
 using namespace std;
+using namespace rtthread;
 using namespace string_literals;
 using namespace json_literals;
 
-AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> mqtt): http(http), mqtt(mqtt) {
+AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> mqtt):
+  http(http),
+  mqtt(mqtt),
+  thread(shared_ptr<AliIotDeviceThread>(new AliIotDeviceThread(this))) {
+    mqtt->onMessage += thread->post([this](string topic, string data) {
+        rt_kprintf("\033[35mthread: %s\033[0m\n", rt_thread_self()->name);
+        rt_kprintf("topic: %s\ndata: %s\n", topic.c_str(), data.c_str());
 
+        auto topics = split(topic, '/');
+
+        for(const auto& t: topics) {
+            rt_kprintf("%s\n", t.c_str());
+        }
+
+        auto json = Json::parse(data);
+        auto methods = split(json["method"_s], '.');
+
+        auto action = map<string, function<void()>> {
+            {"thing", [&](){
+
+            }},
+            {"rrpc", [&](){
+                auto serviceName = methods[MethodIdx::Service::Name];
+                auto requestId = topics[TopicIdx::Rrpc::RequestId];
+                rt_kprintf("\033[34mservice name: %s\nrequest id: %s\n\033[0m", serviceName.c_str(), requestId.c_str());
+                auto service = services.find(serviceName);
+                if(service == services.end()) return;
+                service->second(thread->post([this, requestId](Json result) {
+                    auto resp = Json {
+                        {"id", 233},
+                        {"code", 200},
+                        {"data", result},
+                    };
+                    auto topic = genTopic({"rrpc", "response", requestId});
+                    this->mqtt->publish(topic, to_string(resp));
+                }), json["params"]);
+            }},
+        };
+        auto found = action.find(topics[TopicIdx::ThingOrRrpc]);
+        if(found != action.end()) found->second();
+
+        rt_kprintf("\033[35m------\033[0m\n");
+    });
+    thread->start();
 }
 
+//TODO: Signal 转 function
+//TODO: 无返回值的Post无参数返回值回调
 void AliIotDevice::login(string_view deviceName, string_view productKey, string_view deviceSecret) {
+    this->deviceName = deviceName;
+    this->productKey = productKey;
+
     auto sign = getSign(deviceName, productKey, deviceSecret);
     auto json = Json::parse(http->send(
         HttpFormRequestBuilder{}
@@ -46,37 +95,25 @@ void AliIotDevice::login(string_view deviceName, string_view productKey, string_
     auto iotId =  data["iotId"_s];
     auto iotToken = data["iotToken"_s];
 
-    //TODO: run in process thread
-    mqtt->onMessage += [this](auto topic, auto data) {
-
-        rt_kprintf("topic: %s\ndata: %s\n", topic.c_str(), data.c_str());
-        rt_kprintf("topic levels: \n");
-
-        auto topics = splitTopic(topic);
-//        for(const auto& t: topics) {
-//            rt_kprintf("%s\n", t.c_str());
-//        }
-//
-//        if(topics[3] == "rrpc") {
-//            auto reqId = topics[5];
-//        }
-
-//        auto json = Json::parse(data);
-//        rt_kprintf("method: %s\n", to_string(json).c_str());
-
-
-    };
-
     mqtt->login(productKey.data() + ".iot-as-mqtt.cn-shanghai.aliyuncs.com"s, deviceName, iotId, iotToken);
     LOG_I("login succeed");
 }
 
-void AliIotDevice::on(string_view serviceName, function<Json(Json data)> handler) {
+//void AliIotDevice::on(string_view serviceName, function<Json(Json data)> handler) {
 //    auto found = services.find(serviceName);
 //    if(found == services.end()) {
 //        //mqtt->sub TODO: 订阅
 //    }
 //    services[serviceName] += handler;
+//}
+
+string AliIotDevice::genTopic(initializer_list<string_view> suffixes) {
+    auto result = ""s;
+    for(const auto& prefix: {"sys"s, productKey, deviceName})
+        result += '/' + prefix;
+    for(const auto& suffix: suffixes)
+        result += '/' + string(suffix.data());
+    return result;
 }
 
 string AliIotDevice::getSign(string_view deviceName, string_view productKey, string_view deviceSecret) {
@@ -91,19 +128,6 @@ string AliIotDevice::hexToAscii(const vector<char>& hex) {
     for(auto i = 0u; i < hex.size(); i++) {
         rt_sprintf((char*)result.c_str() + i * 2, "%02x", hex[i]);
     }
-    return result;
-}
-
-vector<string> AliIotDevice::splitTopic(string_view topic) {
-    size_t pos = 0, nextPos = 0;
-    auto result = vector<string>{};
-    topic.find('/', pos);
-
-    while((nextPos = topic.find('/', pos + 1)) != string::npos) {
-        result.push_back((string)topic.substr(pos + 1, nextPos - pos - 1));
-        pos = nextPos;
-    }
-    result.push_back((string)topic.substr(pos + 1, topic.size() - pos - 1));
     return result;
 }
 

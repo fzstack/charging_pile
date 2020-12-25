@@ -25,6 +25,44 @@ using namespace rtthread;
 
 #ifdef TEST_POST
 
+//TODO: json移动构造器可能存在问题
+static void test_post_void_ret() {
+    using signals_t = Signals<void(int, int)>;
+    class TestThread: public Thread {
+    public:
+        TestThread(signals_t& signal): Thread(), signal(signal) { }
+        virtual void run(void *p) override {
+            auto post = Post();
+            signal += post([](signals_t::param_t<0> a, signals_t::param_t<1> b) -> void {
+                rt_kprintf("a: %d, b: %d\n", a, b);
+                return;
+            });
+
+            emitRegEvent();
+            post.poll(PollType::OneShot);
+        }
+        void waitReg() {
+            rt_event_recv(event.get(), 1, RT_EVENT_FLAG_AND | RT_EVENT_FLAG_CLEAR, RT_WAITING_FOREVER, nullptr);
+        }
+    private:
+        void emitRegEvent() {
+            rt_event_send(event.get(), 1);
+        }
+    private:
+        signals_t& signal;
+        shared_ptr<rt_event> event = shared_ptr<rt_event>(rt_event_create("tt", RT_IPC_FLAG_FIFO), [](auto p) {
+            rt_event_delete(p);
+        });
+    };
+
+    signals_t signal;
+    auto test = TestThread(signal);
+    test.start();
+    test.waitReg();
+    signal(2, 6);
+    test.join();
+}
+
 static void test_post_async_ret() {
     class TestThread: public Thread {
     public:
@@ -233,6 +271,7 @@ static int init_test_post() {
 }
 
 
+MSH_CMD_EXPORT(test_post_void_ret, );
 MSH_CMD_EXPORT(test_post_async_ret, );
 MSH_CMD_EXPORT(test_post_copy_param_ret, );
 MSH_CMD_EXPORT(test_post_json, );

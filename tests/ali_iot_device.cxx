@@ -24,6 +24,12 @@ static void test_ali_iot_device() {
 
     auto aliIot = Instances::aliIotDevice;
     try {
+
+        aliIot->services["query"] += [](auto params) -> Json {
+            rt_kprintf("\033[34mparams: %s\n\033[0m", to_string(params).c_str());
+            return {};
+        };
+
         aliIot->login("863701042917152", "a1tltf2GJUn", "e96d5f79301c20994cb2e984e3cad47b");
 
 //

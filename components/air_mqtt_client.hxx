@@ -29,6 +29,8 @@ public:
     virtual void publish(std::string_view topic, std::string_view data) override;
 protected:
     virtual std::vector<at_urc> onUrcTableInit() override;
+private:
+    std::string escape(std::string_view raw);
 
 
 private:

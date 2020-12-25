@@ -11,12 +11,14 @@
 #include "air_mqtt_client.hxx"
 #include <utilities/err.hxx>
 #include <cctype>
+#include <utilities/string.hxx>
 
 #define LOG_TAG "com.air_mqtt"
 #define LOG_LVL LOG_LVL_DBG
 #include <ulog.h>
 
 using namespace std;
+using namespace string_literals;
 
 //TODO: 析构时关闭MQTT连接
 
@@ -49,7 +51,11 @@ void AirMqttClient::subscribe(std::string_view topic) {
 }
 
 void AirMqttClient::publish(std::string_view topic, std::string_view data) {
-    throw not_implemented{};
+    auto resp = createResp();
+    rt_kprintf("\033[34mbefore escape topic: %s\n\033[0m", topic.data());
+    rt_kprintf("\033[34mafter escape topic: %s\n\033[0m", escape(topic).c_str());
+    if(at_obj_exec_cmd(getAtClient(), resp.get(), "AT+MPUB=\"%s\",0,0,\"%s\"", escape(topic).c_str(), escape(data).c_str()) != RT_EOK)
+        throw runtime_error{"timeout when config mqtt"};
 }
 
 std::vector<at_urc> AirMqttClient::onUrcTableInit() {
@@ -97,6 +103,15 @@ std::vector<at_urc> AirMqttClient::onUrcTableInit() {
     };
 }
 
+string AirMqttClient::escape(string_view raw) {
+    auto frags = split(raw.data(), '"');
+    auto result = ""s;
+    for(auto i = 0; i < frags.size() - 1; i++) {
+        result += frags[i] + "\\22";
+    }
+    result += frags[frags.size() - 1];
+    return result;
+}
 
 const string_view
     AirMqttClient::kUrcMSubPrefix = "+MSUB: ",

@@ -36,15 +36,17 @@ struct Signals<R(P...)> {
         cbs.push_back(cb);
     }
 
-    template<class L, class F>
-    void operator +=(Deliver<L, F>& other) {
-        rt_kprintf("sig cb before size: %d\n", cbs.size());
-        other.addTo(*this);
-        rt_kprintf("sig cb after size: %d\n", cbs.size());
-
+    void operator+=(std::function<R(P...)> cb) {
+        (*this) += [=](Signals<void(R)> r, P... p) {
+            r(cb(p...));
+        };
     }
 
-    //TODO: 返回对应的返回值的Signal, 那个Signal退出之后才开始调用回调，
+    template<class L, class F>
+    void operator +=(Deliver<L, F>& other) {
+        other.addTo(*this);
+
+    }
 
     void operator()(Signals<void(R)> r, P ...p) {
         for(const auto& cb: cbs) {
@@ -92,6 +94,11 @@ struct Signals<void(P...)> {
     using func_type = std::function<void(P...)>;
     void operator+=(func_type cb) {
         cbs.push_back(cb);
+    }
+
+    template<class L, class F>
+    void operator +=(Deliver<L, F>& other) {
+        other.addTo(*this);
     }
 
     void operator()(P ...p) const {

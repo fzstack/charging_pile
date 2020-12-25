@@ -39,12 +39,8 @@ class Post {
     template <class L, class F> friend class Deliver;
     friend class DeliverBase;
 public:
-    Post(): event(std::shared_ptr<rt_event>(rt_event_create("post", RT_IPC_FLAG_FIFO), [](auto p) {
-        rt_event_delete(p);
-        rt_kprintf("delete event: %08x\n", p);
-    })) {
-        rt_kprintf("post event is: %08x\n", event.get());
-        //throw not_implemented{"ctor not impl"};
+    Post(): event(std::shared_ptr<rt_event>(rt_event_create("post", RT_IPC_FLAG_FIFO), rt_event_delete)) {
+
     }
     void poll(PollType type = PollType::Forever);
 

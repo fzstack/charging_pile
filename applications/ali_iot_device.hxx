@@ -20,25 +20,66 @@
 #include <functional>
 #include <json.hxx>
 #include <utilities/signals.hxx>
+#include "ali_iot_device_thread.hxx"
+
+class AliIotDeviceThread;
 
 class AliIotDevice {
 public:
     AliIotDevice(std::shared_ptr<HttpClient> http, std::shared_ptr<MqttClient> mqtt);
     void login(std::string_view deviceName, std::string_view productKey, std::string_view deviceSecret);
 
-    void on(std::string_view serviceName, std::function<Json(Json data)> handler);
+//    template<class T>
+//    void on(std::string_view serviceName, T&& handler) {
+//        auto serviceNameStr = std::to_string(serviceName);
+//        auto found = services.find(serviceNameStr);
+//        if(found == services.end()) {
+//            services[serviceNameStr] += std::forward<T>(handler);
+//        }
+//    }
 
 private:
+    std::string genTopic(std::initializer_list<std::string_view> suffixes);
     static std::string getSign(std::string_view deviceName, std::string_view productKey, std::string_view deviceSecret);
     static std::string hexToAscii(const std::vector<char>& hex);
-    static std::vector<std::string> splitTopic(std::string_view topic);
 
 private:
+    struct TopicIdx {
+        enum Value {
+            Sys = 1,
+            ProductKey,
+            DeviceName,
+            ThingOrRrpc,
+        };
+        struct Thing {
+            enum Value {
+                Type = 5,
+            };
+        };
+        struct Rrpc {
+            enum Value {
+                RequestId = 6,
+            };
+        };
+    };
+
+    struct MethodIdx {
+        struct Service {
+            enum Value {
+                Name = 2,
+            };
+        };
+    };
+
     std::shared_ptr<HttpClient> http;
     std::shared_ptr<MqttClient> mqtt;
+    std::shared_ptr<AliIotDeviceThread> thread;
 
-    //std::map<std::string, Signals<std::function<Json(Json data)>>> services = {};
+    std::string deviceName, productKey;
 
+public:
+    std::map<std::string, Signals<Json(Json)>> services = {};
+private:
     static const char* kApiAuth;
 
 };
