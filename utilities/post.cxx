@@ -11,22 +11,23 @@
 #include "post.hxx"
 #include <rtthread.h>
 
+using namespace std;
+
 void Post::poll(PollType type) {
     //TODO:
     //if(没有注册) throw;
     //rt_event_recv(event.get(), Events::ConnackOk, RT_EVENT_FLAG_AND | RT_EVENT_FLAG_CLEAR, RT_WAITING_FOREVER, RT_NULL);
 
+    auto guard = shared_ptr<void>(nullptr, [=](auto) {
+        pollingThread = nullptr;
+    });
+    pollingThread = rt_thread_self();
+
+    //TODO: 同时多个event时候的调用顺序
+    //TODO: 改成使用队列实现！
     do {
-        auto recved = event_t{};
-        rt_event_recv(event.get(), std::numeric_limits<event_t>::max(), RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, RT_WAITING_FOREVER, &recved);
-
-        rt_kprintf("event recved, %08x\n", recved);
-        auto bits = std::bitset<std::numeric_limits<event_t>::digits>(recved);
-
-        for(auto i = 0u; i < bits.size(); i++) {
-            if(~bits[i]) continue;
-            delivers[i]->invoke();
-        }
+        auto front = queue.pop();
+        front->invoke();
     } while(type == PollType::Forever);
     //for each bit
 

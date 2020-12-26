@@ -12,21 +12,19 @@
 
 #include "nested.hxx"
 #include <rtthread.h>
+#include <memory>
 
 class Post;
 
-class DeliverBase: private Nested<Post> {
+class DeliverBase: private Nested<Post>, public std::enable_shared_from_this<DeliverBase> {
     using base_t = Nested<Post>;
 protected:
-    using id_t = rt_uint32_t;
-protected:
-    DeliverBase(outer_t* outer, id_t id);
+    DeliverBase(outer_t* outer);
 
-    void sendEvent();
+    void enqueue();
+    rt_thread_t getPollingThread();
 public:
     virtual void invoke() = 0;
-
-    id_t id;
 };
 
 

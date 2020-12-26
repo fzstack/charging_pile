@@ -25,11 +25,17 @@ using namespace std::string_literals;
 Json::Json(): root(shared_ptr<cJSON>(cJSON_CreateObject(), signal(&Json::deleteRoot, this))), extra(make_shared<Extra>()) {
     extra->self = root.get();
     if(!extra->self) throw json_error{"json create failed"};
+
+    auto jsonStr = shared_ptr<char>(cJSON_PrintUnformatted(root.get()));
+    rt_kprintf("\033[31mjson create: {%08x} %s\n\033[0m", root.get(), jsonStr.get());
 }
 
 Json::Json(string_view value): root(shared_ptr<cJSON>(cJSON_CreateString(value.data()), signal(&Json::deleteRoot, this))), extra(make_shared<Extra>()) {
     extra->self = root.get();
     if(!extra->self) throw json_error{"json create failed"};
+
+    auto jsonStr = shared_ptr<char>(cJSON_PrintUnformatted(root.get()));
+    rt_kprintf("\033[31mjson create: {%08x} %s\n\033[0m", root.get(), jsonStr.get());
 }
 
 Json::Json(const char* value): Json(string_view(value)) {
@@ -39,15 +45,25 @@ Json::Json(const char* value): Json(string_view(value)) {
 Json::Json(bool value): root(shared_ptr<cJSON>(cJSON_CreateBool(value), signal(&Json::deleteRoot, this))), extra(make_shared<Extra>()) {
     extra->self = root.get();
     if(!extra->self) throw json_error{"json create failed"};
+
+    auto jsonStr = shared_ptr<char>(cJSON_PrintUnformatted(root.get()));
+    rt_kprintf("\033[31mjson create: {%08x} %s\n\033[0m", root.get(), jsonStr.get());
 }
 
 Json::Json(int value): root(shared_ptr<cJSON>(cJSON_CreateNumber(value), signal(&Json::deleteRoot, this))), extra(make_shared<Extra>()) {
     extra->self = root.get();
     if(!extra->self) throw json_error{"json create failed"};
+
+    auto jsonStr = shared_ptr<char>(cJSON_PrintUnformatted(root.get()));
+    rt_kprintf("\033[31mjson create: {%08x} %s\n\033[0m", root.get(), jsonStr.get());
 }
 
-Json::Json(nullptr_t): Json() {
+Json::Json(nullptr_t): root(shared_ptr<cJSON>(cJSON_CreateNull(), signal(&Json::deleteRoot, this))), extra(make_shared<Extra>()){
+    extra->self = root.get();
+    if(!extra->self) throw json_error{"json create failed"};
 
+    auto jsonStr = shared_ptr<char>(cJSON_PrintUnformatted(root.get()));
+    rt_kprintf("\033[31mjson create: {%08x} %s\n\033[0m", root.get(), jsonStr.get());
 }
 
 Json::~Json() {
@@ -117,6 +133,9 @@ Json::Json(shared_ptr<cJSON> root, cJSON* self, cJSON* parent): root(root), extr
 
 Json::Json(private_ctor, string_view value): root(shared_ptr<cJSON>(cJSON_Parse(value.data()), signal(&Json::deleteRoot, this))), extra(make_shared<Extra>()) {
     extra->self = root.get();
+
+    auto jsonStr = shared_ptr<char>(cJSON_PrintUnformatted(root.get()));
+    rt_kprintf("\033[31mjson create: {%08x} %s\n\033[0m", root.get(), jsonStr.get());
 }
 
 Json Json::parse(string_view value) {
@@ -294,10 +313,18 @@ Json& Json::operator=(const Json& other) {
 }
 
 void Json::deleteRoot(cJSON* rootPtr) {
+    auto jsonStr = shared_ptr<char>(cJSON_PrintUnformatted(root.get()));
+    rt_kprintf("\033[33mjson try delete: {%08x} %s\n\033[0m", root.get(), jsonStr.get());
     if(moving) {
         //cJSON_free(rootPtr);
     } else {
+        rt_uint32_t used;
+        rt_memory_info(RT_NULL, &used, RT_NULL);
+        rt_kprintf("\033[94mjson before delete, used mem: %d\n\033[0m", used);
+        rt_kprintf("\033[91mjson delete: {%08x} %s\n\033[0m", root.get(), jsonStr.get());
         cJSON_Delete(rootPtr);
+        rt_memory_info(RT_NULL, &used, RT_NULL);
+        rt_kprintf("\033[94mjson after delete, used mem: %d\n\033[0m", used);
     }
 }
 

@@ -22,6 +22,8 @@
 #include "lambda.hxx"
 #include "signals.hxx"
 #include "deliver.hxx"
+#include "queue.hxx"
+#include <list>
 
 template<class T> struct Signals;
 
@@ -35,33 +37,26 @@ enum class PollType {
 class Post {
     template<class T> friend struct Signals;
     using id_t = rt_uint32_t;
-    using event_t = rt_uint32_t; //WARNING: NO NOT MODIFY
+    using event_t = rt_uint32_t; //WARNING: DO NOT MODIFY
     template <class L, class F> friend class Deliver;
     friend class DeliverBase;
 public:
-    Post(): event(std::shared_ptr<rt_event>(rt_event_create("post", RT_IPC_FLAG_FIFO), rt_event_delete)) {
+    Post() {
 
     }
     void poll(PollType type = PollType::Forever);
 
     template<class F>
-    auto& operator()(F&& f) {
-        if(nextId >= std::numeric_limits<event_t>::digits)
-            throw std::out_of_range{"deliver id is out of range"};
-
-        auto deliver = std::make_shared<Deliver<F>>(this, std::forward<F>(f), nextId);
-        delivers[nextId] = deliver;
-        nextId++;
-
-        rt_kprintf("deliver created\n");
-
-        return *deliver;
+    std::shared_ptr<Deliver<F>> operator()(F&& f) {
+        auto deliver = std::make_shared<Deliver<F>>(this, std::forward<F>(f));
+        delivers.push_back(deliver);
+        return deliver;
     }
 
 private:
-    std::shared_ptr<rt_event> event;
-    std::map<id_t, std::shared_ptr<DeliverBase>> delivers = {};
-    id_t nextId = 0;
+    Queue<std::shared_ptr<DeliverBase>> queue = {};
+    std::list<std::shared_ptr<DeliverBase>> delivers = {};
+    rt_thread_t pollingThread = nullptr;
 };
 
 #endif /* UTILITIES_POST_HXX_ */

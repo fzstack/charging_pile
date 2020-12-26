@@ -86,6 +86,10 @@ std::vector<at_urc> AirMqttClient::onUrcTableInit() {
             auto inst = urc(client);
             if(!inst) return;
 
+            rt_uint32_t used;
+            rt_memory_info(RT_NULL, &used, RT_NULL);
+            rt_kprintf("\033[94mon SUB, used mem: %d\n\033[0m", used);
+
             LOG_D("on sub");
             auto buf = shared_ptr<char[]>(new char[size]);
             auto dataSize = 0;

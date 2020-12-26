@@ -17,6 +17,7 @@
 #include "deliver.hxx"
 #include <rtthread.h>
 #include <tuple>
+#include <memory>
 
 template<class T>
 struct Signals;
@@ -31,56 +32,83 @@ struct Signals<R(P...)> {
     using params_t = std::tuple<P...>;
     template<int N>
     using param_t = std::tuple_element_t<N, params_t>;
+    using cb_f = R(P...);
+    using ret_f = void(R);
+    using ret_sig_t = Signals<ret_f>;
+    using signal_f = void(ret_sig_t, P...);
 
-    void operator+=(std::function<void(Signals<void(R)> r, P...)> cb) {
+    void operator+=(std::function<signal_f> cb) {
         cbs.push_back(cb);
     }
 
-    void operator+=(std::function<R(P...)> cb) {
-        (*this) += [=](Signals<void(R)> r, P... p) {
-            r(cb(p...));
+    //thread为cb将会运行在的线程
+    void operator+=(std::function<cb_f> cb) {
+        (*this) += [=](ret_sig_t r, P... p) {
+            {
+                auto result = cb(p...);
+                r(result);
+            }
+            rt_uint32_t used;
+            rt_memory_info(RT_NULL, &used, RT_NULL);
+            rt_kprintf("\033[94mafter call return code, used mem: %d\n\033[0m", used);
         };
     }
 
     template<class L, class F>
-    void operator +=(Deliver<L, F>& other) {
-        other.addTo(*this);
+    void operator +=(std::shared_ptr<Deliver<L, F>> other) {
+        other->addTo(*this);
 
     }
 
-    void operator()(Signals<void(R)> r, P ...p) {
+    void operator()(ret_sig_t r, P ...p) {
         for(const auto& cb: cbs) {
             cb(r, p...);
         }
     }
 
-    void operator()(std::function<void(R)> r, P ...p) {
+    void operator()(std::function<ret_f> r, P ...p) {
         for(const auto& cb: cbs) {
-            rt_kprintf("found a cb\n");
-            auto signal = Signals<void(R)>();
+            rt_uint32_t used;
+            rt_memory_info(RT_NULL, &used, RT_NULL);
+            rt_kprintf("\033[94mbefore create cb signal, used mem: %d\n\033[0m", used);
+            auto signal = ret_sig_t();
+            rt_memory_info(RT_NULL, &used, RT_NULL);
+            rt_kprintf("\033[94mafter create cb signal, used mem: %d\n\033[0m", used);
             signal += r;
+            rt_memory_info(RT_NULL, &used, RT_NULL);
+            rt_kprintf("\033[94mafter add return func to cb signal, used mem: %d\n\033[0m", used);
+            rt_kprintf("\033[94mcalling cb func, used mem: %d\n\033[0m", used);
             cb(signal, p...);
+
         }
     }
 
     template<class L, class F>
-    void operator()(Deliver<L, F>& r, P ...p) {
+    void operator()(std::shared_ptr<Deliver<L, F>> r, P ...p) {
+        rt_uint32_t used;
+        //如果r和p的调用发生在同线程
+
+        //返回值处理函数运行的线程就是signal
         for(const auto& cb: cbs) {
-            auto signal = Signals<void(R)>();
-            r.addTo(signal);
+            rt_memory_info(RT_NULL, &used, RT_NULL);
+            rt_kprintf("\033[94minvoking callback, used mem: %d\n\033[0m", used);
+            auto signal = ret_sig_t();
+            rt_memory_info(RT_NULL, &used, RT_NULL);
+            rt_kprintf("\033[94madding to result signal, used mem: %d\n\033[0m", used);
+            r->addTo(signal);
             cb(signal, p...);
         }
     }
 
     void operator()(P ...p) {
         for(const auto& cb: cbs) {
-            cb(Signals<void(R)>(), p...);
+            cb(ret_sig_t(), p...);
         }
     }
 
     //onReturn由持有方 +=, 由回调调用
     //Signals<void(R)> onReturn;
-    std::list<std::function<void(Signals<void(R)> r, P...)>> cbs;
+    std::list<std::function<signal_f>> cbs;
 };
 
 
@@ -97,8 +125,8 @@ struct Signals<void(P...)> {
     }
 
     template<class L, class F>
-    void operator +=(Deliver<L, F>& other) {
-        other.addTo(*this);
+    void operator +=(std::shared_ptr<Deliver<L, F>> other) {
+        other->addTo(*this);
     }
 
     void operator()(P ...p) const {

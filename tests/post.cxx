@@ -256,6 +256,43 @@ static void test_post_closure() {
         test.join();
 }
 
+//在同线程处理返回值
+static void test_post_ret_same_thread() {
+    using signals_t = Signals<vector<string>(Json, Json)>;
+    ///已知bug: 优先级大于tshell会导致直接崩溃，优先级小于tshell会导致内存泄漏
+    constexpr int threadPrio = 25;
+    class TestThread: public Thread {
+    public:
+        TestThread(): Thread(2048, threadPrio) { }
+        virtual void run(void *p) override {
+            //在本线程处理回调的返回值
+
+            //signal被调用、在本线程
+            signal(post([](vector<string> result){
+                rt_kprintf("result is { ");
+                for(const auto& s: result) {
+                    rt_kprintf("\"%s\"%s ", s.c_str(), s != *result.rbegin() ? "," : "");
+                }
+                rt_kprintf("}\n");
+            }), 4, 5);
+            rt_kprintf("push deliver with Json arg to queue\n");
+            post.poll(PollType::OneShot);
+        }
+
+    public:
+        Post post = {};
+        signals_t signal;
+    };
+    auto test = TestThread();
+    test.signal += [](Json a, Json b) -> vector<string> {
+        rt_kprintf("a: %s, b: %s\n", to_string(a).c_str(), to_string(b).c_str());
+        return {"hello", "world", "there"};
+    };
+    test.start();
+    test.join();
+
+}
+
 
 //TODO: 检查Post对象是否有效
 //TODO: 检查event是否有效
@@ -276,6 +313,7 @@ MSH_CMD_EXPORT(test_post_async_ret, );
 MSH_CMD_EXPORT(test_post_copy_param_ret, );
 MSH_CMD_EXPORT(test_post_json, );
 MSH_CMD_EXPORT(test_post_closure, );
+MSH_CMD_EXPORT(test_post_ret_same_thread, );
 INIT_APP_EXPORT(init_test_post);
 #endif
 

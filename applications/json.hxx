@@ -98,7 +98,9 @@ private:
         cJSON *self = nullptr, *parent = nullptr;
     };
 
+public:
     std::shared_ptr<cJSON> root;
+private:
     std::shared_ptr<Extra> extra;
     bool moving = false;
 };
