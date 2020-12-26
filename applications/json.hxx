@@ -86,7 +86,6 @@ public:
 
 
 private:
-    void deleteRoot(cJSON* rootPtr);
     void reset(int newType = cJSON_NULL); //重置为Null对象
     void updateRootWith(cJSON* rootPtr);
     Json getItem(const char* itemName) const;

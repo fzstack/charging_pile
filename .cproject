@@ -183,8 +183,8 @@
 									<listOptionValue builtIn="false" value="_TEST_AIR_HTTP_CLIENT"/>
 									<listOptionValue builtIn="false" value="_TEST_AIR_MQTT_CLIENT"/>
 									<listOptionValue builtIn="false" value="_TEST_ALI_IOT_DEVICE"/>
-									<listOptionValue builtIn="false" value="_TEST_JSON"/>
-									<listOptionValue builtIn="false" value="TEST_POST"/>
+									<listOptionValue builtIn="false" value="TEST_JSON"/>
+									<listOptionValue builtIn="false" value="_TEST_POST"/>
 									<listOptionValue builtIn="false" value="_TEST_QUEUE"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths.302877723" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths" useByScannerDiscovery="true" valueType="includePath">

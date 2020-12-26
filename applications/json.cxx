@@ -22,48 +22,33 @@
 using namespace std;
 using namespace std::string_literals;
 
-Json::Json(): root(shared_ptr<cJSON>(cJSON_CreateObject(), signal(&Json::deleteRoot, this))), extra(make_shared<Extra>()) {
+Json::Json(): root(shared_ptr<cJSON>(cJSON_CreateObject(), cJSON_Delete)), extra(make_shared<Extra>()) {
     extra->self = root.get();
     if(!extra->self) throw json_error{"json create failed"};
-
-    auto jsonStr = shared_ptr<char>(cJSON_PrintUnformatted(root.get()));
-    rt_kprintf("\033[31mjson create: {%08x} %s\n\033[0m", root.get(), jsonStr.get());
 }
 
-Json::Json(string_view value): root(shared_ptr<cJSON>(cJSON_CreateString(value.data()), signal(&Json::deleteRoot, this))), extra(make_shared<Extra>()) {
+Json::Json(string_view value): root(shared_ptr<cJSON>(cJSON_CreateString(value.data()), cJSON_Delete)), extra(make_shared<Extra>()) {
     extra->self = root.get();
     if(!extra->self) throw json_error{"json create failed"};
-
-    auto jsonStr = shared_ptr<char>(cJSON_PrintUnformatted(root.get()));
-    rt_kprintf("\033[31mjson create: {%08x} %s\n\033[0m", root.get(), jsonStr.get());
 }
 
 Json::Json(const char* value): Json(string_view(value)) {
 
 }
 
-Json::Json(bool value): root(shared_ptr<cJSON>(cJSON_CreateBool(value), signal(&Json::deleteRoot, this))), extra(make_shared<Extra>()) {
+Json::Json(bool value): root(shared_ptr<cJSON>(cJSON_CreateBool(value), cJSON_Delete)), extra(make_shared<Extra>()) {
     extra->self = root.get();
     if(!extra->self) throw json_error{"json create failed"};
-
-    auto jsonStr = shared_ptr<char>(cJSON_PrintUnformatted(root.get()));
-    rt_kprintf("\033[31mjson create: {%08x} %s\n\033[0m", root.get(), jsonStr.get());
 }
 
-Json::Json(int value): root(shared_ptr<cJSON>(cJSON_CreateNumber(value), signal(&Json::deleteRoot, this))), extra(make_shared<Extra>()) {
+Json::Json(int value): root(shared_ptr<cJSON>(cJSON_CreateNumber(value), cJSON_Delete)), extra(make_shared<Extra>()) {
     extra->self = root.get();
     if(!extra->self) throw json_error{"json create failed"};
-
-    auto jsonStr = shared_ptr<char>(cJSON_PrintUnformatted(root.get()));
-    rt_kprintf("\033[31mjson create: {%08x} %s\n\033[0m", root.get(), jsonStr.get());
 }
 
-Json::Json(nullptr_t): root(shared_ptr<cJSON>(cJSON_CreateNull(), signal(&Json::deleteRoot, this))), extra(make_shared<Extra>()){
+Json::Json(nullptr_t): root(shared_ptr<cJSON>(cJSON_CreateNull(), cJSON_Delete)), extra(make_shared<Extra>()){
     extra->self = root.get();
     if(!extra->self) throw json_error{"json create failed"};
-
-    auto jsonStr = shared_ptr<char>(cJSON_PrintUnformatted(root.get()));
-    rt_kprintf("\033[31mjson create: {%08x} %s\n\033[0m", root.get(), jsonStr.get());
 }
 
 Json::~Json() {
@@ -120,9 +105,7 @@ Json::Json(initializer_list<Json> obj): Json() {
         //if(!last) throw json_cast_error{"value not valid json"}; //TODO: 字面量支持
         //(*(Json*)this)[(string)*pKey] = move(*last);
         auto keyName = first->extra->self->valuestring;
-        //TODO: 以下写法无法通过test_json_init_list
-        ///getOrCreateItem(keyName) = move(Json(*last));
-        getOrCreateItem(keyName) = move(*last);
+        getOrCreateItem(keyName) = move(Json(*last));
     }
 }
 
@@ -131,11 +114,8 @@ Json::Json(shared_ptr<cJSON> root, cJSON* self, cJSON* parent): root(root), extr
     extra->self = self;
 }
 
-Json::Json(private_ctor, string_view value): root(shared_ptr<cJSON>(cJSON_Parse(value.data()), signal(&Json::deleteRoot, this))), extra(make_shared<Extra>()) {
+Json::Json(private_ctor, string_view value): root(shared_ptr<cJSON>(cJSON_Parse(value.data()), cJSON_Delete)), extra(make_shared<Extra>()) {
     extra->self = root.get();
-
-    auto jsonStr = shared_ptr<char>(cJSON_PrintUnformatted(root.get()));
-    rt_kprintf("\033[31mjson create: {%08x} %s\n\033[0m", root.get(), jsonStr.get());
 }
 
 Json Json::parse(string_view value) {
@@ -217,86 +197,26 @@ void Json::operator=(nullptr_t value) {
 }
 
 Json& Json::operator=(Json&& _other) {
-
-//    replaceWith(_other.extra->self);
-//    auto null = cJSON_CreateNull();
-//    _other.replaceWith(null);
-
-//
     auto self = extra->self;
-    const auto selfParent = extra->parent;
-    auto selfPrev = self->prev;
-    auto selfNext = self->next;
-    auto selfName = self->string;
+    auto other = _other.extra->self;
 
-    //删除self子树
+    self->type = other->type;
+    other->type = cJSON_NULL;
+
     cJSON_Delete(self->child);
+    self->child = other->child;
+    other->child = nullptr;
+
     if(self->valuestring != nullptr)
         cJSON_free(self->valuestring);
-    cJSON_free(self);
+    self->valuestring = other->valuestring;
+    other->valuestring = nullptr;
 
-    auto other = _other.extra->self;
-    const auto otherParent = _other.extra->parent;
-    auto otherPrev = other->prev;
-    auto otherNext = other->next;
-    auto otherName = other->string;
+    self->valuedouble = other->valuedouble;
+    other->valuedouble = 0;
 
-    //other代替原来self的位置
-    other->string = selfName; //替换名字
-    if(selfPrev == nullptr) { //首个元素
-        if(selfParent)
-            selfParent->child = other;
-        other->prev = nullptr;
-    } else {
-        selfPrev->next = other;
-        other->prev = selfPrev;
-    }
-
-    if(selfNext != nullptr) {
-        selfNext->prev = other;
-        other->next = selfNext;
-    } else {
-        other->next = nullptr;
-    }
-
-    if(!selfParent) {
-        auto guard = shared_ptr<void>(nullptr, [this](auto) {
-            moving = false;
-        });
-        moving = true;
-        updateRootWith(other);
-    }
-
-    auto null = cJSON_CreateNull();
-
-    //null替换原来other的位置
-    null->string = otherName;
-    if(otherPrev == nullptr) {
-        if(otherParent)
-            otherParent->child = null;
-        null->prev = nullptr;
-    } else {
-        otherPrev->next = null;
-        null->prev = otherPrev;
-    }
-
-    if(otherNext != nullptr) {
-        otherNext->prev = null;
-        null->next = otherNext;
-    } else {
-        null->next = nullptr;
-    }
-
-    //判断是否为根json
-    if(!otherParent) {
-        //更新智能指针
-        auto guard = shared_ptr<void>(nullptr, [&_other](auto) {
-            _other.moving = false;
-        });
-        _other.moving = true;
-        _other.updateRootWith(null);
-    }
-
+    self->valueint = other->valueint;
+    other->valueint = 0;
     return *this;
 }
 
@@ -310,22 +230,6 @@ Json& Json::operator=(const Json& other) {
     extra->self->string = name;
     cJSON_free(copied);
     return *this;
-}
-
-void Json::deleteRoot(cJSON* rootPtr) {
-    auto jsonStr = shared_ptr<char>(cJSON_PrintUnformatted(root.get()));
-    rt_kprintf("\033[33mjson try delete: {%08x} %s\n\033[0m", root.get(), jsonStr.get());
-    if(moving) {
-        //cJSON_free(rootPtr);
-    } else {
-        rt_uint32_t used;
-        rt_memory_info(RT_NULL, &used, RT_NULL);
-        rt_kprintf("\033[94mjson before delete, used mem: %d\n\033[0m", used);
-        rt_kprintf("\033[91mjson delete: {%08x} %s\n\033[0m", root.get(), jsonStr.get());
-        cJSON_Delete(rootPtr);
-        rt_memory_info(RT_NULL, &used, RT_NULL);
-        rt_kprintf("\033[94mjson after delete, used mem: %d\n\033[0m", used);
-    }
 }
 
 void Json::reset(int newType) {
@@ -343,8 +247,8 @@ void Json::reset(int newType) {
 }
 
 void Json::updateRootWith(cJSON* rootPtr) {
-    root.reset(rootPtr, signal(&Json::deleteRoot, this));
-    extra->self = rootPtr;
+    //root.reset(rootPtr, cJSON_Delete);
+    //*root = *rootPtr;
 }
 
 Json Json::getItem(const char* itemName) const {

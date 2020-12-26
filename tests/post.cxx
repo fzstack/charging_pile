@@ -258,7 +258,7 @@ static void test_post_closure() {
 
 //在同线程处理返回值
 static void test_post_ret_same_thread() {
-    using signals_t = Signals<vector<string>(Json, Json)>;
+    using signals_t = Signals<Json(Json, Json)>;
     ///已知bug: 优先级大于tshell会导致直接崩溃，优先级小于tshell会导致内存泄漏
     constexpr int threadPrio = 25;
     class TestThread: public Thread {
@@ -268,12 +268,8 @@ static void test_post_ret_same_thread() {
             //在本线程处理回调的返回值
 
             //signal被调用、在本线程
-            signal(post([](vector<string> result){
-                rt_kprintf("result is { ");
-                for(const auto& s: result) {
-                    rt_kprintf("\"%s\"%s ", s.c_str(), s != *result.rbegin() ? "," : "");
-                }
-                rt_kprintf("}\n");
+            signal(post([](Json result){
+                rt_kprintf("result: %s\n", to_string(result).c_str());
             }), 4, 5);
             rt_kprintf("push deliver with Json arg to queue\n");
             post.poll(PollType::OneShot);
@@ -284,9 +280,9 @@ static void test_post_ret_same_thread() {
         signals_t signal;
     };
     auto test = TestThread();
-    test.signal += [](Json a, Json b) -> vector<string> {
+    test.signal += [](Json a, Json b) -> Json {
         rt_kprintf("a: %s, b: %s\n", to_string(a).c_str(), to_string(b).c_str());
-        return {"hello", "world", "there"};
+        return Json::parse("{\"hello\": \"world\"}");
     };
     test.start();
     test.join();
