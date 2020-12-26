@@ -24,12 +24,6 @@ rt_thread_t DeliverBase::getPollingThread() {
 }
 
 void DeliverBase::enqueue() {
-    try {
-        rt_kprintf("deliver try share from this\n");
-        outer->queue.push(shared_from_this());
-    } catch(const exception& e) {
-        rt_kprintf("error: %s\n", e.what());
-    }
-
+    outer->queue.push(shared_from_this());
 }
 

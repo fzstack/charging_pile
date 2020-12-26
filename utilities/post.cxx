@@ -23,8 +23,7 @@ void Post::poll(PollType type) {
     });
     pollingThread = rt_thread_self();
 
-    //TODO: 同时多个event时候的调用顺序
-    //TODO: 改成使用队列实现！
+    //TODO: 队列插队规则?
     do {
         auto front = queue.pop();
         front->invoke();

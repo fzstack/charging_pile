@@ -282,7 +282,10 @@ static void test_post_ret_same_thread() {
     auto test = TestThread();
     test.signal += [](Json a, Json b) -> Json {
         rt_kprintf("a: %s, b: %s\n", to_string(a).c_str(), to_string(b).c_str());
-        return Json::parse("{\"hello\": \"world\"}");
+        return {
+            {"a", a},
+            {"b", b},
+        };
     };
     test.start();
     test.join();
