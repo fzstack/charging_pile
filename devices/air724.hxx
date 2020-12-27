@@ -47,7 +47,7 @@ private:
 
 public:
     template<class T>
-    auto make() -> std::enable_if_t<!std::is_same_v<help_make_t<T>, void>, std::shared_ptr<T>> {
+    auto make() -> std::enable_if_t<!std::is_void_v<help_make_t<T>>, std::shared_ptr<T>> {
         auto inst = std::shared_ptr<help_make_t<T>>(new help_make_t<T>(shared_from_this()));
         inst->init();
         return inst;

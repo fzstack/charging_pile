@@ -30,74 +30,41 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
   mqtt(mqtt),
   thread(shared_ptr<AliIotDeviceThread>(new AliIotDeviceThread(this))) {
     mqtt->onMessage += thread->post([this](string topic, string data) {
-        {
-            rt_kprintf("\033[35mthread: %s\033[0m\n", rt_thread_self()->name);
+        rt_kprintf("\033[35mthread: %s\033[0m\n", rt_thread_self()->name);
+        rt_kprintf("topic: %s\ndata: %s\n", topic.c_str(), data.c_str());
 
-            rt_uint32_t used;
-            rt_memory_info(RT_NULL, &used, RT_NULL);
-            rt_kprintf("\033[94mon message, used mem: %d\n\033[0m", used);
-
-            rt_kprintf("topic: %s\ndata: %s\n", topic.c_str(), data.c_str());
-
-            auto topics = split(topic, '/');
-
-            rt_memory_info(RT_NULL, &used, RT_NULL);
-            rt_kprintf("\033[94mafter split topic, used mem: %d\n\033[0m", used);
-
-            for(const auto& t: topics) {
-                rt_kprintf("%s\n", t.c_str());
-            }
-
-            auto json = Json::parse(data);
-            auto methods = split(json["method"_s], '.');
-
-            rt_memory_info(RT_NULL, &used, RT_NULL);
-            rt_kprintf("\033[94mafter split method, used mem: %d\n\033[0m", used);
-
-            auto action = map<string, function<void()>> {
-                {"thing", [&](){
-
-                }},
-                {"rrpc", [&](){
-                    auto serviceName = methods[MethodIdx::Service::Name];
-                    auto requestId = topics[TopicIdx::Rrpc::RequestId];
-                    rt_kprintf("\033[34mservice name: %s\nrequest id: %s\n\033[0m", serviceName.c_str(), requestId.c_str());
-                    auto service = services.find(serviceName);
-                    if(service == services.end()) return;
-    //                service->second(thread->post([this, requestId](Json result) {
-    //                    auto resp = Json {
-    //                        {"id", 233},
-    //                        {"code", 200},
-    //                        {"data", result},
-    //                    };
-    //                    auto topic = genTopic({"rrpc", "response", requestId});
-    //                    this->mqtt->publish(topic, to_string(resp));
-    //                }), json["params"]);
-
-                    //NOTE: 以下调用和返回值处理将发生在同线程
-
-                    service->second(thread->post([](Json result){
-                        //为什么这里会发生泄漏?
-                        rt_uint32_t used;
-                        rt_memory_info(RT_NULL, &used, RT_NULL);
-                        rt_kprintf("\033[94mon service callback return handler, used mem: %d\n\033[0m", used);
-                        rt_kprintf("\033[33mresult handling\n\033[0m");
-                        rt_kprintf("\033[33mresult: %s\n\033[0m", to_string(result).c_str());
-                        auto jsonStr = shared_ptr<char>(cJSON_PrintUnformatted(result.root.get()));
-                        rt_kprintf("\033[31mjson show: {%08x} %s\n\033[0m", result.root.get(), jsonStr.get());
-                    }), json["params"]);
-                }},
-            };
-            auto found = action.find(topics[TopicIdx::ThingOrRrpc]);
-            if(found != action.end()) found->second();
-
-            rt_kprintf("\033[35m------\033[0m\n");
+        auto topics = split(topic, '/');
+        for(const auto& t: topics) {
+            rt_kprintf("%s\n", t.c_str());
         }
+        auto json = Json::parse(data);
+        auto methods = split(json["method"_s], '.');
 
-        rt_uint32_t used;
-        rt_memory_info(RT_NULL, &used, RT_NULL);
-        rt_kprintf("\033[94mon message return, used mem: %d\n\033[0m", used);
+        auto action = map<string, function<void()>> {
+            {"thing", [&](){
 
+            }},
+            {"rrpc", [&](){
+                auto serviceName = methods[MethodIdx::Service::Name];
+                auto requestId = topics[TopicIdx::Rrpc::RequestId];
+                rt_kprintf("\033[34mservice name: %s\nrequest id: %s\n\033[0m", serviceName.c_str(), requestId.c_str());
+                auto service = services.find(serviceName);
+                if(service == services.end()) return;
+                service->second(thread->post([this, requestId](Json result) {
+                    auto resp = Json {
+                        {"id", 233},
+                        {"code", 200},
+                        {"data", result},
+                    };
+                    auto topic = genTopic({"rrpc", "response", requestId});
+                    this->mqtt->publish(topic, to_string(resp));
+                }), json["params"]);
+            }},
+        };
+        auto found = action.find(topics[TopicIdx::ThingOrRrpc]);
+        if(found != action.end()) found->second();
+
+        rt_kprintf("\033[35m------\033[0m\n");
     });
     thread->start();
 }

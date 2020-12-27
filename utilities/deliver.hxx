@@ -46,7 +46,6 @@ public:
         auto [result, args] = ctxQueue.pop();
         auto r = std::apply(f, args);
         result(std::forward<R>(r));
-
     }
 private:
     L f;
