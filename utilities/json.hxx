@@ -7,8 +7,8 @@
  * Date           Author       Notes
  * 2020-12-19     imgcr       the first version
  */
-#ifndef APPLICATIONS_JSON_HXX_
-#define APPLICATIONS_JSON_HXX_
+#ifndef UTILITIES_JSON_HXX_
+#define UTILITIES_JSON_HXX_
 
 #include <rtthread.h>
 #include <cJSON.h>
@@ -48,13 +48,22 @@ public:
     Json(std::initializer_list<Json> obj);
 private:
     Json(std::shared_ptr<cJSON> root, cJSON* self, cJSON* parent);
+
+    enum class CtorType {
+        FromString,
+        FromArray,
+    };
+    template<CtorType T>
     class private_ctor{};
-    Json(private_ctor, std::string_view value);
+
+    Json(private_ctor<CtorType::FromString>, std::string_view value);
+    Json(private_ctor<CtorType::FromArray>, std::initializer_list<Json> obj);
     //Json(JsonWrapper<void> wrapper);
 public:
     ~Json();
 public:
     static Json parse(std::string_view value);
+    static Json array(std::initializer_list<Json> obj);
 
 private:
 
@@ -65,6 +74,8 @@ public:
     Json operator[](std::string_view itemName) const;
     Json operator[](const char* itemName) const;
     Json operator[](const char* itemName);
+
+    Json operator[](int index) const;
 
 //    template<class T>
 //    T operator[](JsonWrapper<T> itemName) {
@@ -89,10 +100,10 @@ public:
     Json& operator=(Json&& other);
     Json& operator=(const Json& other);
 
-
 private:
     void reset(int newType = cJSON_NULL); //重置为Null对象
-    void updateRootWith(cJSON* rootPtr);
+    void moveNode(cJSON* dest, cJSON* source);
+    void toArray(std::initializer_list<Json> obj);
     Json getItem(const char* itemName) const;
     Json getOrCreateItem(const char* itemName);
     static char* copyStr(char* str);
@@ -113,11 +124,11 @@ class json_error: public std::runtime_error {
     using std::runtime_error::runtime_error;
 };
 
-class json_item_error: public json_error {
+class json_type_error: public json_error {
     using json_error::json_error;
 };
 
-class json_cast_error: public json_error {
+class json_item_error: public json_error {
     using json_error::json_error;
 };
 
@@ -146,4 +157,4 @@ JsonWrapper<void> operator "" _a( const char *col, size_t n);
 
 
 
-#endif /* APPLICATIONS_JSON_HXX_ */
+#endif /* UTILITIES_JSON_HXX_ */

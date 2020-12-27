@@ -8,6 +8,7 @@
  * 2020-12-18     imgcr       the first version
  */
 #ifndef APPLICATIONS_ALI_IOT_DEVICE_HXX_
+
 #define APPLICATIONS_ALI_IOT_DEVICE_HXX_
 
 #include <components/http_client.hxx>
@@ -18,7 +19,7 @@
 #include <vector>
 #include <stdexcept>
 #include <functional>
-#include <json.hxx>
+#include <utilities/json.hxx>
 #include <utilities/signals.hxx>
 #include "ali_iot_device_thread.hxx"
 

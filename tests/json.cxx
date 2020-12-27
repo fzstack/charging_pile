@@ -234,9 +234,33 @@ static void test_json_init_list() {
                     {"key1", "value1"},
                     {"key2", "value2"},
                 }},
+                {"array", {
+                    0,
+                    nullptr,
+                    false,
+                    "void",
+                    Json::array({"arr", "ele"}),
+                    {
+                        {"type", "obj"},
+                        {"version", "1.0"},
+                        {"extra", nullptr},
+                    },
+                }},
             }},
         };
         rt_kprintf("%s\n", to_string(json).c_str());
+    } catch(const exception& e) {
+        LOG_E("err: %s", e.what());
+    }
+}
+
+static void test_json_index() {
+    try {
+        auto json = Json {"test", "json", "index"};
+        for(auto i = 0; i < 4; i++) {
+            auto str = string(json[i]);
+            LOG_I("[%d]=%s", i, str.c_str());
+        }
     } catch(const exception& e) {
         LOG_E("err: %s", e.what());
     }
@@ -263,7 +287,8 @@ MSH_CMD_EXPORT(test_json_dyn_type, );
 MSH_CMD_EXPORT(test_json_field_fork, );
 MSH_CMD_EXPORT(test_json_move_assign, );
 MSH_CMD_EXPORT(test_json_copy_assign, );
-MSH_CMD_EXPORT(test_json_parse, );
 MSH_CMD_EXPORT(test_json_init_list, );
+MSH_CMD_EXPORT(test_json_index, );
+MSH_CMD_EXPORT(test_json_parse, );
 INIT_APP_EXPORT(init_test_json);
 #endif

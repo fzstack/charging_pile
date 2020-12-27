@@ -11,8 +11,8 @@
 #include "post.hxx"
 #include <utilities/signals.hxx>
 #include <string>
-#include <applications/json.hxx>
 #include <Thread.h>
+#include <utilities/json.hxx>
 #include <vector>
 #include <numeric>
 

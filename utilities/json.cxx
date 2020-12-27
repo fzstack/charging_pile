@@ -7,10 +7,10 @@
  * Date           Author       Notes
  * 2020-12-19     imgcr       the first version
  */
-#include "json.hxx"
 #include <cJSON_util.h>
 #include <string>
 #include <utilities/err.hxx>
+#include "json.hxx"
 #include <utilities/signals.hxx>
 #include <variant>
 #include <map>
@@ -94,8 +94,7 @@ Json::Json(initializer_list<Json> obj): Json() {
                 getOrCreateItem(childName) = move(child.getItem(childName));
             }
         } else {
-            //数组
-            throw not_implemented{"TODO array"};
+            toArray(obj);
         }
 
 
@@ -114,12 +113,21 @@ Json::Json(shared_ptr<cJSON> root, cJSON* self, cJSON* parent): root(root), extr
     extra->self = self;
 }
 
-Json::Json(private_ctor, string_view value): root(shared_ptr<cJSON>(cJSON_Parse(value.data()), cJSON_Delete)), extra(make_shared<Extra>()) {
+Json::Json(private_ctor<CtorType::FromString>, string_view value): root(shared_ptr<cJSON>(cJSON_Parse(value.data()), cJSON_Delete)), extra(make_shared<Extra>()) {
     extra->self = root.get();
 }
 
+Json::Json(private_ctor<CtorType::FromArray>, std::initializer_list<Json> obj): Json() {
+    toArray(obj);
+}
+
 Json Json::parse(string_view value) {
-    auto inst = Json(private_ctor{}, value);
+    auto inst = Json(private_ctor<CtorType::FromString>{}, value);
+    return inst;
+}
+
+Json Json::array(std::initializer_list<Json> obj) {
+    auto inst = Json(private_ctor<CtorType::FromArray>{}, obj);
     return inst;
 }
 
@@ -147,27 +155,37 @@ Json Json::operator[](const char* itemName) {
     return getOrCreateItem(itemName);
 }
 
+Json Json::operator[](int index) const {
+    if(extra->self->type != cJSON_Array)
+        throw json_type_error{"json not an array"};
+
+    auto ele = cJSON_GetArrayItem(extra->self, index);
+    if(ele == nullptr)
+        throw json_item_not_found{"json element ["s + to_string(index) + "] not found"s};
+    return Json(root, ele, extra->self);
+}
+
 Json::operator int() const {
     if(extra->self->type != cJSON_Number)
-        throw json_cast_error{"not a number"};
+        throw json_type_error{"json not a number"};
     return extra->self->valueint;
 }
 
 Json::operator string() const {
     if(extra->self->type != cJSON_String)
-        throw json_cast_error{"not a string"};
+        throw json_type_error{"json not a string"};
     return extra->self->valuestring;
 }
 
 Json::operator bool() const {
     if(extra->self->type != cJSON_True && extra->self->type != cJSON_False)
-        throw json_cast_error{"not a boolean"};
+        throw json_type_error{"json not a boolean"};
     return extra->self->type == cJSON_True;
 }
 
 Json::operator nullptr_t() const {
     if(extra->self->type != cJSON_NULL)
-        throw json_cast_error{"not null"};
+        throw json_type_error{"json not null"};
     return nullptr;
 }
 
@@ -196,27 +214,8 @@ void Json::operator=(nullptr_t value) {
     if(extra->self->type != cJSON_NULL) reset(cJSON_NULL);
 }
 
-Json& Json::operator=(Json&& _other) {
-    auto self = extra->self;
-    auto other = _other.extra->self;
-
-    self->type = other->type;
-    other->type = cJSON_NULL;
-
-    cJSON_Delete(self->child);
-    self->child = other->child;
-    other->child = nullptr;
-
-    if(self->valuestring != nullptr)
-        cJSON_free(self->valuestring);
-    self->valuestring = other->valuestring;
-    other->valuestring = nullptr;
-
-    self->valuedouble = other->valuedouble;
-    other->valuedouble = 0;
-
-    self->valueint = other->valueint;
-    other->valueint = 0;
+Json& Json::operator=(Json&& other) {
+    moveNode(extra->self, other.extra->self);
     return *this;
 }
 
@@ -246,12 +245,46 @@ void Json::reset(int newType) {
     c->type = newType;
 }
 
-void Json::updateRootWith(cJSON* rootPtr) {
-    //root.reset(rootPtr, cJSON_Delete);
-    //*root = *rootPtr;
+void Json::moveNode(cJSON* dest, cJSON* source) {
+    dest->type = source->type;
+    source->type = cJSON_NULL;
+
+    cJSON_Delete(dest->child);
+    dest->child = source->child;
+    source->child = nullptr;
+
+    if(dest->valuestring != nullptr)
+        cJSON_free(dest->valuestring);
+    dest->valuestring = source->valuestring;
+    source->valuestring = nullptr;
+
+    dest->valuedouble = source->valuedouble;
+    source->valuedouble = 0;
+
+    dest->valueint = source->valueint;
+    source->valueint = 0;
+}
+
+void Json::toArray(std::initializer_list<Json> obj) {
+    extra->self->type = cJSON_Array; //类型就是这个，有孩子
+    cJSON_Delete(extra->self->child);
+    auto prevNode = (cJSON*)nullptr;
+    for(auto& ele: obj) {
+        auto curNode = cJSON_CreateNull();
+        moveNode(curNode, ele.extra->self);
+        curNode->prev = prevNode;
+        if(prevNode != nullptr) {
+            prevNode->next = curNode;
+        } else {
+            extra->self->child = curNode;
+        }
+        prevNode = curNode;
+    }
 }
 
 Json Json::getItem(const char* itemName) const {
+    if(extra->self->type != cJSON_Object)
+        throw json_type_error{"json not a object"};
     auto item = cJSON_GetObjectItem(extra->self, itemName);
     if(!item)
         throw json_item_not_found{"json field \""s + itemName + "\" not found"s};
