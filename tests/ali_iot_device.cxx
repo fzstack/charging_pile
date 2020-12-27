@@ -15,6 +15,7 @@
 #include <ulog.h>
 
 using namespace std;
+using namespace json_literals;
 
 #ifdef TEST_ALI_IOT_DEVICE
 static void test_ali_iot_device() {
@@ -25,9 +26,18 @@ static void test_ali_iot_device() {
     auto aliIot = Instances::aliIotDevice;
     try {
 
-        aliIot->services["query"] += [](Json params) -> Json {
+        aliIot->services["query"] += [](const Json params) -> Json {
             rt_kprintf("\033[34mparams: %s\n\033[0m", to_string(params).c_str());
-            return "test result";
+            return {};
+        };
+
+        aliIot->services["control"] += [](const Json params) -> Json {
+            rt_kprintf("\033[34mport: %d\n\033[0m", params["not_found"_i]);
+            rt_kprintf("\033[34mtimer_id: %d\n\033[0m", params["timer_id"_i]);
+            rt_kprintf("\033[34mminutes: %d\n\033[0m", params["minutes"_i]);
+            return {
+                {"state", 1},
+            };
         };
 
         aliIot->login("863701042917152", "a1tltf2GJUn", "e96d5f79301c20994cb2e984e3cad47b");

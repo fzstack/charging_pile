@@ -14,7 +14,7 @@ namespace Config {
 class Os {
 public:
     static constexpr int
-        kThreadDefaultStackSize = 2048,
+        kThreadDefaultStackSize = 4096,
         kAliIotDeviceThreadPrio = 10,
         kAliIotDeviceThreadStackSize = kThreadDefaultStackSize;
 

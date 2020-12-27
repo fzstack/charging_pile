@@ -20,8 +20,10 @@ class DeliverBase: private Nested<Post>, public std::enable_shared_from_this<Del
     using base_t = Nested<Post>;
 protected:
     DeliverBase(outer_t* outer);
-
+public:
+    void dispose();
     void enqueue();
+
     rt_thread_t getPollingThread();
 public:
     virtual void invoke() = 0;

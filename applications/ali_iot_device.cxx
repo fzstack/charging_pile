@@ -29,6 +29,7 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
   http(http),
   mqtt(mqtt),
   thread(shared_ptr<AliIotDeviceThread>(new AliIotDeviceThread(this))) {
+
     mqtt->onMessage += thread->post([this](string topic, string data) {
         rt_kprintf("\033[35mthread: %s\033[0m\n", rt_thread_self()->name);
         rt_kprintf("topic: %s\ndata: %s\n", topic.c_str(), data.c_str());
@@ -61,6 +62,7 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
                 }), json["params"]);
             }},
         };
+
         auto found = action.find(topics[TopicIdx::ThingOrRrpc]);
         if(found != action.end()) found->second();
 

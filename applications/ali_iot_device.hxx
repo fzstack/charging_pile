@@ -78,7 +78,7 @@ private:
     std::string deviceName, productKey;
 
 public:
-    std::map<std::string, Signals<Json(Json)>> services = {};
+    std::map<std::string, Signals<Json(const Json)>> services = {};
 private:
     static const char* kApiAuth;
 

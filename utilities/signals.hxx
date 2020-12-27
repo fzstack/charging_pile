@@ -18,6 +18,7 @@
 #include <rtthread.h>
 #include <tuple>
 #include <memory>
+#include <stdexcept>
 
 template<class T>
 struct Signals;
@@ -69,9 +70,20 @@ struct Signals<R(P...)> {
     }
 
     template<class L, class F>
-    void operator()(std::shared_ptr<Deliver<L, F>> r, P ...p) {
+    void operator()(std::shared_ptr<Deliver<L, F>>&& r, P ...p) {
         for(const auto& cb: cbs) {
             auto signal = ret_sig_t();
+            rt_kprintf("is rvalue!!\n");
+            r->addTo(signal, DeliverType::ShortTerm);
+            cb(signal, p...);
+        }
+    }
+
+    template<class L, class F>
+    void operator()(const std::shared_ptr<Deliver<L, F>>& r, P ...p) {
+        for(const auto& cb: cbs) {
+            auto signal = ret_sig_t();
+            rt_kprintf("is lvalue other func!!\n");
             r->addTo(signal);
             cb(signal, p...);
         }
@@ -129,9 +141,20 @@ struct Signals<void(P...)> {
     }
 
     template<class L, class F>
-    void operator()(std::shared_ptr<Deliver<L, F>> r, P ...p) {
+    void operator()(std::shared_ptr<Deliver<L, F>>&& r, P ...p) {
         for(const auto& cb: cbs) {
             auto signal = ret_sig_t();
+            rt_kprintf("is rvalue!!\n");
+            r->addTo(signal, DeliverType::ShortTerm);
+            cb(signal, p...);
+        }
+    }
+
+    template<class L, class F>
+    void operator()(const std::shared_ptr<Deliver<L, F>>& r, P ...p) {
+        for(const auto& cb: cbs) {
+            auto signal = ret_sig_t();
+            rt_kprintf("is lvalue other func!!\n");
             r->addTo(signal);
             cb(signal, p...);
         }

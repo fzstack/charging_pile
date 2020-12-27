@@ -66,8 +66,13 @@ public:
     Json operator[](const char* itemName) const;
     Json operator[](const char* itemName);
 
+//    template<class T>
+//    T operator[](JsonWrapper<T> itemName) {
+//        return (*this)[itemName.get()];
+//    }
+
     template<class T>
-    T operator[](JsonWrapper<T> itemName) {
+    T operator[](JsonWrapper<T> itemName) const {
         return (*this)[itemName.get()];
     }
 

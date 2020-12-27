@@ -24,6 +24,11 @@ struct Signals;
 template <class L, class F = decltype(&L::operator())>
 class Deliver;
 
+enum class DeliverType {
+    LongTerm,
+    ShortTerm,
+};
+
 template<class L, class R, class C, class... A>
 class Deliver<L, R(C::*)(A...) const>: public DeliverBase {
     using base_t = DeliverBase;
@@ -34,18 +39,20 @@ public:
 
     }
 private:
-    void addTo(signals_cb_t& signal) {
-        signal += [this](typename signals_cb_t::ret_sig_t r, A&&... a){
-            ctxQueue.push({r, {std::forward<A>(a)...}});
+    void addTo(signals_cb_t& signal, DeliverType type = DeliverType::LongTerm) {
+        signal += [this, type](typename signals_cb_t::ret_sig_t r, A&&... a){
+            ctxQueue.push({r, {std::forward<A>(a)...}, type});
             enqueue();
         };
     }
 public:
     virtual void invoke() override {
         if(ctxQueue.empty()) return;
-        auto [result, args] = ctxQueue.pop();
+        auto [result, args, type] = ctxQueue.pop();
         auto r = std::apply(f, args);
         result(std::forward<R>(r));
+        if(type == DeliverType::ShortTerm)
+            dispose();
     }
 private:
     L f;
@@ -62,22 +69,24 @@ public:
 
     }
 private:
-    void addTo(signals_cb_t& signal) {
-        signal += [this](typename signals_cb_t::ret_sig_t r, A&&... a){
-            ctxQueue.push({r, {std::forward<A>(a)...}});
+    void addTo(signals_cb_t& signal, DeliverType type = DeliverType::LongTerm) {
+        signal += [this, type](typename signals_cb_t::ret_sig_t r, A&&... a){
+            ctxQueue.push({r, {std::forward<A>(a)...}, type});
             enqueue();
         };
     }
 public:
     virtual void invoke() override {
         if(ctxQueue.empty()) return;
-        auto [result, args] = ctxQueue.pop();
+        auto [result, args, type] = ctxQueue.pop();
         std::apply(f, args);
         result();
+        if(type == DeliverType::ShortTerm)
+            dispose();
     }
 private:
     L f;
-    Queue<std::pair<typename signals_cb_t::ret_sig_t, std::tuple<A...>>> ctxQueue = {};
+    Queue<std::tuple<typename signals_cb_t::ret_sig_t, std::tuple<A...>, DeliverType>> ctxQueue = {};
 };
 
 #endif /* UTILITIES_DELIVER_HXX_ */
