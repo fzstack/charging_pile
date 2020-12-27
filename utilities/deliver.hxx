@@ -49,8 +49,13 @@ public:
     virtual void invoke() override {
         if(ctxQueue.empty()) return;
         auto [result, args, type] = ctxQueue.pop();
-        auto r = std::apply(f, args);
-        result(std::forward<R>(r));
+        try {
+            auto r = std::apply(f, args);
+            result(std::forward<R>(r));
+        } catch(const std::exception& e) {
+            result(std::current_exception());
+        }
+
         if(type == DeliverType::ShortTerm)
             dispose();
     }
@@ -79,8 +84,12 @@ public:
     virtual void invoke() override {
         if(ctxQueue.empty()) return;
         auto [result, args, type] = ctxQueue.pop();
-        std::apply(f, args);
-        result();
+        try {
+            std::apply(f, args);
+            result({});
+        } catch(const std::exception& e) {
+            result({std::current_exception()});
+        }
         if(type == DeliverType::ShortTerm)
             dispose();
     }

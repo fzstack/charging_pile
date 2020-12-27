@@ -19,6 +19,8 @@
 #include <tuple>
 #include <memory>
 #include <stdexcept>
+#include <variant>
+#include <optional>
 
 template<class T>
 struct Signals;
@@ -34,7 +36,7 @@ struct Signals<R(P...)> {
     template<int N>
     using param_t = std::tuple_element_t<N, params_t>;
     using cb_f = R(P...);
-    using ret_f = void(R);
+    using ret_f = void(std::variant<R, std::exception_ptr>);
     using ret_sig_t = Signals<ret_f>;
     using signal_f = void(ret_sig_t, P...);
 
@@ -44,8 +46,14 @@ struct Signals<R(P...)> {
 
     void operator+=(std::function<cb_f> cb) {
         (*this) += [=](ret_sig_t r, P ...p) {
-            auto result = cb(p...);
-            r(result);
+            try {
+                auto result = cb(p...);
+                r(result);
+            } catch(const std::exception& e) {
+                r(std::current_exception());
+            }
+
+
         };
     }
 
@@ -106,7 +114,7 @@ struct Signals<void(P...)> {
     template<int N>
     using param_t = std::tuple_element_t<N, params_t>;
     using cb_f = void(P...);
-    using ret_f = void(void);
+    using ret_f = void(std::optional<std::exception_ptr>);
     using ret_sig_t = Signals<ret_f>;
     using signal_f = void(ret_sig_t, P...);
 
@@ -116,8 +124,12 @@ struct Signals<void(P...)> {
 
     void operator+=(std::function<cb_f> cb) {
         (*this) += [=](ret_sig_t r, P ...p) {
-            cb(p...);
-            r();
+            try {
+                cb(p...);
+                r({});
+            } catch(const std::exception& e) {
+                r({std::current_exception()});
+            }
         };
     }
 

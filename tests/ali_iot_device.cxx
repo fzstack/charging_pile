@@ -40,6 +40,10 @@ static void test_ali_iot_device() {
             };
         };
 
+        //aliIot.emit("event", {}, [](){});
+
+        //
+
         aliIot->login("863701042917152", "a1tltf2GJUn", "e96d5f79301c20994cb2e984e3cad47b");
 
 //

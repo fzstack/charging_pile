@@ -15,6 +15,7 @@
 #include <string_view>
 #include <components/http_form_request_builder.hxx>
 #include <utilities/string.hxx>
+#include <variant>
 
 #define LOG_TAG "app.ali_iot"
 #define LOG_LVL LOG_LVL_DBG
@@ -51,11 +52,18 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
                 rt_kprintf("\033[34mservice name: %s\nrequest id: %s\n\033[0m", serviceName.c_str(), requestId.c_str());
                 auto service = services.find(serviceName);
                 if(service == services.end()) return;
-                service->second(thread->post([this, requestId](Json result) {
+                service->second(thread->post([this, requestId, serviceName](variant<Json, exception_ptr> result) {
+                    auto json = get_if<Json>(&result);
+                    try {
+                        if(auto err = get_if<exception_ptr>(&result)) std::rethrow_exception(*err);
+                    } catch (const exception& e) {
+                        rt_kprintf("\033[31mservice [%s] invoke failed: %s\n\033[0m", serviceName.c_str(), e.what());
+                        return;
+                    }
                     auto resp = Json {
                         {"id", 233},
                         {"code", 200},
-                        {"data", result},
+                        {"data", *json},
                     };
                     auto topic = genTopic({"rrpc", "response", requestId});
                     this->mqtt->publish(topic, to_string(resp));

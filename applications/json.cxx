@@ -254,7 +254,7 @@ void Json::updateRootWith(cJSON* rootPtr) {
 Json Json::getItem(const char* itemName) const {
     auto item = cJSON_GetObjectItem(extra->self, itemName);
     if(!item)
-        throw json_item_not_found{itemName + " not found"s};
+        throw json_item_not_found{"json field \""s + itemName + "\" not found"s};
     return Json(root, item, extra->self);
 }
 
