@@ -266,6 +266,25 @@ static void test_json_index() {
     }
 }
 
+static void test_json_iterator() {
+    try {
+        auto obj = Json {
+            {"field1", "value1"},
+            {"field2", "value2"},
+            {"field3", "value3"},
+        };
+        for(const auto& [key, value]: obj) {
+            LOG_I("key: %s, value: %s", string(key).c_str(), to_string(value).c_str());
+        }
+        auto arr = Json::array({"hello", "c++", "iterator"});
+        for(const auto& [key, value]: arr) {
+            LOG_I("key: %s, value: %s", to_string(key).c_str(), to_string(value).c_str());
+        }
+    } catch(const exception& e) {
+        LOG_E("err: %s", e.what());
+    }
+}
+
 static void test_json_parse() {
     try {
         auto json = Json::parse("{\"test\": \"hello\"}");
@@ -289,6 +308,7 @@ MSH_CMD_EXPORT(test_json_move_assign, );
 MSH_CMD_EXPORT(test_json_copy_assign, );
 MSH_CMD_EXPORT(test_json_init_list, );
 MSH_CMD_EXPORT(test_json_index, );
+MSH_CMD_EXPORT(test_json_iterator, );
 MSH_CMD_EXPORT(test_json_parse, );
 INIT_APP_EXPORT(init_test_json);
 #endif

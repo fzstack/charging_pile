@@ -131,6 +131,20 @@ Json Json::array(std::initializer_list<Json> obj) {
     return inst;
 }
 
+JsonIterator Json::begin() {
+    auto self = extra->self;
+    if(self->type != cJSON_Object && self->type != cJSON_Array)
+        throw json_type_error{"json not a container"};
+    if(!self->child)
+        return {};
+
+    return {Json(root, self->child, self), self->type == cJSON_Array};
+}
+
+JsonIterator Json::end() {
+    return {};
+}
+
 Json::Type Json::getType() const {
     return map<int, Type> {
         {cJSON_NULL, Type::Null},

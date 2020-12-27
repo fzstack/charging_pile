@@ -19,11 +19,13 @@
 #include <initializer_list>
 #include <any>
 #include <variant>
+#include "json_iterator.hxx"
 
 template<class T>
 class JsonWrapper;
 
 class Json;
+class JsonIterator;
 
 namespace std {
 string to_string(Json value);
@@ -31,6 +33,7 @@ string to_string(Json value);
 
 class Json {
     friend std::string std::to_string(Json value);
+    friend class JsonIterator;
 public:
 
     enum class Type {
@@ -65,16 +68,13 @@ public:
     static Json parse(std::string_view value);
     static Json array(std::initializer_list<Json> obj);
 
-private:
-
-
 public:
+    JsonIterator begin();
+    JsonIterator end();
     Type getType() const;
-
     Json operator[](std::string_view itemName) const;
     Json operator[](const char* itemName) const;
     Json operator[](const char* itemName);
-
     Json operator[](int index) const;
 
 //    template<class T>
