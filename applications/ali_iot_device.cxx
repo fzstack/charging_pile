@@ -31,6 +31,14 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
   mqtt(mqtt),
   thread(shared_ptr<AliIotDeviceThread>(new AliIotDeviceThread(this))) {
 
+    services["property"] += thread->post([](Json params) -> Json {
+
+
+
+        throw not_implemented{"not implemented"};
+        return {};
+    });
+
     mqtt->onMessage += thread->post([this](string topic, string data) {
         rt_kprintf("\033[35mthread: %s\033[0m\n", rt_thread_self()->name);
         rt_kprintf("topic: %s\ndata: %s\n", topic.c_str(), data.c_str());
@@ -44,7 +52,23 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
 
         auto action = map<string, function<void()>> {
             {"thing", [&](){
-
+                auto action = map<string, function<void()>> {
+                    {"service", [&]() {
+                        auto identifier = topics[TopicIdx::Thing::Service::Identifier];
+                        auto service = services.find(identifier);
+                        if(service == services.end()) return;
+                        service->second(thread->post([this, identifier](variant<Json, exception_ptr> result){
+                            try {
+                                if(auto err = get_if<exception_ptr>(&result)) std::rethrow_exception(*err);
+                            } catch (const exception& e) {
+                                rt_kprintf("\033[31mservice [%s] invoke failed: %s\n\033[0m", identifier.c_str(), e.what());
+                                return;
+                            }
+                        }), json["params"]);
+                    }}
+                };
+                auto found = action.find(topics[TopicIdx::Thing::Type]);
+                if(found != action.end()) found->second();
             }},
             {"rrpc", [&](){
                 auto serviceName = methods[MethodIdx::Service::Name];

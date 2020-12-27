@@ -55,6 +55,11 @@ private:
             enum Value {
                 Type = 5,
             };
+            struct Service {
+                enum Value {
+                    Identifier = 6,
+                };
+            };
         };
         struct Rrpc {
             enum Value {
@@ -78,7 +83,9 @@ private:
     std::string deviceName, productKey;
 
 public:
-    std::map<std::string, Signals<Json(const Json)>> services = {};
+    std::map<std::string, Signals<Json(const Json)>>
+        services = {},
+        properties = {};
 private:
     static const char* kApiAuth;
 

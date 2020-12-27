@@ -61,7 +61,7 @@ public:
     }
 private:
     L f;
-    Queue<std::pair<typename signals_cb_t::ret_sig_t, std::tuple<A...>>> ctxQueue = {};
+    Queue<std::tuple<typename signals_cb_t::ret_sig_t, std::tuple<A...>, DeliverType>> ctxQueue = {};
 };
 
 template<class L, class C, class... A>
