@@ -25,9 +25,12 @@ static void test_ali_iot_device() {
 
     auto aliIot = Instances::aliIotDevice;
     try {
-
-        aliIot->services["query"] += [](const Json params) -> Json {
+        aliIot->services["query"] += [=](const Json params) -> Json {
             rt_kprintf("\033[34mparams: %s\n\033[0m", to_string(params).c_str());
+            aliIot->emit("ic_number", {
+                {"port", 1},
+                {"ic_number", "test"},
+            });
             return {};
         };
 
@@ -40,21 +43,11 @@ static void test_ali_iot_device() {
             };
         };
 
-        //aliIot.emit("event", {}, [](){});
-
-        //
+        aliIot->properties["version"] += [](const Json value) {
+            rt_kprintf("\033[34mversion new value: %s\n\033[0m", to_string(value).c_str());
+        };
 
         aliIot->login("863701042917152", "a1tltf2GJUn", "e96d5f79301c20994cb2e984e3cad47b");
-
-//
-//        aliIot->servcies["control"] += [](auto data) {
-//
-//        };
-
-//        aliIot->on("control", [](auto data) {
-//
-//           return Json{};
-//        });
     } catch(exception& e) {
         LOG_E("%s", e.what());
     }

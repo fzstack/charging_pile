@@ -29,15 +29,7 @@ class AliIotDevice {
 public:
     AliIotDevice(std::shared_ptr<HttpClient> http, std::shared_ptr<MqttClient> mqtt);
     void login(std::string_view deviceName, std::string_view productKey, std::string_view deviceSecret);
-
-//    template<class T>
-//    void on(std::string_view serviceName, T&& handler) {
-//        auto serviceNameStr = std::to_string(serviceName);
-//        auto found = services.find(serviceNameStr);
-//        if(found == services.end()) {
-//            services[serviceNameStr] += std::forward<T>(handler);
-//        }
-//    }
+    void emit(std::string_view event, Json params);
 
 private:
     std::string genTopic(std::initializer_list<std::string_view> suffixes);
@@ -47,10 +39,7 @@ private:
 private:
     struct TopicIdx {
         enum Value {
-            Sys = 1,
-            ProductKey,
-            DeviceName,
-            ThingOrRrpc,
+            Sys = 1, ProductKey, DeviceName, ThingOrRrpc,
         };
         struct Thing {
             enum Value {
@@ -84,9 +73,9 @@ private:
     std::string deviceName, productKey;
 
 public:
-    std::map<std::string, Signals<Json(const Json)>>
-        services = {},
-        properties = {};
+    std::map<std::string, Signals<Json(const Json)>> services = {};
+    std::map<std::string, Signals<void(const Json)>> properties = {};
+
 private:
     static const char* kApiAuth;
 
@@ -97,6 +86,10 @@ class ali_iot_error: public std::runtime_error {
 };
 
 class ali_iot_auth_failed: public ali_iot_error {
+    using ali_iot_error::ali_iot_error;
+};
+
+class ali_iot_do_not_reply: public ali_iot_error {
     using ali_iot_error::ali_iot_error;
 };
 

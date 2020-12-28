@@ -32,6 +32,10 @@ Json::Json(string_view value): root(shared_ptr<cJSON>(cJSON_CreateString(value.d
     if(!extra->self) throw json_error{"json create failed"};
 }
 
+Json::Json(string value): Json(string_view(value)) {
+
+}
+
 Json::Json(const char* value): Json(string_view(value)) {
 
 }

@@ -16,6 +16,7 @@
 #include <utilities/json.hxx>
 #include <utilities/string.hxx>
 #include <variant>
+#include "ali_iot_alink.hxx"
 
 #define LOG_TAG "app.ali_iot"
 #define LOG_LVL LOG_LVL_DBG
@@ -31,11 +32,21 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
   mqtt(mqtt),
   thread(shared_ptr<AliIotDeviceThread>(new AliIotDeviceThread(this))) {
 
-    services["property"] += thread->post([](Json params) -> Json {
-
-
-
-        throw not_implemented{"not implemented"};
+    services["property"] += thread->post([this](Json params) -> Json {
+        for(const auto& kvp: params) {
+            auto& [key, value] = kvp;
+            auto name = (string)key;
+            rt_kprintf("\033[34mprop set %s: %s\n\033[0m", name.c_str(), to_string(value).c_str());
+            auto property = properties.find(name);
+            if(property == properties.end()) continue;
+            property->second([name](optional<exception_ptr> result){
+                try {
+                    if(result) std::rethrow_exception(*result);
+                } catch (const exception& e) {
+                    rt_kprintf("\033[31mprop [%s] invoke failed: %s\n\033[0m", name.c_str(), e.what());
+                }
+            }, value);
+        }
         return {};
     });
 
@@ -47,8 +58,8 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
         for(const auto& t: topics) {
             rt_kprintf("%s\n", t.c_str());
         }
-        auto json = Json::parse(data);
-        auto methods = split(json["method"_s], '.');
+        auto request = Alink::Request::from(data);
+        auto methods = request.getMethod();
 
         auto action = map<string, function<void()>> {
             {"thing", [&](){
@@ -57,14 +68,17 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
                         auto identifier = topics[TopicIdx::Thing::Service::Identifier];
                         auto service = services.find(identifier);
                         if(service == services.end()) return;
-                        service->second(thread->post([this, identifier](variant<Json, exception_ptr> result){
+                        service->second(thread->post([this, identifier, topic](variant<Json, exception_ptr> result){
+                            auto json = get_if<Json>(&result);
                             try {
                                 if(auto err = get_if<exception_ptr>(&result)) std::rethrow_exception(*err);
                             } catch (const exception& e) {
                                 rt_kprintf("\033[31mservice [%s] async invoke failed: %s\n\033[0m", identifier.c_str(), e.what());
                                 return;
                             }
-                        }), json["params"]);
+                            auto reply = Alink::Reply(*json);
+                            this->mqtt->publish(topic + "_reply", (string)reply);
+                        }), request.getParams());
                     }}
                 };
                 auto found = action.find(topics[TopicIdx::Thing::Type]);
@@ -84,14 +98,10 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
                         rt_kprintf("\033[31mservice [%s] sync invoke failed: %s\n\033[0m", serviceName.c_str(), e.what());
                         return;
                     }
-                    auto resp = Json {
-                        {"id", 233},
-                        {"code", 200},
-                        {"data", *json},
-                    };
+                    auto reply = Alink::Reply(*json);
                     auto topic = genTopic({"rrpc", "response", requestId});
-                    this->mqtt->publish(topic, to_string(resp));
-                }), json["params"]);
+                    this->mqtt->publish(topic, (string)reply);
+                }), request.getParams());
             }},
         };
 
@@ -135,13 +145,10 @@ void AliIotDevice::login(string_view deviceName, string_view productKey, string_
     rt_kprintf("\033[94login succeed, used mem: %d\n\033[0m", used);
 }
 
-//void AliIotDevice::on(string_view serviceName, function<Json(Json data)> handler) {
-//    auto found = services.find(serviceName);
-//    if(found == services.end()) {
-//        //mqtt->sub TODO: 订阅
-//    }
-//    services[serviceName] += handler;
-//}
+void AliIotDevice::emit(std::string_view event, Json params) {
+    auto request = Alink::Request(params, "thing.event."s + event.data() + ".post");
+    mqtt->publish(genTopic({"thing", "event", event, "post"}), (string)request);
+}
 
 string AliIotDevice::genTopic(initializer_list<string_view> suffixes) {
     auto result = ""s;

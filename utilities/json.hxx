@@ -42,6 +42,7 @@ public:
 
     Json();
     Json(std::string_view value);
+    Json(std::string value);
     Json(const char* value);
     Json(bool value);
     Json(int value);
