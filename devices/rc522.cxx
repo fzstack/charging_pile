@@ -11,7 +11,6 @@
 #include <rtthread.h>
 #include <rtdevice.h>
 #include <board.h>
-#include <bsp.hxx>
 #include <map>
 #include <functional>
 #include <memory>

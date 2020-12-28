@@ -1,4 +1,3 @@
-#include <config/bsp.hxx>
 /*
  * Copyright (c) 2006-2020, RT-Thread Development Team
  *
@@ -17,16 +16,6 @@
 #include <devices/load_detector.hxx>
 #include <devices/hlw8112.hxx>
 #include <devices/air724.hxx>
-
-using namespace Config;
-
-const char
-    *Bsp::kHlw8112Uart = "uart5",
-    *Bsp::kRc522SpiBus = "spi1",
-    *Bsp::kRc522SpiDev = "spi10",
-    *Bsp::kAir202Uart = "uart2";
-
-const GPIO_TypeDef* Bsp::kRc522GpioX = GPIOA;
 
 namespace Preset {
 template<> const rt_base_t RgbLight<0>::kRPin = GET_PIN(B, 13);
@@ -56,6 +45,4 @@ const char *Hlw8112::kUart = "uart5";
 
 const char *Air724::kUart = "uart2";
 const rt_base_t Air724::kResetPin = GET_PIN(C, 4);
-
-
 }
