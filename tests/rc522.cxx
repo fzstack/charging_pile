@@ -20,7 +20,7 @@ static void test_rc522() {
 }
 
 static int init_test_rc522() {
-    auto rc522 = Instances::rc522;
+    auto rc522 = Preset::Rc522::get();
     rc522->oCardId += [](auto value) {
         if(value) {
             LOG_D("card is: %s", value->c_str());

@@ -66,4 +66,15 @@ public:
 
 };
 
+#include <utilities/singleton.hxx>
+namespace Preset {
+class Air724: public Singleton<Air724>, public ::Air724 {
+    friend class Singleton<Air724>;
+    Air724(): ::Air724(kUart, kResetPin) {}
+    static const char *kUart;
+    static const rt_base_t kResetPin;
+};
+}
+
+
 #endif /* DEVICES_AIR724_HXX_ */

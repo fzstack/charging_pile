@@ -9,7 +9,6 @@
  */
 
 #include "air_http_client.hxx"
-#include <applications/instances.hxx>
 #include <string>
 
 #define LOG_TAG "test.air_http"
@@ -21,7 +20,7 @@ using namespace std;
 #ifdef TEST_AIR_HTTP_CLIENT
 static void test_air_http_client() {
     try {
-        auto air724 = Instances::air724;
+        auto air724 = Preset::Air724::get();
         LOG_D("create client1");
         auto client1 = air724->make<HttpClient>();
         auto request = HttpRequest{};
@@ -38,7 +37,7 @@ static void test_air_http_client() {
 }
 
 static int init_test_air_http_client() {
-    auto air724 = Instances::air724;
+    auto air724 = Preset::Air724::get();
     air724->init();
     return RT_EOK;
 }

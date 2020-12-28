@@ -7,4 +7,14 @@
 
 using Relay = OutputPin;
 
+#include <utilities/singleton.hxx>
+namespace Preset {
+template<int R>
+class Relay: public Singleton<Relay<R>>, public ::Relay {
+    friend class Singleton<Relay<R>>;
+    Relay(): ::Relay(kPin) {}
+    static const rt_base_t kPin;
+};
+}
+
 #endif

@@ -42,12 +42,17 @@ public:
     //void watch(std::shared_ptr<Charger> charger, Chargers chargers);
     //void watch(std::shared_ptr<User> user);
 
-
 private:
     std::shared_ptr<Wtn6> wtn6;
     std::shared_ptr<Charger> lastInsertedcharger;
 };
 
-
+#include <utilities/singleton.hxx>
+namespace Preset {
+class VoiceNotifier: public Singleton<VoiceNotifier>, public ::VoiceNotifier {
+    friend class Singleton<VoiceNotifier>;
+    VoiceNotifier(): ::VoiceNotifier(Wtn6::get()) {}
+};
+}
 
 #endif /* APPLICATIONS2_VOICE_NOTIFIER_HXX_ */

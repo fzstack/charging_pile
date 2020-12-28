@@ -12,7 +12,6 @@
 
 #include <devices/rc522.hxx>
 #include <rtthread.h>
-#include <applications/instances.hxx>
 
 
 #endif /* TESTS_RC522_HXX_ */

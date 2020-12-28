@@ -8,10 +8,10 @@
  * 2020-12-14     imgcr       the first version
  */
 
-#include <applications/instances.hxx>
 #include <utilities/cmd.hxx>
 #include <rtthread.h>
 #include <tests/air724.hxx>
+#include <components/air_components.hxx>
 #include <exception>
 
 #define LOG_TAG "test.air724"
@@ -22,11 +22,13 @@ using namespace std;
 
 #ifdef TEST_AIR724
 static void test_air724() {
-    auto air724 = Instances::air724;
+    auto air724 = Preset::Air724::get();
     try {
-        auto csq = air724->getCsq();
-        auto imei = air724->getImei();
-        auto iccid = air724->getIccid();
+        auto ess = air724->make<AirEssential>();
+
+        auto csq = ess->getCsq();
+        auto imei = ess->getImei();
+        auto iccid = ess->getIccid();
 
         LOG_I("CSQ: %d", csq);
         LOG_I("imei: %s", imei.c_str());
@@ -37,12 +39,11 @@ static void test_air724() {
 }
 
 static void test_air724_reset() {
-    auto air724 = Instances::air724;
-    air724->reset();
+    Preset::Air724::get()->reset();
 }
 
 static int init_test_air724() {
-    auto air724 = Instances::air724;
+    auto air724 = Preset::Air724::get();
     try {
         air724->init();
         LOG_D("inited");

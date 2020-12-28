@@ -12,7 +12,6 @@
 #include <rtthread.h>
 #include <rtdevice.h>
 #include <rthw.h>
-#include "instances.hxx"
 
 #define LOG_TAG "dev.wtn6"
 #define LOG_LVL LOG_LVL_DBG

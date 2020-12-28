@@ -31,6 +31,13 @@ private:
     const rt_base_t dataPin, busyPin;
 };
 
-
+#include <utilities/singleton.hxx>
+namespace Preset {
+class Wtn6: public Singleton<Wtn6>, public ::Wtn6 {
+    friend class Singleton<Wtn6>;
+    Wtn6(): ::Wtn6(kDataPin, kBusyPin) {}
+    static const rt_base_t kDataPin, kBusyPin;
+};
+}
 
 #endif /* DEVICES_WTN6_HXX_ */

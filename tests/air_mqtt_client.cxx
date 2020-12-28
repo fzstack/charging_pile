@@ -9,7 +9,6 @@
  */
 
 #include "air_mqtt_client.hxx"
-#include <applications/instances.hxx>
 #include <utilities/err.hxx>
 
 #define LOG_TAG "test.air_mqtt"
@@ -21,7 +20,7 @@ using namespace std;
 #ifdef TEST_AIR_MQTT_CLIENT
 static void test_air_mqtt_client() {
     try {
-        auto air724 = Instances::air724;
+        auto air724 = Preset::Air724::get();
 
         LOG_D("try make mqtt1");
         auto mqtt = air724->make<MqttClient>();
@@ -38,7 +37,7 @@ static void test_air_mqtt_client() {
 }
 
 static int init_test_air_mqtt_client() {
-    auto air724 = Instances::air724;
+    auto air724 = Preset::Air724::get();
     air724->init();
     return RT_EOK;
 }

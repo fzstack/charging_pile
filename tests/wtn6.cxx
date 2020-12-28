@@ -17,7 +17,7 @@
 void test_wtn6(int argc, char** argv) {
     ASSERT_MIN_NARGS(2);
 
-    auto wtn6 = Instances::wtn6;
+    auto wtn6 = Preset::Wtn6::get();
     auto data = atoi(argv[1]);
     ASSERT_ARG(voice_id, 0 <= data && data <= 15);
     wtn6->write(data);

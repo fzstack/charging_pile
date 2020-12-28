@@ -11,7 +11,6 @@
 #include "rgb_light.hxx"
 #include <rtdevice.h>
 
-#include "instances.hxx"
 #include "observable.hxx"
 #include <string>
 #include <map>

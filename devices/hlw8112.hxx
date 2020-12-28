@@ -84,4 +84,13 @@ private:
     std::shared_ptr<QueuedUart> uart;
 };
 
+#include <utilities/singleton.hxx>
+namespace Preset {
+class Hlw8112: public Singleton<Hlw8112>, public ::Hlw8112 {
+    friend class Singleton<Hlw8112>;
+    Hlw8112(): ::Hlw8112(kUart) {}
+    static const char *kUart;
+};
+}
+
 #endif /* DEVICES_HLW8112_HXX_ */

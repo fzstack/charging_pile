@@ -10,7 +10,6 @@
 
 #include "load_detector.hxx"
 #include <utilities/cmd.hxx>
-#include <applications/instances.hxx>
 #include <rtthread.h>
 #include <functional>
 
@@ -23,8 +22,8 @@ using namespace placeholders;
 
 #ifdef TEST_LOAD_DETECTOR
 static int init_test_load_detector() {
-    auto lodDetA = Instances::loadDetectorA;
-    auto lodDetB = Instances::loadDetectorB;
+    auto lodDetA = Preset::LoadDetector<0>::get();
+    auto lodDetB = Preset::LoadDetector<1>::get();
     lodDetA->oState += [](auto state){
         if(state) {
             LOG_D("A %s", *state ? "pluged" : "unpluged");

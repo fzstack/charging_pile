@@ -12,7 +12,6 @@
 
 #include <devices/relay.hxx>
 #include <utilities/cmd.hxx>
-#include <applications/instances.hxx>
 
 
 #endif /* TESTS_RELAY_HXX_ */

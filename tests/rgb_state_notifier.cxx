@@ -11,7 +11,6 @@
 #include "rgb_state_notifier.hxx"
 #include <rtthread.h>
 #include <utilities/cmd.hxx>
-#include <applications/instances.hxx>
 #include <memory.h>
 #include <map>
 #include <functional>
@@ -42,8 +41,8 @@ void test_rgb_state_notifier(int argc, char** argv) {
 }
 
 static int init_test_rgb_state_notifier() {
-    auto notifierA = Instances::rgbStateNotifierA;
-    auto notifierB = Instances::rgbStateNotifierB;
+    auto notifierA = Preset::RgbStateNotifier<0>::get();
+    auto notifierB = Preset::RgbStateNotifier<1>::get();
 
     fakeA = make_shared<FakeStore>();
     fakeB = make_shared<FakeStore>();

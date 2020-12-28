@@ -55,6 +55,13 @@ private:
 
 };
 
+#include <utilities/singleton.hxx>
+namespace Preset {
+class Multimeter: public Singleton<Multimeter>, public ::Multimeter {
+    friend class Singleton<Multimeter>;
+    Multimeter(): ::Multimeter(Hlw8112::get()) {}
+};
+}
 
 
 #endif /* APPLICATIONS2_MULTIMETER_HXX_ */

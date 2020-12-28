@@ -11,7 +11,6 @@
 #define TESTS_ALI_IOT_DEVICE_HXX_
 
 #include <applications/ali_iot_device.hxx>
-#include <applications/instances.hxx>
 
 
 

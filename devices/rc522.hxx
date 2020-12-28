@@ -179,6 +179,16 @@ private:
     std::shared_ptr<rt_timer> timer;
 };
 
+#include <utilities/singleton.hxx>
+namespace Preset {
+class Rc522: public Singleton<Rc522>, public ::Rc522 {
+    friend class Singleton<Rc522>;
+    Rc522(): ::Rc522(kSpiBus, kSpiDev, kSsGpioX, kSsGpioPin) {}
+    static const char *kSpiBus, *kSpiDev;
+    static const GPIO_TypeDef* kSsGpioX;
+    static const rt_uint16_t kSsGpioPin;
+};
+}
 
 
 #endif /* DEVICES_RC522_HXX_ */

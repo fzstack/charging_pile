@@ -13,7 +13,6 @@
 #include <rtthread.h>
 #include <devices/wtn6.hxx>
 #include <utilities/cmd.hxx>
-#include <applications/instances.hxx>
 
 
 #endif /* TESTS_WTN6_HXX_ */

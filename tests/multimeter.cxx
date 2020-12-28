@@ -11,7 +11,6 @@
 #include "multimeter.hxx"
 #include <rtthread.h>
 #include <utilities/cmd.hxx>
-#include <applications/instances.hxx>
 
 #define LOG_TAG "test.multimeter"
 #define LOG_LVL LOG_LVL_DBG
@@ -26,7 +25,7 @@ static void test_multimeter() {
 }
 
 static int init_test_multimeter() {
-    auto multimeter = Instances::multimeter;
+    auto multimeter = Preset::Multimeter::get();
 
     chA = multimeter->getChannel(Multimeter::ChPort::A);
     chB = multimeter->getChannel(Multimeter::ChPort::B);

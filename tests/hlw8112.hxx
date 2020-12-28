@@ -12,7 +12,6 @@
 
 #include <rtthread.h>
 #include <devices/hlw8112.hxx>
-#include <applications/instances.hxx>
 #include <utilities/cmd.hxx>
 
 

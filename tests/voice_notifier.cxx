@@ -10,7 +10,6 @@
 
 #include "voice_notifier.hxx"
 #include <utilities/cmd.hxx>
-#include <applications/instances.hxx>
 
 #define LOG_TAG "test.voice"
 #define LOG_LVL LOG_LVL_DBG
@@ -23,7 +22,7 @@ void test_voice_notifier(int argc, char** argv) {
     auto data = (rt_uint8_t)atoi(argv[1]);
     ASSERT_ARG(data, 0 <= data && data <= 15);
 
-    auto notifier = Instances::voiceNotifier;
+    auto notifier = Preset::VoiceNotifier::get();
     notifier->wtn6->write(data);
 }
 

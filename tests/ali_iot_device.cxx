@@ -20,10 +20,10 @@ using namespace json_literals;
 #ifdef TEST_ALI_IOT_DEVICE
 static void test_ali_iot_device() {
 
-    auto air724 = Instances::air724;
+    auto air724 = Preset::Air724::get();
     air724->init();
 
-    auto aliIot = Instances::aliIotDevice;
+    auto aliIot = Preset::AliIotDevice::get();
     try {
         aliIot->services["query"] += [=](const Json params) -> Json {
             rt_kprintf("\033[34mparams: %s\n\033[0m", to_string(params).c_str());

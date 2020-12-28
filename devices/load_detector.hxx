@@ -42,4 +42,14 @@ public:
     Observer<std::optional<bool>> oState;
 };
 
+#include <utilities/singleton.hxx>
+namespace Preset {
+template<int R>
+class LoadDetector: public Singleton<LoadDetector<R>>, public ::LoadDetector {
+    friend class Singleton<LoadDetector<R>>;
+    LoadDetector(): ::LoadDetector(kPin) {}
+    static const rt_base_t kPin;
+};
+}
+
 #endif /* APPLICATIONS2_LOAD_DETECTOR_HXX_ */

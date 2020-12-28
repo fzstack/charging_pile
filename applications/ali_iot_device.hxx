@@ -22,6 +22,8 @@
 #include <utilities/json.hxx>
 #include <utilities/signals.hxx>
 #include "ali_iot_device_thread.hxx"
+#include <devices/air724.hxx>
+#include <components/air_components.hxx>
 
 class AliIotDeviceThread;
 
@@ -93,6 +95,12 @@ class ali_iot_do_not_reply: public ali_iot_error {
     using ali_iot_error::ali_iot_error;
 };
 
-
+#include <utilities/singleton.hxx>
+namespace Preset {
+class AliIotDevice: public Singleton<AliIotDevice>, public ::AliIotDevice {
+    friend class Singleton<AliIotDevice>;
+    AliIotDevice(): ::AliIotDevice(Air724::get()->make<HttpClient>(), Air724::get()->make<MqttClient>()) {}
+};
+}
 
 #endif /* APPLICATIONS_ALI_IOT_DEVICE_HXX_ */

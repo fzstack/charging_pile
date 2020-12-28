@@ -33,4 +33,13 @@ private:
     static const int kRoundDurMs = 500;
 };
 
+#include <utilities/singleton.hxx>
+namespace Preset {
+template<int R>
+class RgbStateNotifier: public Singleton<RgbStateNotifier<R>>, public ::RgbStateNotifier {
+    friend class Singleton<RgbStateNotifier<R>>;
+    RgbStateNotifier(): ::RgbStateNotifier(RgbLight<R>::get()) {}
+};
+}
+
 #endif /* APPLICATIONS2_RGB_STATE_NOTIFIER_HXX_ */

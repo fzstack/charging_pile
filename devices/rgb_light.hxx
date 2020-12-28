@@ -14,6 +14,7 @@
 #include <optional>
 #include "output_pin.hxx"
 
+
 class RgbLight {
 public:
     RgbLight(rt_base_t rPinId, rt_base_t gPinId, rt_base_t bPinId);
@@ -25,6 +26,14 @@ public:
     OutputPin::handler_t &r, &g, &b;
 };
 
-
+#include <utilities/singleton.hxx>
+namespace Preset{
+template<int R>
+class RgbLight: public Singleton<RgbLight<R>>, public ::RgbLight {
+    friend class Singleton<RgbLight>;
+    RgbLight(): ::RgbLight(kRPin, kGPin, kBPin) {};
+    static const rt_base_t kRPin, kGPin, kBPin;
+};
+}
 
 #endif /* APPLICATIONS2_RGB_LIGHT_HXX_ */

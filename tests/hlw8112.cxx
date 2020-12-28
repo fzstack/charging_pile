@@ -22,7 +22,7 @@ static void test_hlw8112() {
 }
 
 static int init_test_hlw8112() {
-    auto hlw8112 = Instances::hlw8112;
+    auto hlw8112 = Preset::Hlw8112::get();
 
     LOG_I("initing");
     hlw8112->init();

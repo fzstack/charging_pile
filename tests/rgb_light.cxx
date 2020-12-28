@@ -10,7 +10,6 @@
 
 #include <rtthread.h>
 #include <utilities/cmd.hxx>
-#include <applications/instances.hxx>
 #include <tests/rgb_light.hxx>
 #include <map>
 #include <string>
@@ -27,8 +26,8 @@ using namespace std;
 static void test_rgb_light(int argc, char** argv) {
     ASSERT_MIN_NARGS(3);
 
-    auto& rgbLightA = Instances::rgbLightA;
-    auto& rgbLightB = Instances::rgbLightB;
+    auto rgbLightA = Preset::RgbLight<0>::get();
+    auto rgbLightB = Preset::RgbLight<1>::get();
 
     auto m = map<string, Observable<optional<bool>>&>{
         {"A-R", rgbLightA->r}, {"A-G", rgbLightA->g}, {"A-B", rgbLightA->b},

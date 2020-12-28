@@ -19,10 +19,10 @@
 void test_relay(int argc, char** argv) {
     ASSERT_MIN_NARGS(3);
 
-    auto relayA = Instances::relayA;
-    auto relayB = Instances::relayB;
+    auto relayA = Preset::Relay<0>::get();
+    auto relayB = Preset::Relay<1>::get();
 
-    auto sel = std::map<std::string, decltype(relayA)> {
+    auto sel = std::map<std::string, std::shared_ptr<Relay>> {
         {"A", relayA},
         {"B", relayB},
     };
