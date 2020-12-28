@@ -16,6 +16,7 @@ namespace Config {
 class Bsp {
 public:
     static constexpr rt_base_t
+        kChargerNum = 2,
         kWtn6DataPin = GET_PIN(C, 8),
         kWtn6BusyPin = GET_PIN(C, 7),
         kRelayAPin = GET_PIN(B, 2),
