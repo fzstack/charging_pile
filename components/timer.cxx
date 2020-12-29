@@ -15,7 +15,7 @@ using namespace std;
 Timer::Timer(rt_tick_t time, const char* name): timer(std::shared_ptr<rt_timer>(rt_timer_create(name, [](auto p){
     auto timer = (Timer*)p;
     timer->run();
-}, this, time, RT_TIMER_FLAG_PERIODIC), rt_timer_delete)) {
+}, this, time, RT_TIMER_FLAG_PERIODIC | RT_TIMER_FLAG_SOFT_TIMER), rt_timer_delete)) {
 
 }
 

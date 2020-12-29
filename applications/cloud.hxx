@@ -17,6 +17,7 @@
 #include <array>
 #include <config/bsp.hxx>
 #include "cloud_timer.hxx"
+#include <utilities/signals.hxx>
 
 class CloudTimer;
 
@@ -53,6 +54,17 @@ public:
         Fuse::Value fuse;
     };
     void setCurrentData(std::array<CurrentData, Config::Bsp::kPortNum> data);
+
+    Signals<void()> onQuery = {};
+
+    struct ServiceResult {
+        enum Value {
+            Succeed = 1, Failed,
+        };
+    };
+    Signals<ServiceResult::Value(int port, int timerId, int minutes)> onControl = {};
+    Signals<ServiceResult::Value(int port, int timerId)> onStop = {};
+
 
 private:
     void setIccid(std::string_view iccid);
