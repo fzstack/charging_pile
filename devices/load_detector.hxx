@@ -43,9 +43,10 @@ public:
 };
 
 #include <utilities/singleton.hxx>
+#include <config/bsp.hxx>
 namespace Preset {
 template<int R>
-class LoadDetector: public Singleton<LoadDetector<R>>, public ::LoadDetector {
+class LoadDetector: public Singleton<LoadDetector<R>>, public Config::Bsp::assert_t<::LoadDetector, R> {
     friend class Singleton<LoadDetector<R>>;
     LoadDetector(): ::LoadDetector(kPin) {}
     static const rt_base_t kPin;

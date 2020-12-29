@@ -8,9 +8,10 @@
 using Relay = OutputPin;
 
 #include <utilities/singleton.hxx>
+#include <config/bsp.hxx>
 namespace Preset {
 template<int R>
-class Relay: public Singleton<Relay<R>>, public ::Relay {
+class Relay: public Singleton<Relay<R>>, public Config::Bsp::assert_t<::Relay, R> {
     friend class Singleton<Relay<R>>;
     Relay(): ::Relay(kPin) {}
     static const rt_base_t kPin;

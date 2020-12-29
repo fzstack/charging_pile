@@ -103,6 +103,10 @@ struct Signals<R(P...)> {
         }
     }
 
+    bool empty() {
+        return cbs.empty();
+    }
+
     std::list<std::function<signal_f>> cbs;
 };
 
@@ -176,6 +180,10 @@ struct Signals<void(P...)> {
         for(const auto& cb: cbs) {
             cb(ret_sig_t(), p...);
         }
+    }
+
+    bool empty() {
+        return cbs.empty();
     }
 
     std::list<std::function<signal_f>> cbs;

@@ -14,10 +14,16 @@
 #include <devices/air724.hxx>
 #include <memory>
 #include <string_view>
+#include <array>
+#include <config/bsp.hxx>
+#include "cloud_timer.hxx"
+
+class CloudTimer;
 
 class Cloud {
+    friend class CloudTimer;
 public:
-    Cloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724> air);
+    Cloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724> air, std::shared_ptr<CloudTimer> timer);
     void init();
 
     struct CurrentData {
@@ -46,7 +52,7 @@ public:
         };
         Fuse::Value fuse;
     };
-    void setCurrentData();
+    void setCurrentData(std::array<CurrentData, Config::Bsp::kPortNum> data);
 
 private:
     void setIccid(std::string_view iccid);
@@ -54,9 +60,15 @@ private:
 
     std::shared_ptr<AliIotDevice> device;
     std::shared_ptr<Air724> air;
-
+    std::shared_ptr<CloudTimer> timer;
 };
 
-
+#include <utilities/singleton.hxx>
+namespace Preset {
+class Cloud: public Singleton<Cloud>, public ::Cloud {
+    friend class Singleton<Cloud>;
+    Cloud();
+};
+}
 
 #endif /* APPLICATIONS_CLOUD_HXX_ */

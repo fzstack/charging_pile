@@ -32,6 +32,7 @@ public:
     AliIotDevice(std::shared_ptr<HttpClient> http, std::shared_ptr<MqttClient> mqtt);
     void login(std::string_view deviceName, std::string_view productKey, std::string_view deviceSecret);
     void emit(std::string_view event, Json params);
+    void set(std::string_view property, Json value);
 
 private:
     std::string genTopic(std::initializer_list<std::string_view> suffixes);
@@ -70,8 +71,9 @@ private:
 
     std::shared_ptr<HttpClient> http;
     std::shared_ptr<MqttClient> mqtt;
-    std::shared_ptr<AliIotDeviceThread> thread;
-
+public:
+    const std::shared_ptr<AliIotDeviceThread> thread;
+private:
     std::string deviceName, productKey;
 
 public:

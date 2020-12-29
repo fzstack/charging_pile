@@ -27,9 +27,10 @@ public:
 };
 
 #include <utilities/singleton.hxx>
+#include <config/bsp.hxx>
 namespace Preset{
 template<int R>
-class RgbLight: public Singleton<RgbLight<R>>, public ::RgbLight {
+class RgbLight: public Singleton<RgbLight<R>>, public Config::Bsp::assert_t<::RgbLight, R> {
     friend class Singleton<RgbLight>;
     RgbLight(): ::RgbLight(kRPin, kGPin, kBPin) {};
     static const rt_base_t kRPin, kGPin, kBPin;

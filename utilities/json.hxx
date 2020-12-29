@@ -46,6 +46,7 @@ public:
     Json(const char* value);
     Json(bool value);
     Json(int value);
+    Json(float value);
     Json(nullptr_t);
     Json(const Json& other);
     Json(Json&& other);
@@ -72,6 +73,7 @@ public:
 public:
     JsonIterator begin();
     JsonIterator end();
+    void push_back(Json&& item);
     Type getType() const;
     Json operator[](std::string_view itemName) const;
     Json operator[](const char* itemName) const;
@@ -89,6 +91,7 @@ public:
     }
 
     operator int() const;
+    operator float() const;
     operator std::string() const;
     operator bool() const;
     operator nullptr_t() const;

@@ -12,10 +12,11 @@
 
 template <class Outer>
 struct Nested {
+    using nested_t = Nested<Outer>;
     using outer_t = Outer;
-    Nested(Outer* outer): outer(outer) { }
+    Nested(outer_t* outer): outer(outer) { }
 protected:
-    Outer* outer;
+    outer_t* outer;
 };
 
 

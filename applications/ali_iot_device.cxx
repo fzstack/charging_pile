@@ -150,6 +150,12 @@ void AliIotDevice::emit(std::string_view event, Json params) {
     mqtt->publish(genTopic({"thing", "event", event, "post"}), (string)request);
 }
 
+void AliIotDevice::set(std::string_view property, Json value) {
+    emit("property", {
+       {property, value},
+    });
+}
+
 string AliIotDevice::genTopic(initializer_list<string_view> suffixes) {
     auto result = ""s;
     for(const auto& prefix: {"sys"s, productKey, deviceName})

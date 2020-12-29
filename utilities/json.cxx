@@ -50,6 +50,11 @@ Json::Json(int value): root(shared_ptr<cJSON>(cJSON_CreateNumber(value), cJSON_D
     if(!extra->self) throw json_error{"json create failed"};
 }
 
+Json::Json(float value): root(shared_ptr<cJSON>(cJSON_CreateNumber(value), cJSON_Delete)), extra(make_shared<Extra>()) {
+    extra->self = root.get();
+    if(!extra->self) throw json_error{"json create failed"};
+}
+
 Json::Json(nullptr_t): root(shared_ptr<cJSON>(cJSON_CreateNull(), cJSON_Delete)), extra(make_shared<Extra>()){
     extra->self = root.get();
     if(!extra->self) throw json_error{"json create failed"};
@@ -149,6 +154,16 @@ JsonIterator Json::end() {
     return {};
 }
 
+//Push back先是move语义的
+void Json::push_back(Json&& item) {
+    if(getType() != Json::Type::Array)
+        throw json_type_error{"json not an array"};
+
+    auto null = cJSON_CreateNull();
+    cJSON_AddItemToArray(extra->self, null);
+    moveNode(null, item.extra->self);
+}
+
 Json::Type Json::getType() const {
     return map<int, Type> {
         {cJSON_NULL, Type::Null},
@@ -187,6 +202,12 @@ Json::operator int() const {
     if(extra->self->type != cJSON_Number)
         throw json_type_error{"json not a number"};
     return extra->self->valueint;
+}
+
+Json::operator float() const {
+    if(extra->self->type != cJSON_Number)
+        throw json_type_error{"json not a number"};
+    return extra->self->valuedouble;
 }
 
 Json::operator string() const {

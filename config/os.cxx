@@ -9,9 +9,14 @@
  */
 
 #include "os.hxx"
+#include <applications/cloud_timer.hxx>
 
 using namespace Config;
 
 const char
     *Os::kAliIotDeviceThreadName = "iot_dev";
 
+namespace Preset {
+const rt_tick_t CloudTimer::kTime = 10000;
+const char *CloudTimer::kName = "cloud";
+}
