@@ -30,7 +30,7 @@ public:
 protected:
     virtual void run() override;
 private:
-    Signals<void()> signal = {};
+    //Signals<void()> signal = {};
 };
 
 #include <utilities/singleton.hxx>

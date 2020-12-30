@@ -17,15 +17,9 @@ CloudTimer::CloudTimer(outer_t* outer, rt_tick_t time, const char* name): nested
 }
 
 void CloudTimer::start() {
-    if(signal.empty()) {
-        signal += outer->device->thread->post([=](){
-            auto ess = outer->air->make<AirEssential>();
-            outer->setSignal(ess->getCsq());
-        });
-    }
     Timer::start();
 }
 
 void CloudTimer::run() {
-    signal();
+    outer->setSignalInterval();
 }

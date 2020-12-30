@@ -26,5 +26,3 @@ void test_wtn6(int argc, char** argv) {
 #ifdef TEST_WTN6
 MSH_CMD_EXPORT(test_wtn6,);
 #endif
-
-

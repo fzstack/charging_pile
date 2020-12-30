@@ -24,12 +24,12 @@ using namespace std::string_literals;
 
 Json::Json(): root(shared_ptr<cJSON>(cJSON_CreateObject(), cJSON_Delete)), extra(make_shared<Extra>()) {
     extra->self = root.get();
-    if(!extra->self) throw json_error{"json create failed"};
+    if(!extra->self) throw json_error{"create failed"};
 }
 
 Json::Json(string_view value): root(shared_ptr<cJSON>(cJSON_CreateString(value.data()), cJSON_Delete)), extra(make_shared<Extra>()) {
     extra->self = root.get();
-    if(!extra->self) throw json_error{"json create failed"};
+    if(!extra->self) throw json_error{"create failed"};
 }
 
 Json::Json(string value): Json(string_view(value)) {
@@ -42,22 +42,22 @@ Json::Json(const char* value): Json(string_view(value)) {
 
 Json::Json(bool value): root(shared_ptr<cJSON>(cJSON_CreateBool(value), cJSON_Delete)), extra(make_shared<Extra>()) {
     extra->self = root.get();
-    if(!extra->self) throw json_error{"json create failed"};
+    if(!extra->self) throw json_error{"create failed"};
 }
 
 Json::Json(int value): root(shared_ptr<cJSON>(cJSON_CreateNumber(value), cJSON_Delete)), extra(make_shared<Extra>()) {
     extra->self = root.get();
-    if(!extra->self) throw json_error{"json create failed"};
+    if(!extra->self) throw json_error{"create failed"};
 }
 
 Json::Json(float value): root(shared_ptr<cJSON>(cJSON_CreateNumber(value), cJSON_Delete)), extra(make_shared<Extra>()) {
     extra->self = root.get();
-    if(!extra->self) throw json_error{"json create failed"};
+    if(!extra->self) throw json_error{"create failed"};
 }
 
 Json::Json(nullptr_t): root(shared_ptr<cJSON>(cJSON_CreateNull(), cJSON_Delete)), extra(make_shared<Extra>()){
     extra->self = root.get();
-    if(!extra->self) throw json_error{"json create failed"};
+    if(!extra->self) throw json_error{"create failed"};
 }
 
 Json::~Json() {
@@ -143,7 +143,7 @@ Json Json::array(std::initializer_list<Json> obj) {
 JsonIterator Json::begin() {
     auto self = extra->self;
     if(self->type != cJSON_Object && self->type != cJSON_Array)
-        throw json_type_error{"json not a container"};
+        throw json_type_error{"not a container"};
     if(!self->child)
         return {};
 
@@ -157,7 +157,7 @@ JsonIterator Json::end() {
 //Push back先是move语义的
 void Json::push_back(Json&& item) {
     if(getType() != Json::Type::Array)
-        throw json_type_error{"json not an array"};
+        throw json_type_error{"not an array"};
 
     auto null = cJSON_CreateNull();
     cJSON_AddItemToArray(extra->self, null);
@@ -190,41 +190,41 @@ Json Json::operator[](const char* itemName) {
 
 Json Json::operator[](int index) const {
     if(extra->self->type != cJSON_Array)
-        throw json_type_error{"json not an array"};
+        throw json_type_error{"not an array"};
 
     auto ele = cJSON_GetArrayItem(extra->self, index);
     if(ele == nullptr)
-        throw json_item_not_found{"json element ["s + to_string(index) + "] not found"s};
+        throw json_item_not_found{"element ["s + to_string(index) + "] not found"s};
     return Json(root, ele, extra->self);
 }
 
 Json::operator int() const {
     if(extra->self->type != cJSON_Number)
-        throw json_type_error{"json not a number"};
+        throw json_type_error{"not a number"};
     return extra->self->valueint;
 }
 
 Json::operator float() const {
     if(extra->self->type != cJSON_Number)
-        throw json_type_error{"json not a number"};
+        throw json_type_error{"not a number"};
     return extra->self->valuedouble;
 }
 
 Json::operator string() const {
     if(extra->self->type != cJSON_String)
-        throw json_type_error{"json not a string"};
+        throw json_type_error{"not a string"};
     return extra->self->valuestring;
 }
 
 Json::operator bool() const {
     if(extra->self->type != cJSON_True && extra->self->type != cJSON_False)
-        throw json_type_error{"json not a boolean"};
+        throw json_type_error{"not a boolean"};
     return extra->self->type == cJSON_True;
 }
 
 Json::operator nullptr_t() const {
     if(extra->self->type != cJSON_NULL)
-        throw json_type_error{"json not null"};
+        throw json_type_error{"not null"};
     return nullptr;
 }
 
@@ -323,10 +323,10 @@ void Json::toArray(std::initializer_list<Json> obj) {
 
 Json Json::getItem(const char* itemName) const {
     if(extra->self->type != cJSON_Object)
-        throw json_type_error{"json not a object"};
+        throw json_type_error{"not a object"};
     auto item = cJSON_GetObjectItem(extra->self, itemName);
     if(!item)
-        throw json_item_not_found{"json field \""s + itemName + "\" not found"s};
+        throw json_item_not_found{"field \""s + itemName + "\" not found"s};
     return Json(root, item, extra->self);
 }
 

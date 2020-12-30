@@ -7,18 +7,19 @@
  * Date           Author       Notes
  * 2021-12-30     imgcr       the first version
  */
-#include "cloud.hxx"
 #include <rtthread.h>
+#include <tests/ali_cloud.hxx>
+#include <utilities/cmd.hxx>
 
-#define LOG_TAG "test.cloud"
+#define LOG_TAG "test.a_cloud"
 #define LOG_LVL LOG_LVL_DBG
 #include <ulog.h>
 
 using namespace std;
 
-#ifdef TEST_CLOUD
-static void test_cloud_init() {
-    auto cloud = Preset::Cloud::get();
+#ifdef TEST_ALI_CLOUD
+static void test_ali_cloud_init() {
+    auto cloud = Preset::AliCloud::get();
     cloud->onQuery += []() {
         rt_kprintf("\033[95mcloud on query\n\033[0m");
     };
@@ -36,8 +37,8 @@ static void test_cloud_init() {
     cloud->init();
 }
 
-static void test_cloud_cur_data() {
-    auto cloud = Preset::Cloud::get();
+static void test_ali_cloud_cur_data() {
+    auto cloud = Preset::AliCloud::get();
     cloud->setCurrentData({
         Cloud::CurrentData {
            port: 1,
@@ -62,6 +63,14 @@ static void test_cloud_cur_data() {
     });
 }
 
-MSH_CMD_EXPORT(test_cloud_init, );
-MSH_CMD_EXPORT(test_cloud_cur_data, );
+static void test_ali_cloud_emit_port_access(int argc, char** argv) {
+    ASSERT_MIN_NARGS(2);
+    auto cloud = Preset::AliCloud::get();
+    auto port = atoi(argv[1]);
+    cloud->emitPortAccess(port);
+}
+
+MSH_CMD_EXPORT(test_ali_cloud_init, );
+MSH_CMD_EXPORT(test_ali_cloud_cur_data, );
+MSH_CMD_EXPORT(test_ali_cloud_emit_port_access, );
 #endif

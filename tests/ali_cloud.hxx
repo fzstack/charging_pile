@@ -7,11 +7,11 @@
  * Date           Author       Notes
  * 2021-12-30     imgcr       the first version
  */
-#ifndef TESTS_CLOUD_HXX_
+#ifndef TESTS_ALI_CLOUD_HXX_
 #define TESTS_CLOUD_HXX_
 
-#include <applications/cloud.hxx>
+#include <applications/ali_cloud.hxx>
 
 
 
-#endif /* TESTS_CLOUD_HXX_ */
+#endif /* TESTS_ALI_CLOUD_HXX_ */

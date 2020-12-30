@@ -10,8 +10,6 @@
 #ifndef APPLICATIONS_CLOUD_HXX_
 #define APPLICATIONS_CLOUD_HXX_
 
-#include "ali_iot_device.hxx"
-#include <devices/air724.hxx>
 #include <memory>
 #include <string_view>
 #include <array>
@@ -24,8 +22,8 @@ class CloudTimer;
 class Cloud {
     friend class CloudTimer;
 public:
-    Cloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724> air, std::shared_ptr<CloudTimer> timer);
-    void init();
+    Cloud(std::shared_ptr<CloudTimer> timer);
+    virtual void init();
 
     struct CurrentData {
         int port;
@@ -53,7 +51,13 @@ public:
         };
         Fuse::Value fuse;
     };
-    void setCurrentData(std::array<CurrentData, Config::Bsp::kPortNum> data);
+    virtual void setCurrentData(std::array<CurrentData, Config::Bsp::kPortNum> data) = 0;
+    virtual void setIccid(std::string_view iccid) = 0;
+    virtual void setSignal(int signal) = 0;
+
+    virtual void emitPortAccess(int port) = 0;
+    virtual void emitIcNumber(int port, std::string_view icNumber) = 0;
+    virtual void emitCurrentLimit(int port) = 0;
 
     Signals<void()> onQuery = {};
 
@@ -65,22 +69,12 @@ public:
     Signals<ServiceResult::Value(int port, int timerId, int minutes)> onControl = {};
     Signals<ServiceResult::Value(int port, int timerId)> onStop = {};
 
+protected:
+    virtual void setSignalInterval() = 0;
 
 private:
-    void setIccid(std::string_view iccid);
-    void setSignal(int signal); //TODO: 自动发送信号强度?
-
-    std::shared_ptr<AliIotDevice> device;
-    std::shared_ptr<Air724> air;
     std::shared_ptr<CloudTimer> timer;
 };
 
-#include <utilities/singleton.hxx>
-namespace Preset {
-class Cloud: public Singleton<Cloud>, public ::Cloud {
-    friend class Singleton<Cloud>;
-    Cloud();
-};
-}
 
 #endif /* APPLICATIONS_CLOUD_HXX_ */
