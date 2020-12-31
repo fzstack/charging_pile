@@ -54,6 +54,8 @@ class Charger: public Singleton<Charger<R>>, public ::Charger {
         VirtualLoadDetector<R>::get(),
         StateStore<R>::get()
     ) {
+        Multimeter::get()->init();
+        VirtualLoadDetector<R>::get()->init();
         VoiceNotifier::get()->watch(StateStore<R>::get(), getPSV());
     }
     static constexpr PortSpecifiedVoice getPSV() {

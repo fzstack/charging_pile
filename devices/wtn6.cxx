@@ -28,6 +28,7 @@ bool Wtn6::isBusy() {
 }
 
 void Wtn6::write(rt_uint8_t data) {
+    //TODO: 加锁
     rt_pin_write(dataPin, PIN_LOW);
     rt_thread_mdelay(5);
     rt_pin_write(dataPin, PIN_HIGH);

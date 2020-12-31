@@ -11,6 +11,7 @@
 #include "charger.hxx"
 #include <utilities/cmd.hxx>
 #include <map>
+#include <config/bsp.hxx>
 
 #define LOG_TAG "test.charger"
 #define LOG_LVL LOG_LVL_DBG
@@ -20,25 +21,40 @@ using namespace std;
 
 #ifdef TEST_CHARGER
 
+std::shared_ptr<Charger> getCharger(int i) {
+    switch(i) {
+    case 0:
+        return Preset::Charger<0>::get();
+    case 1:
+        return Preset::Charger<1>::get();
+    default:
+        throw out_of_range{"resource id out of range"};
+    }
+}
+
 static void test_charger(int argc, char** argv) {
-    ASSERT_MIN_NARGS(2);
+    ASSERT_MIN_NARGS(3);
+
+    auto i = atoi(argv[1]);
+    ASSERT_ARG(charger, 0 <= i && i < Config::Bsp::kPortNum);
+
     auto cmds = map<string, function<void()>> {
-        {"start", [](){
-            Preset::Charger<0>::get()->start();
+        {"start", [=](){
+            getCharger(i)->start();
         }},
-        {"stop", [](){
-            Preset::Charger<0>::get()->stop();
+        {"stop", [=](){
+            getCharger(i)->stop();
         }},
     };
-    auto found = cmds.find(argv[1]);
+    auto found = cmds.find(argv[2]);
     ASSERT_ARG(cmd, found != cmds.end());
     found->second();
 }
 
 static int init_test_charger() {
-    Preset::Multimeter::get()->init();
-    Preset::VirtualLoadDetector<0>::get()->init();
-    Preset::Charger<0>::get()->init();
+    for(auto i = 0; i < Config::Bsp::kPortNum; i++) {
+        getCharger(i)->init();
+    }
     return RT_EOK;
 }
 
