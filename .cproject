@@ -173,10 +173,10 @@
 									<listOptionValue builtIn="false" value="_TEST_RGB_LIGHT"/>
 									<listOptionValue builtIn="false" value="_TEST_RC522"/>
 									<listOptionValue builtIn="false" value="_TEST_RGB_STATE_NOTIFIER"/>
-									<listOptionValue builtIn="false" value="TEST_RELAY"/>
+									<listOptionValue builtIn="false" value="_TEST_RELAY"/>
 									<listOptionValue builtIn="false" value="_TEST_WTN6"/>
 									<listOptionValue builtIn="false" value="_TEST_VOICE_NOTIFIER"/>
-									<listOptionValue builtIn="false" value="TEST_LOAD_DETECTOR"/>
+									<listOptionValue builtIn="false" value="_TEST_LOAD_DETECTOR"/>
 									<listOptionValue builtIn="false" value="_TEST_HLW8112"/>
 									<listOptionValue builtIn="false" value="_TEST_MULTIMETER"/>
 									<listOptionValue builtIn="false" value="_TEST_AIR724"/>
@@ -188,7 +188,8 @@
 									<listOptionValue builtIn="false" value="_TEST_QUEUE"/>
 									<listOptionValue builtIn="false" value="_TEST_SINGLETON"/>
 									<listOptionValue builtIn="false" value="_TEST_ALI_CLOUD"/>
-									<listOptionValue builtIn="false" value="TEST_VIRTUAL_LOAD_DETECTOR"/>
+									<listOptionValue builtIn="false" value="_TEST_VIRTUAL_LOAD_DETECTOR"/>
+									<listOptionValue builtIn="false" value="TEST_CHARGER"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths.302877723" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths" useByScannerDiscovery="true" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc://${ProjName}/drivers}&quot;"/>

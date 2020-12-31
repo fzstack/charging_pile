@@ -13,17 +13,36 @@
 #include "state_store_base.hxx"
 #include <devices/relay.hxx>
 #include "multimeter.hxx"
-#include <devices/load_detector.hxx>
+#include "virtual_load_detector.hxx"
 
 class StateStore: public StateStoreBase {
     using StateStoreBase::StateStoreBase;
 public:
+    StateStore();
     void watch(std::shared_ptr<Relay> relay);
     void watch(std::shared_ptr<Multimeter::Channel> multimeterChannel);
-    void watch(std::shared_ptr<LoadDetector> loadDetector);
+    void watch(std::shared_ptr<VirtualLoadDetector> virtualLoadDetector);
 private:
     void update();
+
+private:
+    std::shared_ptr<Relay> relay;
+    std::shared_ptr<Multimeter::Channel> multimeterChannel;
+    std::shared_ptr<VirtualLoadDetector> virtualLoadDetector;
+
+private:
+    rtthread::Mutex mutex;
+    static const char* kMutex;
 };
+
+#include <utilities/singleton.hxx>
+namespace Preset {
+template<int R>
+class StateStore: public Singleton<StateStore<R>>, public ::StateStore {
+    friend class Singleton<StateStore<R>>;
+    StateStore(): ::StateStore() {}
+};
+}
 
 
 

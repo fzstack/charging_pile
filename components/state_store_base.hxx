@@ -13,6 +13,7 @@
 #include <memory>
 #include <utilities/observer.hxx>
 #include <utilities/observable.hxx>
+#include <Mutex.h>
 
 enum class State {
     LoadNotInsert = 1,
@@ -25,8 +26,6 @@ enum class State {
 class StateStoreBase : public std::enable_shared_from_this<StateStoreBase> {
 public:
     StateStoreBase();
-
-
 protected:
     Observable<std::optional<State>> state;
 public:

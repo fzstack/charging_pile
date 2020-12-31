@@ -12,9 +12,9 @@
 
 #include <devices/wtn6.hxx>
 #include <memory>
+#include "state_store_base.hxx"
+#include <utilities/nested.hxx>
 
-
-class Charger;
 
 enum class Voices: rt_uint8_t {
     Slience, //20ms静音
@@ -35,16 +35,22 @@ enum class Voices: rt_uint8_t {
     Reserved3,
 };
 
+struct PortSpecifiedVoice {
+    Voices plugged, unplugged;
+};
+
 class VoiceNotifier: public std::enable_shared_from_this<VoiceNotifier> {
     friend void test_voice_notifier(int argc, char** argv);
 public:
     VoiceNotifier(std::shared_ptr<Wtn6> wtn6);
-    //void watch(std::shared_ptr<Charger> charger, Chargers chargers);
+
+    void watch(std::shared_ptr<StateStoreBase> store, PortSpecifiedVoice psv);
+    //void watch(std::shared_ptr<Charger> charger, int resource);
     //void watch(std::shared_ptr<User> user);
 
 private:
     std::shared_ptr<Wtn6> wtn6;
-    std::shared_ptr<Charger> lastInsertedcharger;
+    //std::shared_ptr<Charger> lastInsertedcharger;
 };
 
 #include <utilities/singleton.hxx>

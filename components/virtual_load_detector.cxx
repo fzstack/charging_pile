@@ -28,7 +28,6 @@ VirtualLoadDetector::VirtualLoadDetector(
         this->physical->oState += [this](auto value){ update(); };
         this->relay->getHandler().onChanged += [this](auto value) {
             if(value && !*value) {
-                rt_kprintf("timer start\n");
                 timer.start();
                 return;
             }
@@ -37,7 +36,6 @@ VirtualLoadDetector::VirtualLoadDetector(
         this->multimeterChannel->current += [this](auto value) { update(); };
         this->multimeterChannel->voltage += [this](auto value) { update(); };
         this->timer.onRun += [this]() {
-            rt_kprintf("timer stop\n");
             update();
         };
         update();

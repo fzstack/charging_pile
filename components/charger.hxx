@@ -13,8 +13,9 @@
 #include "rgb_state_notifier.hxx"
 #include <devices/relay.hxx>
 #include "multimeter.hxx"
-#include <devices/load_detector.hxx>
+#include "virtual_load_detector.hxx"
 #include "state_store.hxx"
+#include "voice_notifier.hxx"
 #include <memory>
 
 class Charger {
@@ -23,21 +24,50 @@ public:
         std::shared_ptr<RgbStateNotifier> rgbNotifier,
         std::shared_ptr<Relay> relay,
         std::shared_ptr<Multimeter::Channel> multimeterChannel,
-        std::shared_ptr<LoadDetector> loadDetector,
+        std::shared_ptr<VirtualLoadDetector> vlodet,
         std::shared_ptr<StateStore> stateStore
     );
 public:
     void init();
+    void start();
+    void stop();
 
 private:
     std::shared_ptr<RgbStateNotifier> rgbNotifier;
     std::shared_ptr<Relay> relay;
     std::shared_ptr<Multimeter::Channel> multimeterChannel;
-    std::shared_ptr<LoadDetector> loadDetector;
+    std::shared_ptr<VirtualLoadDetector> vlodet;
     std::shared_ptr<StateStore> stateStore;
 
     Observable<int> inited = {false};
 };
+
+#include <utilities/singleton.hxx>
+namespace Preset {
+template<int R>
+class Charger: public Singleton<Charger<R>>, public ::Charger {
+    friend class Singleton<Charger<R>>;
+    Charger(): ::Charger(
+        RgbStateNotifier<R>::get(),
+        Relay<R>::get(),
+        Multimeter::get()->getChannel(Multimeter::getPort<R>()),
+        VirtualLoadDetector<R>::get(),
+        StateStore<R>::get()
+    ) {
+        VoiceNotifier::get()->watch(StateStore<R>::get(), getPSV());
+    }
+    static constexpr PortSpecifiedVoice getPSV() {
+        switch(R) {
+        case 0:
+            return {Voices::PortAPluged, Voices::PortAUnpluged};
+        case 1:
+            return {Voices::PortBPluged, Voices::PortBUnpluged};
+        default:
+            throw not_implemented{"resource id out of range"};
+        }
+    }
+};
+}
 
 
 

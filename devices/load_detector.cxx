@@ -30,14 +30,17 @@ LoadDetector::LoadDetector(rt_base_t pin): pin(pin), oState(state) {
 
     timer = std::shared_ptr<rt_timer>(rt_timer_create(kTimer, [](auto p) {
         auto self = (LoadDetector*)p;
+
+        auto size = kArraySize;
+
         if(!self->fulled)
-            return;
+            size = self->rear;
 
         auto now = rt_tick_get();
         auto count = int{};
 
-        for(auto tick: self->ticks) {
-            if(now - tick < kDetectWndMs)
+        for(auto i = 0; i < size; i++) {
+            if(now - self->ticks[i] < kDetectWndMs)
                 count++;
         }
 

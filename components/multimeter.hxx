@@ -61,6 +61,18 @@ namespace Preset {
 class Multimeter: public Singleton<Multimeter>, public ::Multimeter {
     friend class Singleton<Multimeter>;
     Multimeter(): ::Multimeter(Hlw8112::get()) {}
+public:
+    template<int R>
+    static constexpr Multimeter::ChPort getPort() {
+        switch(R) {
+        case 0:
+            return Multimeter::ChPort::B;
+        case 1:
+            return Multimeter::ChPort::A;
+        default:
+            throw std::runtime_error{"resource id out of range"};
+        }
+    }
 };
 }
 

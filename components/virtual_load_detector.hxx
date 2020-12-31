@@ -51,17 +51,7 @@ namespace Preset {
 template<int R>
 class VirtualLoadDetector: public Singleton<VirtualLoadDetector<R>>, public Config::Bsp::assert_t<::VirtualLoadDetector, R> {
     friend class Singleton<VirtualLoadDetector<R>>;
-    VirtualLoadDetector(): ::VirtualLoadDetector(LoadDetector<R>::get(), Relay<R>::get(), Multimeter::get()->getChannel(getPort())) {}
-    static constexpr Multimeter::ChPort getPort() {
-        switch(R) {
-        case 0:
-            return Multimeter::ChPort::B;
-        case 1:
-            return Multimeter::ChPort::A;
-        default:
-            throw std::runtime_error{"resource id out of range"};
-        }
-    }
+    VirtualLoadDetector(): ::VirtualLoadDetector(LoadDetector<R>::get(), Relay<R>::get(), Multimeter::get()->getChannel(Multimeter::getPort<R>())) {}
 };
 }
 
