@@ -43,6 +43,4 @@ class AliCloud: public Singleton<AliCloud>, public ::AliCloud {
 };
 }
 
-
-
 #endif /* APPLICATIONS_ALI_CLOUD_HXX_ */

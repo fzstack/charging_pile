@@ -27,6 +27,7 @@ private:
 
     //kInvdThrDurationMs内少于kInvdThrNMin有效信号则无效
     //参数调整:
+public:
     const static int
         kPluseFreqHz = 50, //脉冲频率为市电频率
         kDetectWndMs = 200, //检测窗口
@@ -37,9 +38,10 @@ private:
     bool fulled = false;
     int rear = 0;
     Observable<std::optional<bool>> state;
-
 public:
     Observer<std::optional<bool>> oState;
+private:
+    static const char* kTimer;
 };
 
 #include <utilities/singleton.hxx>

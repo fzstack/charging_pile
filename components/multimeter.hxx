@@ -52,6 +52,7 @@ private:
     Observable<bool> inited = {false};
 
     const static int kTimerDurMs = 1000;
+    static const char* kTimer;
 
 };
 

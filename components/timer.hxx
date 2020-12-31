@@ -8,16 +8,28 @@
  * 2021-12-29     imgcr       the first version
  */
 
+#ifndef COMPONENTS_TIMER_HXX_
+#define COMPONENTS_TIMER_HXX_
+
 #include <rtthread.h>
 #include <memory>
+#include <utilities/signals.hxx>
+
+
 
 class Timer {
 public:
-    Timer(rt_tick_t time, const char* name);
+    Timer(rt_tick_t time, const char* name, rt_uint8_t flags = RT_TIMER_FLAG_PERIODIC);
     virtual void start();
+    bool isRunning();
 protected:
-    virtual void run() = 0;
+    virtual void run();
+public:
+    Signals<void()> onRun = {};
 private:
     std::shared_ptr<rt_timer> timer;
+    bool running = false;
+    rt_uint8_t flags;
 };
 
+#endif

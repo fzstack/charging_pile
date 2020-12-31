@@ -22,8 +22,7 @@ Multimeter::Multimeter(std::shared_ptr<Hlw8112> device): device(device) {
 
     inited.onChanged += [this](auto value) {
         if(value) {
-            /**/
-            timer = shared_ptr<rt_timer>(rt_timer_create("MM", [](auto p) {
+            timer = shared_ptr<rt_timer>(rt_timer_create(kTimer, [](auto p) {
                 auto self = (Multimeter*)p;
                 auto valA = *self->device->makeSess<rms_i_a>();
                 auto valB = *self->device->makeSess<rms_i_b>();

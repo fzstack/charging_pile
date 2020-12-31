@@ -18,6 +18,7 @@ class Observer;
 
 template <class T>
 struct Observable {
+    using type = T;
     friend class Observer<T>;
     Observable() { }
     Observable(T value): value(value) { }

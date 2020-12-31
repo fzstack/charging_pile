@@ -25,11 +25,10 @@ LoadDetector::LoadDetector(rt_base_t pin): pin(pin), oState(state) {
         if(!self->fulled && self->rear == 0) {
             self->fulled = true;
         }
-
     }, this);
     rt_pin_irq_enable(pin, PIN_IRQ_ENABLE);
 
-    timer = std::shared_ptr<rt_timer>(rt_timer_create("LodDec", [](auto p) {
+    timer = std::shared_ptr<rt_timer>(rt_timer_create(kTimer, [](auto p) {
         auto self = (LoadDetector*)p;
         if(!self->fulled)
             return;
