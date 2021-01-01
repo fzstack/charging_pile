@@ -14,6 +14,8 @@
 #include <memory>
 #include "state_store_base.hxx"
 #include <utilities/nested.hxx>
+#include <components/user.hxx>
+#include "last_charger.hxx"
 
 
 enum class Voices: rt_uint8_t {
@@ -45,11 +47,12 @@ public:
     VoiceNotifier(std::shared_ptr<Wtn6> wtn6);
 
     void watch(std::shared_ptr<StateStoreBase> store, PortSpecifiedVoice psv);
-    //void watch(std::shared_ptr<Charger> charger, int resource);
-    //void watch(std::shared_ptr<User> user);
+    void watch(std::shared_ptr<User> user);
+    void watch(std::shared_ptr<LastCharger> last);
 
 private:
     std::shared_ptr<Wtn6> wtn6;
+    std::shared_ptr<LastCharger> last;
     //std::shared_ptr<Charger> lastInsertedcharger;
 };
 
@@ -57,7 +60,10 @@ private:
 namespace Preset {
 class VoiceNotifier: public Singleton<VoiceNotifier>, public ::VoiceNotifier {
     friend class Singleton<VoiceNotifier>;
-    VoiceNotifier(): ::VoiceNotifier(Wtn6::get()) {}
+    VoiceNotifier(): ::VoiceNotifier(Wtn6::get()) {
+        watch(User::get());
+        watch(LastCharger::get());
+    }
 };
 }
 
