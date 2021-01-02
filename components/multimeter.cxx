@@ -18,10 +18,9 @@
 using namespace std;
 
 Multimeter::Multimeter(std::shared_ptr<Hlw8112> device): device(device) {
-    device->init();
-
     inited.onChanged += [this](auto value) {
         if(value) {
+            this->device->init();
             timer = shared_ptr<rt_timer>(rt_timer_create(kTimer, [](auto p) {
                 auto self = (Multimeter*)p;
                 auto valA = *self->device->makeSess<rms_i_a>();

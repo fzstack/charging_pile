@@ -33,12 +33,19 @@ public:
     void stop();
 
 private:
+    void assertState(State expectedState, std::string action);
+
+
+private:
     std::shared_ptr<RgbStateNotifier> rgbNotifier;
     std::shared_ptr<Relay> relay;
     std::shared_ptr<Multimeter::Channel> multimeterChannel;
     std::shared_ptr<VirtualLoadDetector> vlodet;
+
+public:
     std::shared_ptr<StateStore> stateStore;
 
+private:
     Observable<int> inited = {false};
 };
 
@@ -71,6 +78,8 @@ class Charger: public Singleton<Charger<R>>, public ::Charger {
 };
 }
 
-
+struct charger_error: public std::runtime_error {
+    using std::runtime_error::runtime_error;
+};
 
 #endif /* COMPONENTS_CHARGER_HXX_ */

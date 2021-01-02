@@ -14,14 +14,7 @@
 #include <utilities/observer.hxx>
 #include <utilities/observable.hxx>
 #include <Mutex.h>
-
-enum class State {
-    LoadNotInsert = 1,
-    LoadInserted,
-    Charging,
-    LoadWaitRemove,
-    Error,
-};
+#include <config/app.hxx>
 
 class StateStoreBase : public std::enable_shared_from_this<StateStoreBase> {
 public:

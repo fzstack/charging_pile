@@ -30,9 +30,7 @@ bool Timer::isRunning() {
 
 void Timer::run() {
     onRun();
-    rt_kprintf("check flags.. %d\n", flags);
     if(!(flags & RT_TIMER_FLAG_PERIODIC)) {
-        rt_kprintf("running = false\n");
         running = false;
     }
 }

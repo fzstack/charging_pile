@@ -9,6 +9,7 @@
  */
 #ifndef CONFIG_APP_HXX_
 #define CONFIG_APP_HXX_
+#include <string>
 
 namespace Config {
 class App {
@@ -19,6 +20,16 @@ public:
         *cloudDeviceSecret;
 };
 }
+
+enum class State {
+    LoadNotInsert = 1,
+    LoadInserted,
+    Charging,
+    LoadWaitRemove,
+    Error,
+};
+
+std::string getStateStr(State state);
 
 
 #endif /* CONFIG_APP_HXX_ */

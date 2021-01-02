@@ -10,6 +10,8 @@
 
 #include "charger.hxx"
 
+using namespace std;
+
 Charger::Charger(
     std::shared_ptr<RgbStateNotifier> rgbNotifier,
     std::shared_ptr<Relay> relay,
@@ -31,10 +33,17 @@ void Charger::init() {
 }
 
 void Charger::start() {
-    //TODO: 判断是否可以充电
+    assertState(State::LoadInserted, "start charging");
     relay->getHandler() = true;
 }
 
 void Charger::stop() {
+    assertState(State::Charging, "stop charging");
     relay->getHandler() = false;
+}
+
+void Charger::assertState(State expectedState, string action) {
+    auto state = *stateStore->oState;
+        if(state != expectedState)
+            throw charger_error{"failed to " + action + ", reason: "s + (state ? getStateStr(*state): "null_state")};
 }
