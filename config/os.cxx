@@ -15,6 +15,7 @@
 #include <components/multimeter.hxx>
 #include <components/state_store.hxx>
 #include <applications/thing.hxx>
+#include <applications/auto_poweroff_thing_deco.hxx>
 
 using namespace Config;
 
@@ -26,7 +27,7 @@ const char *VirtualLoadDetector::kMutex = "vlodet";
 const char *VirtualLoadDetector::kTimer = "vlodet";
 const char *Multimeter::kTimer = "mulmtr";
 const char *StateStore::kMutex = "ststor";
-const char *Thing::kTimer = "thing";
+const char *AutoPoweroffThingDeco::kTimer = "tapoff";
 
 namespace Preset {
 const rt_tick_t CloudTimer::kTime = 60000;

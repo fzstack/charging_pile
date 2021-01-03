@@ -108,7 +108,7 @@ std::vector<at_urc> AirMqttClient::onUrcTableInit() {
 string AirMqttClient::escape(string_view raw) {
     auto frags = split(raw.data(), '"');
     auto result = ""s;
-    for(auto i = 0; i < frags.size() - 1; i++) {
+    for(auto i = 0u; i < frags.size() - 1; i++) {
         result += frags[i] + "\\22";
     }
     result += frags[frags.size() - 1];
