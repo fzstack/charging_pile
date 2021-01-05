@@ -36,6 +36,7 @@ VirtualLoadDetector::VirtualLoadDetector(
         this->multimeterChannel->current += [this](auto value) { update(); };
         this->multimeterChannel->voltage += [this](auto value) { update(); };
         this->timer.onRun += [this]() {
+            rt_kprintf("vlod timer runned\n");
             update();
         };
         update();

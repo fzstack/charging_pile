@@ -92,7 +92,7 @@ void Hlw8112::specCmd(char cmd) {
     this->cmd(0xea, (void*)&cmd, 1);
 }
 
-rt_err_t Hlw8112::readReg(char addr, void* data, int len, rt_int32_t timeout) {
+void Hlw8112::readReg(char addr, void* data, int len, rt_int32_t timeout) {
     char cs_expect = 0, cs;
     uart->send<char>(0xa5);
     cs_expect += 0xa5;
@@ -101,21 +101,17 @@ rt_err_t Hlw8112::readReg(char addr, void* data, int len, rt_int32_t timeout) {
     cs_expect += addr;
 
     for(char* p = (char*)data + len - 1; p >= (char*)data; p--) {
-        if(uart->recv(p, 1, timeout) != RT_EOK) {
-            return -RT_ETIMEOUT;
-        }
+        uart->recv(p, 1, timeout);
         cs_expect += *p;
     }
     cs_expect = ~cs_expect;
-    if(uart->recv(&cs, 1, timeout) != RT_EOK) {
-        return RT_ETIMEOUT;
-    }
+    uart->recv(&cs, 1, timeout);
 
     if(cs != cs_expect) {
-        return -RT_ERROR;
+        uart->clear();
+        throw hlw8112_error{"wrong checksum"};
     }
 
-    return RT_EOK;
 }
 
 void Hlw8112::writeReg(int addr, void* data, int len) {

@@ -18,6 +18,10 @@ public:
     not_implemented(): std::runtime_error("not implemented") {}
 };
 
+class timeout_error: virtual public std::runtime_error {
+    using std::runtime_error::runtime_error;
+};
+
 
 
 #endif /* UTILITIES_ERR_HXX_ */

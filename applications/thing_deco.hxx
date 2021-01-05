@@ -12,6 +12,7 @@
 
 #include <utilities/nested.hxx>
 #include "thing.hxx"
+#include <Lock.h>
 
 class Thing;
 class ChargerInfo;
@@ -24,6 +25,7 @@ protected:
     ChargerInfo& getInfo(int port);
     std::shared_ptr<User> getUser();
     std::shared_ptr<LastCharger> getLast();
+    rtthread::Lock getLock();
 };
 
 

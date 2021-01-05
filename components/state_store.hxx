@@ -14,6 +14,7 @@
 #include <devices/relay.hxx>
 #include "multimeter.hxx"
 #include "virtual_load_detector.hxx"
+#include "timer.hxx"
 
 class StateStore: public StateStoreBase {
     using StateStoreBase::StateStoreBase;
@@ -33,6 +34,7 @@ private:
 private:
     rtthread::Mutex mutex;
     static const char* kMutex;
+
 };
 
 #include <utilities/singleton.hxx>

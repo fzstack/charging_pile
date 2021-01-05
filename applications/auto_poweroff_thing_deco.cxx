@@ -14,6 +14,7 @@
 AutoPoweroffThingDeco::AutoPoweroffThingDeco(outer_t* outer): ThingDeco(outer) {
     timer.onRun += [this](){
         for(auto i = 0u; i < Config::Bsp::kPortNum; i++) {
+            auto guard = getLock();
             auto& info = getInfo(i);
             auto& charger = info.charger;
             auto& leftSeconds = info.leftSeconds;
@@ -29,6 +30,7 @@ AutoPoweroffThingDeco::AutoPoweroffThingDeco(outer_t* outer): ThingDeco(outer) {
     inited.onChanged += [this](auto value) {
         if(!value) return;
         for(auto i = 0u; i < Config::Bsp::kPortNum; i++) {
+            auto guard = getLock();
             auto& info = getInfo(i);
             info.charger->stateStore->oState += [this, &info](auto value) {
                 if(value != State::LoadWaitRemove) return;

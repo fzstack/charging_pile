@@ -20,5 +20,4 @@ protected:
 };
 
 
-
 #endif /* UTILITIES_NESTED_HXX_ */

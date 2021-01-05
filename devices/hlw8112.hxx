@@ -74,7 +74,7 @@ private:
     void cmd(int cmd, void* data, int len);
     void specCmd(char cmd);
 
-    rt_err_t readReg(char addr, void* data, int len, rt_int32_t timeout = RT_WAITING_FOREVER);
+    void readReg(char addr, void* data, int len, rt_int32_t timeout = 5);
     void writeReg(int addr, void* data, int len);
 
 public:
@@ -83,6 +83,11 @@ public:
 private:
     std::shared_ptr<QueuedUart> uart;
 };
+
+class hlw8112_error: virtual public std::runtime_error {
+    using std::runtime_error::runtime_error;
+};
+
 
 #include <utilities/singleton.hxx>
 namespace Preset {

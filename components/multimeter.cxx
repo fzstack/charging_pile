@@ -23,13 +23,19 @@ Multimeter::Multimeter(std::shared_ptr<Hlw8112> device): device(device) {
             this->device->init();
             timer = shared_ptr<rt_timer>(rt_timer_create(kTimer, [](auto p) {
                 auto self = (Multimeter*)p;
-                auto valA = *self->device->makeSess<rms_i_a>();
-                auto valB = *self->device->makeSess<rms_i_b>();
-                auto valU = *self->device->makeSess<rms_u>();
 
-                self->curChA = int(self->calcCurrent(valA.data, self->curCChA));
-                self->curChB = int(self->calcCurrent(valB.data, self->curCChB));
-                self->vol = int(self->calcVoltage(valU.data, self->volC));
+                try {
+                    auto valA = *self->device->makeSess<rms_i_a>();
+                    auto valB = *self->device->makeSess<rms_i_b>();
+                    auto valU = *self->device->makeSess<rms_u>();
+
+                    self->curChA = int(self->calcCurrent(valA.data, self->curCChA));
+                    self->curChB = int(self->calcCurrent(valB.data, self->curCChB));
+                    self->vol = int(self->calcVoltage(valU.data, self->volC));
+                } catch(const exception& e) {
+                    rt_kprintf("\033[39m{%s} %s\n\033[0m", typeid(e).name(), e.what());
+                }
+
             }, this, kTimerDurMs, RT_TIMER_FLAG_PERIODIC | RT_TIMER_FLAG_SOFT_TIMER), [](auto p) {
                 rt_timer_stop(p);
                 rt_timer_delete(p);

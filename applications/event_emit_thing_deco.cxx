@@ -14,6 +14,7 @@ EventEmitThingDeco::EventEmitThingDeco(outer_t* outer): ThingDeco(outer) {
     inited.onChanged += [this](auto value) {
         if(!value) return;
         for(auto i = 0u; i < Config::Bsp::kPortNum; i++) {
+            auto guard = getLock();
             getInfo(i).charger->stateStore->oState += [this, i](auto value) {
               if(value != State::LoadInserted) return;
               this->outer->onPortAccess(i);
@@ -21,6 +22,8 @@ EventEmitThingDeco::EventEmitThingDeco(outer_t* outer): ThingDeco(outer) {
         }
 
         getUser()->onCardSwipe += [this](auto cardId) {
+            auto guard = getLock();
+            rt_kprintf("processed card id is %s\n", cardId.c_str());
             auto waitingToStart = *getLast()->oWaitingToStart;
             if(!waitingToStart) return;
             for(auto i = 0u; i < Config::Bsp::kPortNum; i++) {

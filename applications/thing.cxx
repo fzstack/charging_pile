@@ -9,9 +9,11 @@
  */
 
 #include "thing.hxx"
+#include <Lock.h>
 
 using namespace std;
 using namespace string_literals;
+using namespace rtthread;
 
 Thing::Thing(array<shared_ptr<Charger>, Config::Bsp::kPortNum> chargers, shared_ptr<User> user, shared_ptr<LastCharger> last):
     infos(), user(user), last(last) {
@@ -40,6 +42,7 @@ void Thing::init() {
 }
 
 void Thing::control(int port, int timerId, int minutes) {
+    auto guard = Lock(mutex);
     auto& info = infos[port]; //NOTE: std::array会自动进行边界检查
     info.charger->start();
     info.timerId = timerId;

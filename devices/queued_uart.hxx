@@ -24,7 +24,8 @@ public:
 
     rt_size_t send(void* data, int len) const;
 
-    rt_err_t recv(void* data, int len, rt_int32_t timeout = RT_WAITING_FOREVER);
+    void recv(void* data, int len, rt_int32_t timeout = 10);
+    void clear();
 
 private:
     rt_device_t device;
@@ -35,6 +36,8 @@ private:
             UartIndicate = 1,
         };
     };
+
+    const char* deviceName;
 };
 
 

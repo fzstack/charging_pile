@@ -8,5 +8,10 @@
   "path": "/packages/security/tinycrypt", 
   "ver": "v1.0.0", 
   "name": "TINYCRYPT"
+ }, 
+ {
+  "path": "/packages/peripherals/at24cxx", 
+  "ver": "latest", 
+  "name": "AT24CXX"
  }
 ]

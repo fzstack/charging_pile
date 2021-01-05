@@ -29,8 +29,9 @@ bool Timer::isRunning() {
 }
 
 void Timer::run() {
-    onRun();
     if(!(flags & RT_TIMER_FLAG_PERIODIC)) {
         running = false;
     }
+    onRun();
+
 }

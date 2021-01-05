@@ -91,6 +91,8 @@
 #define RT_USING_SERIAL
 #define RT_SERIAL_USING_DMA
 #define RT_SERIAL_RB_BUFSZ 64
+#define RT_USING_I2C
+#define RT_USING_I2C_BITOPS
 #define RT_USING_PIN
 #define RT_USING_SPI
 
@@ -212,6 +214,8 @@
 
 /* peripheral libraries and drivers */
 
+#define PKG_USING_AT24CXX
+#define PKG_USING_AT24CXX_LATEST_VERSION
 /* end of peripheral libraries and drivers */
 
 /* miscellaneous packages */

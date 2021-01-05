@@ -20,14 +20,14 @@
 using namespace Config;
 
 const char
-    *Os::kAliIotDeviceThreadName = "iot_dev";
-
-const char *LoadDetector::kTimer = "lodet";
-const char *VirtualLoadDetector::kMutex = "vlodet";
-const char *VirtualLoadDetector::kTimer = "vlodet";
-const char *Multimeter::kTimer = "mulmtr";
-const char *StateStore::kMutex = "ststor";
-const char *AutoPoweroffThingDeco::kTimer = "tapoff";
+    *Os::kAliIotDeviceThreadName = "iot_dev",
+    *LoadDetector::kTimer = "lodet",
+    *VirtualLoadDetector::kMutex = "vlodet",
+    *VirtualLoadDetector::kTimer = "vlodet",
+    *Multimeter::kTimer = "mulmtr",
+    *StateStore::kMutex = "ststor",
+    *AutoPoweroffThingDeco::kTimer = "tapoff",
+    *Thing::kMutex = "thing";
 
 namespace Preset {
 const rt_tick_t CloudTimer::kTime = 60000;

@@ -30,7 +30,7 @@ Rc522::Rc522(const char* spiBus, const char* spiDev, const GPIO_TypeDef* ssGpioX
 
     conf.data_width = 8;
     conf.mode = RT_SPI_MASTER | RT_SPI_MODE_3 | RT_SPI_MSB;
-    conf.max_hz = 18 * 1000 * 1000;
+    conf.max_hz = 1 * 1000 * 1000;
     rt_spi_configure(spi_dev, &conf);
 
     inited.onChanged += [this](auto value) {
@@ -38,6 +38,10 @@ Rc522::Rc522(const char* spiBus, const char* spiDev, const GPIO_TypeDef* ssGpioX
             timer = std::shared_ptr<rt_timer>(rt_timer_create(LOG_TAG, [](auto p) {
                 auto self = (Rc522*)p;
                 auto retVal = self->pcdRequest(Rc522::Piccs::ReqAll);
+                if(retVal != 0 && retVal != 8) { //值未知，发生错误，需要重新复位
+                    self->pcdReset();
+                    return;
+                }
                 if(retVal != RT_EOK) {
                     self->contiReqFailedCnt++;
                     if(self->contiReqFailedCnt > 1)

@@ -20,6 +20,7 @@
 #include <stdexcept>
 #include <components/timer.hxx>
 #include "thing_deco.hxx"
+#include <Mutex.h>
 
 class ThingDeco;
 
@@ -51,8 +52,11 @@ private:
     std::shared_ptr<User> user;
     std::shared_ptr<LastCharger> last;
     std::list<std::shared_ptr<ThingDeco>> decos = {};
+    rtthread::Mutex mutex = {kMutex};
 
     Observable<bool> inited = {false};
+
+    static const char* kMutex;
 };
 
 struct thing_error: public std::runtime_error {
