@@ -37,117 +37,112 @@ public:
 
 private:
 
-
     template <class T>
-    class IdxSess {
+    class Idx { //NOTE: 改变指针要调用dispose
     public:
-        IdxSess(rt_uint16_t addr): addr(addr), outer(*self) {
-            if(!outer) throw std::runtime_error{"ctx not provided"};
+        Idx(rt_uint16_t addr): addr(addr) {
+            field[this] = {};
+        }
 
-            auto found_outer = pool.find(outer);
-            if(found_outer != pool.end()) {
-                auto found_addr = found_outer->second.find(addr);
-                if(found_addr != found_outer->second.end()) {
-                    //找到了，直接返回
-                    info = &found_addr->second;
-                    info->count++;
-                    return;
-                }
-            }
+        Idx(): addr(kNull) { //空Idx
+            field[this] = {};
+        }
 
-            //没找到、创建
-            auto& infoRef = pool[outer][addr];
-            info = &infoRef;
-            info->count = 1;
-
-            at24cxx_read(self->device, addr, (uint8_t*)(void*)&info->data, sizeof(T));
-            info->backup = info->data;
-            rt_kprintf("load %s from eeprom\n", typeid(T).name());
+        ~Idx() {
+            dispose();
+            field.erase(this);
         }
 
         T* operator->() {
-            return &info->data;
+            return &getRef();
         }
 
         T& operator*() {
-            return info->data;
-        }
-
-        rt_uint16_t get() {
-            return addr;
-        }
-
-        void operator=(const IdxSess<T>& other) = delete;
-
-        ~IdxSess() {
-            info->count--;
-            if(info->count > 0) return;
-            if(info->data != info->backup) {
-                rt_kprintf("store %s to eeprom\n", typeid(T).name());
-                at24cxx_write(self->device, addr, (uint8_t*)(void*)&info->data, sizeof(T));
-            }
-
-            //TODO: 从map删除
-            auto found_outer = pool.find(outer);
-            found_outer->second.erase(addr);
-
-        }
-
-    private:
-
-        struct IdxInfo {
-            T data, backup;
-            int count;
-        };
-
-        IdxInfo* info;
-        rt_uint16_t addr;
-        std::shared_ptr<PersistentStorage> outer;
-
-        static std::map<std::shared_ptr<PersistentStorage>, std::map<rt_uint16_t, IdxInfo>> pool;
-    };
-
-    template <class T>
-    class Idx {
-
-    public:
-        Idx(rt_uint16_t addr): addr(addr) {
-
-        }
-
-        Idx(): addr(null) { //空Idx
-
-        }
-
-        IdxSess<T> operator()() {
-            return {addr};
+            return getRef();
         }
 
         void operator=(rt_uint16_t addr) {
+            dispose();
             this->addr = addr;
         }
 
-        void operator=(IdxSess<T>& sess) {
-            addr = sess.get();
+        void operator=(const Idx<T>& other) {
+            dispose();
+            addr = other.addr;
         }
 
         void operator=(nullptr_t) {
-            addr = null;
+            dispose();
+            addr = kNull;
         }
 
         bool operator==(const nullptr_t& n) {
-            return addr == null;
+            return addr == kNull;
         }
 
         bool operator==(const Idx<T>& other) {
             return addr == other.addr;
         }
 
+        T& getRef() { //TODO: 判断地址是否有效
+            auto& f = field[this];
+            auto outer = f.outer;
+            auto& info = f.info;
+            if(info == nullptr) { //尚未求值
+                if(!outer) throw std::runtime_error{"ctx not provided"};
+                auto found_outer = pool.find(outer);
+                if(found_outer != pool.end()) {
+                    auto found_addr = found_outer->second.find(addr);
+                    if(found_addr != found_outer->second.end()) {
+                        //找到了，直接返回
+                        info = &found_addr->second;
+                        info->count++;
+                        return info->data;
+                    }
+                }
+                //没找到、创建
+                auto& infoRef = pool[outer][addr];
+                info = &infoRef;
+                info->count = 1;
 
-    static constexpr rt_uint16_t null = 0xffff;
+                at24cxx_read(self->device, addr, (uint8_t*)(void*)&info->data, sizeof(T));
+                info->backup = info->data;
+                rt_kprintf("load %s from eeprom\n", typeid(T).name());
+            }
+            return info->data;
+        }
 
+        void dispose() {
+            auto& f = field[this];
+            auto& info = f.info;
+            auto outer = f.outer;
+            if(info != nullptr) {
+                info->count--;
+                if(info->count > 0) return;
+                if(info->data != info->backup) {
+                    rt_kprintf("store %s to eeprom\n", typeid(T).name());
+                    at24cxx_write(self->device, addr, (uint8_t*)(void*)&info->data, sizeof(T));
+                }
+                auto found_outer = pool.find(outer);
+                found_outer->second.erase(addr);
+            }
+        }
+        static constexpr rt_uint16_t kNull = 0xffff;
     private:
         rt_uint16_t addr;
+
+        struct IdxInfo {
+            T data, backup;
+            int count;
+        };
+
+        struct IdxField {
+            IdxInfo* info = nullptr;
+            std::shared_ptr<PersistentStorage> outer = *PersistentStorage::self;
+        };
+
+        static std::map<Idx*, IdxField> field;
+        static std::map<std::shared_ptr<PersistentStorage>, std::map<rt_uint16_t, IdxInfo>> pool;
     };
 
     template <class T>
@@ -184,8 +179,8 @@ private:
         Idx<IdleNode> idle; //空闲链表首元
         Idx<AllocNode> alloc; //元数据链表首元
 
-        static IdxSess<MetaHead> get() {
-            return Idx<MetaHead>(0)();
+        static Idx<MetaHead> get() {
+            return Idx<MetaHead>(0);
         }
     };
 
@@ -210,7 +205,11 @@ private:
 };
 
 template<class T>
-std::map<std::shared_ptr<PersistentStorage>, std::map<rt_uint16_t, typename PersistentStorage::IdxSess<T>::IdxInfo>> PersistentStorage::IdxSess<T>::pool = {};
+std::map<std::shared_ptr<PersistentStorage>, std::map<rt_uint16_t, typename PersistentStorage::Idx<T>::IdxInfo>> PersistentStorage::Idx<T>::pool = {};
+
+template<class T>
+std::map<typename PersistentStorage::Idx<T>*, typename PersistentStorage::Idx<T>::IdxField> PersistentStorage::Idx<T>::field = {};
+
 
 #include <utilities/singleton.hxx>
 namespace Preset {
