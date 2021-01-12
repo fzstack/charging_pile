@@ -67,12 +67,10 @@ private:
 
 private:
     std::shared_ptr<T> pt;
-
-    static std::map<rt_thread_t, T> m;
+    std::map<rt_thread_t, T> m = {};
     static rtthread::Mutex mutex;
 };
 
-template<class T> std::map<rt_thread_t, T> ThreadLocal<T>::m = {};
 template<class T> rtthread::Mutex ThreadLocal<T>::mutex = {};
 
 #endif /* UTILITIES_THREAD_LOCAL_HXX_ */

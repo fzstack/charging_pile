@@ -16,6 +16,7 @@
 #include <devices/load_detector.hxx>
 #include <devices/hlw8112.hxx>
 #include <devices/air724.hxx>
+#include <components/persistent_storage.hxx>
 
 namespace Preset {
 template<> const rt_base_t RgbLight<0>::kRPin = GET_PIN(B, 13);
@@ -45,4 +46,8 @@ const char *Hlw8112::kUart = "uart5";
 
 const char *Air724::kUart = "uart2";
 const rt_base_t Air724::kResetPin = GET_PIN(C, 4);
+
+const char* PersistentStorage::kI2c = "i2c1";
+const int PersistentStorage::kAddr = 0;
+const int PersistentStorage::kSize = 2048;
 }
