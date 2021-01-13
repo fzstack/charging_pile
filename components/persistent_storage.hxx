@@ -14,6 +14,7 @@
 #include <rtthread.h>
 #include <utilities/thread_local.hxx>
 #include <stdexcept>
+#include <utilities/idx.hxx>
 
 extern "C" {
 #include <at24cxx.h>
@@ -37,144 +38,70 @@ public:
 
 private:
 
-    template <class T>
-    class Idx { //NOTE: 改变指针要调用dispose
+    class IdxOwner {
     public:
-        Idx(rt_uint16_t addr): addr(addr) {
-            field[this] = {};
+        IdxOwner(std::shared_ptr<PersistentStorage> outer): outer(outer) {
+
         }
 
-        Idx(): addr(kNull) { //空Idx
-            field[this] = {};
-        }
-
-        ~Idx() {
-            dispose();
-            field.erase(this);
-        }
-
-        T* operator->() {
-            return &getRef();
-        }
-
-        T& operator*() {
-            return getRef();
-        }
-
-        void operator=(rt_uint16_t addr) {
-            dispose();
-            this->addr = addr;
-        }
-
-        void operator=(const Idx<T>& other) {
-            dispose();
-            addr = other.addr;
-        }
-
-        void operator=(nullptr_t) {
-            dispose();
-            addr = kNull;
-        }
-
-        bool operator==(const nullptr_t& n) {
-            return addr == kNull;
-        }
-
-        bool operator==(const Idx<T>& other) {
-            return addr == other.addr;
-        }
-
-        T& getRef() { //TODO: 判断地址是否有效
-            auto& f = field[this];
-            auto outer = f.outer;
-            auto& info = f.info;
-            if(info == nullptr) { //尚未求值
-                if(!outer) throw std::runtime_error{"ctx not provided"};
-                auto found_outer = pool.find(outer);
-                if(found_outer != pool.end()) {
-                    auto found_addr = found_outer->second.find(addr);
-                    if(found_addr != found_outer->second.end()) {
-                        //找到了，直接返回
-                        info = &found_addr->second;
-                        info->count++;
-                        return info->data;
-                    }
-                }
-                //没找到、创建
-                auto& infoRef = pool[outer][addr];
-                info = &infoRef;
-                info->count = 1;
-
-                at24cxx_read(self->device, addr, (uint8_t*)(void*)&info->data, sizeof(T));
-                info->backup = info->data;
-                rt_kprintf("load %s from eeprom\n", typeid(T).name());
+        void read(rt_uint16_t addr, rt_uint8_t* data, std::size_t size) {
+            at24cxx_read(outer->device, addr, data, size);
+            rt_kprintf("\033[32mread @%04x, size %d: ", addr, size);
+            for(auto i = 0u; i < size; i++) {
+                rt_kprintf("%02x ", data[i]);
             }
-            return info->data;
+            rt_kprintf("\n\033[0m");
         }
 
-        void dispose() {
-            auto& f = field[this];
-            auto& info = f.info;
-            auto outer = f.outer;
-            if(info != nullptr) {
-                info->count--;
-                if(info->count > 0) return;
-                if(info->data != info->backup) {
-                    rt_kprintf("store %s to eeprom\n", typeid(T).name());
-                    at24cxx_write(self->device, addr, (uint8_t*)(void*)&info->data, sizeof(T));
-                }
-                auto found_outer = pool.find(outer);
-                found_outer->second.erase(addr);
+        void write(rt_uint16_t addr, rt_uint8_t* data, std::size_t size) {
+            rt_kprintf("\033[34mwrite @%04x, size %d: ", addr, size);
+            for(auto i = 0u; i < size; i++) {
+                rt_kprintf("%02x ", data[i]);
             }
+            rt_kprintf("\n\033[0m");
+            at24cxx_write(outer->device, addr, data, size);
         }
-        static constexpr rt_uint16_t kNull = 0xffff;
+
+        //TODO: 使用弱指针
+        static std::shared_ptr<IdxOwner> get() {
+            return *owner;
+        }
+
+        static ThreadLocal<std::shared_ptr<IdxOwner>> owner;
+
     private:
-        rt_uint16_t addr;
-
-        struct IdxInfo {
-            T data, backup;
-            int count;
-        };
-
-        struct IdxField {
-            IdxInfo* info = nullptr;
-            std::shared_ptr<PersistentStorage> outer = *PersistentStorage::self;
-        };
-
-        static std::map<Idx*, IdxField> field;
-        static std::map<std::shared_ptr<PersistentStorage>, std::map<rt_uint16_t, IdxInfo>> pool;
+        std::shared_ptr<PersistentStorage> outer;
     };
 
-    template <class T>
-    struct Trivial {
-        bool operator==(const T& other) {
-            return !memcmp(this, &other, sizeof(T));
-        }
+    friend class IdxOwner;
 
-        bool operator!=(const T& other) {
-            return !(*this == other);
-        }
-    };
+    template<class T>
+    using Idx = ::Idx<T, IdxOwner, rt_uint16_t, 0xffff, 2048 - 1>;
 
-    struct IdleNode: public Trivial<IdleNode> {
+
+    struct IdleNode {
         rt_uint16_t size;
         Idx<IdleNode> prev;
         Idx<IdleNode> next;
+
+        ~IdleNode() {
+            rt_kprintf("\033[33midleNode dector\n\033[0m");
+        }
     };
 
-    struct AllocNode: public Trivial<AllocNode> {
+    struct AllocNode {
         rt_uint16_t size;
         Idx<AllocNode> prev;
         Idx<AllocNode> next;
     };
 
-    struct MetaNode: public Trivial<MetaNode> { //元数据节点
+    struct MetaNode{ //元数据节点
         std::size_t hash; //类型哈希
         //TODO: field链表首元节点
         Idx<MetaNode> next;
     };
 
-    struct MetaHead: public Trivial<MetaHead> { //元数据头, 放在eeprom开头
+    struct MetaHead { //元数据头, 放在eeprom开头
         std::size_t magic; //魔数，判断是否需要格式化
         Idx<IdleNode> idle; //空闲链表首元
         Idx<AllocNode> alloc; //元数据链表首元
@@ -193,23 +120,17 @@ public:
 //    }
 
     void format();
+    void test();
     void alloc();
 
 private:
     std::shared_ptr<void> getCtxGuard();
 
 private:
+    std::shared_ptr<IdxOwner> owner = nullptr;
     at24cxx_device_t device;
     const int size;
-    static ThreadLocal<std::shared_ptr<PersistentStorage>> self;
 };
-
-template<class T>
-std::map<std::shared_ptr<PersistentStorage>, std::map<rt_uint16_t, typename PersistentStorage::Idx<T>::IdxInfo>> PersistentStorage::Idx<T>::pool = {};
-
-template<class T>
-std::map<typename PersistentStorage::Idx<T>*, typename PersistentStorage::Idx<T>::IdxField> PersistentStorage::Idx<T>::field = {};
-
 
 #include <utilities/singleton.hxx>
 namespace Preset {

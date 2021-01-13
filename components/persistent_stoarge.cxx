@@ -10,7 +10,9 @@
 
 #include "persistent_storage.hxx"
 
-ThreadLocal<std::shared_ptr<PersistentStorage>> PersistentStorage::self = std::shared_ptr<PersistentStorage>(nullptr);
+using namespace std;
+
+ThreadLocal<std::shared_ptr<typename PersistentStorage::IdxOwner>> PersistentStorage::IdxOwner::owner;
 
 PersistentStorage::PersistentStorage(at24cxx_device_t device, int size): device(device), size(size) {
 
@@ -22,13 +24,20 @@ void PersistentStorage::format() {
     auto head = MetaHead::get();
     auto idle = Idx<IdleNode>(sizeof(MetaHead));
 
-    idle->size = size - sizeof(MetaHead);
+    idle->size = size - sizeof(MetaHead);  //整个Idle节点的大小，包括这个结构体本身
     idle->next = nullptr;
     idle->prev = nullptr;
 
     head->magic = typeid(MetaHead).hash_code();
     head->idle = idle;
     head->alloc = nullptr;
+}
+
+void PersistentStorage::test() {
+    auto guard = getCtxGuard();
+
+    auto head = MetaHead::get();
+    rt_kprintf("idle size: %d\n", head->idle->next->size);
 }
 
 void PersistentStorage::alloc() {
@@ -38,8 +47,13 @@ void PersistentStorage::alloc() {
 }
 
 std::shared_ptr<void> PersistentStorage::getCtxGuard() {
-    self = shared_from_this();
+
+    if(!owner) {
+        owner = make_shared<IdxOwner>(shared_from_this());
+    }
+
+    IdxOwner::owner = owner;
     return std::shared_ptr<void>(nullptr, [](auto) {
-        self = std::shared_ptr<PersistentStorage>(nullptr);
+        IdxOwner::owner = std::shared_ptr<IdxOwner>(nullptr);
     });
 }

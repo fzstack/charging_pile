@@ -8,9 +8,9 @@
  * 2021-01-13     imgcr       the first version
  */
 
-#include <utilities/idx.hxx>
 #include <array>
 #include <rtthread.h>
+#include <utilities/idx.hxx>
 
 #ifdef TEST_IDX
 
@@ -62,6 +62,8 @@ static void test_idx() {
         auto testOwner = make_shared<TestOwner>();
         testOwner->owner = testOwner;
 
+        rt_kprintf("size of idx: %d\n", sizeof(TestIdx<TestStruct>));
+
         auto test1 = TestIdx<TestStruct>(0);
         auto test2 = TestIdx<TestStruct>(8);
         auto test3 = TestIdx<TestStruct>(8);
@@ -73,12 +75,12 @@ static void test_idx() {
         test3->fieldB = 233;
         test4->fieldA = 5;
         test5->fieldA = 6;
+
+
     } catch(const exception& e) {
         rt_kprintf("err: %s\n", e.what());
     }
 
-
-    //*test = 5;
 }
 
 MSH_CMD_EXPORT(test_idx, );

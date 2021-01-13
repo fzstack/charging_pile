@@ -21,7 +21,7 @@ using namespace std;
 static void test_persistent_storage() {
     try {
         auto storage = Preset::PersistentStorage::get();
-        storage->format();
+        storage->test();
     } catch (const exception& e) {
         LOG_E(e.what());
     }
