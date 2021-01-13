@@ -22,7 +22,6 @@ void PersistentStorage::format() {
     auto head = MetaHead::get();
     auto idle = Idx<IdleNode>(sizeof(MetaHead));
 
-    rt_kprintf("idx size: %d\n", sizeof(Idx<IdleNode>));
     idle->size = size - sizeof(MetaHead);
     idle->next = nullptr;
     idle->prev = nullptr;
