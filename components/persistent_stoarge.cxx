@@ -37,7 +37,8 @@ void PersistentStorage::test() {
     auto guard = getCtxGuard();
 
     auto head = MetaHead::get();
-    rt_kprintf("idle size: %d\n", head->idle->next->size);
+    rt_kprintf("is nullptr?: %d\n", head->idle->next == nullptr);
+    rt_kprintf("idle size: %d\n", head->idle->size);
 }
 
 void PersistentStorage::alloc() {
