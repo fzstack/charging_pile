@@ -45,7 +45,8 @@ private:
         }
 
         void read(rt_uint16_t addr, rt_uint8_t* data, std::size_t size) {
-            at24cxx_read(outer->device, addr, data, size);
+            //at24cxx_read(outer->device, addr, data, size);
+            memcpy(data, &buffer[addr], size);
             rt_kprintf("\033[32mread @%04x, size %d: ", addr, size);
             for(auto i = 0u; i < size; i++) {
                 rt_kprintf("%02x ", data[i]);
@@ -59,7 +60,8 @@ private:
                 rt_kprintf("%02x ", data[i]);
             }
             rt_kprintf("\n\033[0m");
-            at24cxx_write(outer->device, addr, data, size);
+            //at24cxx_write(outer->device, addr, data, size);
+            memcpy(&buffer[addr], data, size);
         }
 
         //TODO: 使用弱指针
@@ -71,6 +73,7 @@ private:
 
     private:
         std::shared_ptr<PersistentStorage> outer;
+        std::array<rt_uint8_t, 2048> buffer;
     };
 
     friend class IdxOwner;
@@ -79,20 +82,27 @@ private:
     using Idx = ::Idx<T, IdxOwner, rt_uint16_t, 0xffff, 2048 - 1>;
 
 
-    struct IdleNode {
-        rt_uint16_t size;
-        Idx<IdleNode> prev;
-        Idx<IdleNode> next;
+    struct HeapNode {
+        HeapNode(rt_uint16_t size): size(size) {
 
-        ~IdleNode() {
+        }
+
+        rt_uint16_t size;
+        Idx<HeapNode> prev = nullptr;
+        Idx<HeapNode> next = nullptr;
+
+        ~HeapNode() {
             rt_kprintf("\033[33midleNode dector\n\033[0m");
         }
     };
 
-    struct AllocNode {
-        rt_uint16_t size;
-        Idx<AllocNode> prev;
-        Idx<AllocNode> next;
+    struct HeapList {
+        void add(Idx<HeapNode> node);
+        void remove(Idx<HeapNode> node);
+        Idx<HeapNode> getFront();
+
+    private:
+        Idx<HeapNode> front = nullptr;
     };
 
     struct MetaNode{ //元数据节点
@@ -101,14 +111,14 @@ private:
         Idx<MetaNode> next;
     };
 
-    struct MetaHead { //元数据头, 放在eeprom开头
-        std::size_t magic; //魔数，判断是否需要格式化
-        Idx<IdleNode> idle; //空闲链表首元
-        Idx<AllocNode> alloc; //元数据链表首元
+    struct Meta { //元数据头, 放在eeprom开头
+        Meta(std::size_t deviceSize);
+        static Idx<Meta> get();
+        static Idx<Meta> create(std::size_t deviceSize);
 
-        static Idx<MetaHead> get() {
-            return Idx<MetaHead>(0);
-        }
+        std::size_t magic = typeid(Meta).hash_code(); //魔数，判断是否需要格式化
+        HeapList idle = {};
+        HeapList alloc = {};
     };
 
 
@@ -121,9 +131,12 @@ public:
 
     void format();
     void test();
-    void alloc();
+
 
 private:
+    rt_uint16_t alloc(std::size_t size);
+    void free(rt_uint16_t addr);
+
     std::shared_ptr<void> getCtxGuard();
 
 private:

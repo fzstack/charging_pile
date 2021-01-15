@@ -19,15 +19,16 @@
 #include "thread_local.hxx"
 #include <algorithm>
 
-//NOTE: 目前阻止部分交叠申请
-
-
+//NOTE: 目前阻止部分交叠申请, 因为那需要保证buffer连续
+//TODO: shared_ptr持有指针引用导致内存泄漏问题
 template <class Owner, class Addr, Addr Null, Addr Max>
 class IdxAsset {
 public:
     IdxAsset(Addr addr = Null): addr(addr) {};
+    IdxAsset(std::nullptr_t n): addr(Null) {};
 
     void* getPtr(std::size_t size);
+    bool isAccessed() const;
     std::shared_ptr<rt_uint8_t[]> dispose(std::size_t size);
 
     template<class U>
@@ -40,7 +41,7 @@ public:
     }
 
     struct Field {
-        std::shared_ptr<Owner> outer = Owner::get();
+        std::shared_ptr<Owner> owner = Owner::get();
         std::shared_ptr<rt_uint8_t[]> current = nullptr;
     };
 
@@ -68,6 +69,12 @@ class Idx: private IdxAsset<Owner, Addr, Null, Max> { //NOTE: 改变指针要调
     using asset_t = IdxAsset<Owner, Addr, Null, Max>;
 public:
     using asset_t::asset_t;
+    Idx(const Idx<T, Owner, Addr, Null, Max>& other) {
+        asset_t::addr = other.addr;
+        if(other.isAccessed()) {
+            getPtr();
+        }
+    }
 
     ~Idx() {
         dispose();
@@ -75,39 +82,40 @@ public:
         rt_kprintf("\033[33mfield size: %d\n\033[0m", asset_t::field.size());
     }
 
-    T* operator->() {
-        return (T*)getPtr();
+    T* operator->() { return (T*)getPtr(); }
+    T& operator*() { return *(T*)getPtr(); }
+
+    template<class... Args>
+    auto operator()(Args&&... args) {
+        new(getPtr())T(std::forward<Args>(args)...);
+        return *this;
     }
 
-    T& operator*() {
-        return *(T*)getPtr();
+    Addr get() {
+        return asset_t::addr;
     }
 
-    void operator=(Addr addr) {
-        dispose();
-        this->addr = addr;
-    }
-
+    void operator=(Addr addr) { dispose(); this->addr = addr; }
     void operator=(const Idx<T, Owner, Addr, Null, Max>& other) {
         dispose();
         asset_t::addr = other.addr;
+        if(other.isAccessed()) {
+            getPtr();
+        }
     }
 
-    void operator=(const std::nullptr_t&) {
-        dispose();
-        asset_t::addr = Null;
-    }
+    void operator=(Idx<T, Owner, Addr, Null, Max>&& other) = delete;
 
-    bool operator==(const std::nullptr_t& n) {
-        return asset_t::addr == Null;
-    }
+    void operator=(const std::nullptr_t&) { dispose(); asset_t::addr = Null; }
 
-    bool operator==(const Idx<T, Owner, Addr, Null, Max>& other) {
-        return asset_t::addr == other.addr;
-    }
+    bool operator==(const std::nullptr_t& n) { return asset_t::addr == Null; }
+    bool operator==(const Idx<T, Owner, Addr, Null, Max>& other) { return asset_t::addr == other.addr; }
+
+    bool operator!=(const std::nullptr_t& n) { return !(*this == n); }
+    bool operator!=(const Idx<T, Owner, Addr, Null, Max>& other) { return !(*this == other); }
 
 private:
-    void* getPtr() { //TODO: 判断地址是否有效
+    void* getPtr() {
         return asset_t::getPtr(sizeof(T));
     }
 
@@ -115,7 +123,6 @@ private:
         auto obj = asset_t::dispose(sizeof(T));
         if(obj) ((T*)obj.get())->~T();
     }
-
 };
 
 template <class Owner, class Addr, Addr Null, Addr Max>
@@ -130,25 +137,25 @@ void* IdxAsset<Owner, Addr, Null, Max>::getPtr(std::size_t size) {
         field[this] = {};
     }
     auto& f = field[this];
-    auto outer = f.outer;
+    auto owner = f.owner;
     auto& current = f.current;
 
     //TODO: 判断是否已求值
 
     if(addr == Null) throw std::out_of_range{"nullptr"};
     if(addr + size - 1 > Max) throw std::out_of_range{"out of addr space"};
-    if(!outer) throw std::runtime_error{"ctx not provided"};
+    if(!owner) throw std::runtime_error{"ctx not provided"};
 
     if(!current) { //未访问过成员
         rt_kprintf("cur not accessed yet\n");
         //1. 判断地址是否已存在, 即判断addr
-        auto ownerSpecKvp = ownerSpecs.find(outer);
+        auto ownerSpecKvp = ownerSpecs.find(owner);
         if(ownerSpecKvp == ownerSpecs.end()) {
             rt_kprintf("owner specs not created yet\n");
-            ownerSpecs[outer] = {};
+            ownerSpecs[owner] = {};
         }
 
-        auto& ownerSpec = ownerSpecs[outer];
+        auto& ownerSpec = ownerSpecs[owner];
         auto& range = ownerSpec.range;
         auto& count = ownerSpec.count;
 
@@ -238,7 +245,7 @@ void* IdxAsset<Owner, Addr, Null, Max>::getPtr(std::size_t size) {
         auto data = std::shared_ptr<rt_uint8_t[]>(new rt_uint8_t[size]);
         auto backup = std::shared_ptr<rt_uint8_t[]>(new rt_uint8_t[size]);
 
-        outer->read(addr, data.get(), size);
+        owner->read(addr, data.get(), size);
         memcpy(backup.get(), data.get(), size);
         current = data;
 
@@ -255,29 +262,31 @@ void* IdxAsset<Owner, Addr, Null, Max>::getPtr(std::size_t size) {
 }
 
 template <class Owner, class Addr, Addr Null, Addr Max>
+bool IdxAsset<Owner, Addr, Null, Max>::isAccessed() const {
+    if(field.find((void*)this) == field.end()) {
+        return false;
+    }
+    return field[(void*)this].current != nullptr;
+}
+
+template <class Owner, class Addr, Addr Null, Addr Max>
 std::shared_ptr<rt_uint8_t[]> IdxAsset<Owner, Addr, Null, Max>::dispose(std::size_t size) {
     if(field.find(this) == field.end()) return nullptr;
 
     auto& f = field[this];
-    auto outer = f.outer;
+    auto owner = f.owner;
     auto& current = f.current;
 
-    rt_kprintf("\033[33mouter ptr %08x\n\033[0m", outer.get());
+    rt_kprintf("\033[33mouter ptr %08x\n\033[0m", owner.get());
 
     if(!current) return nullptr;
     rt_kprintf("current ptr: %08x\n", current.get());
 
-    auto& ownerSpec = ownerSpecs[outer];
+    auto& ownerSpec = ownerSpecs[owner];
 
     //减少引用计数、合并未引用的range
     auto& range = ownerSpec.range;
     auto& count = ownerSpec.count;
-
-    rt_kprintf("range: ");
-    printContainer(range);
-
-    rt_kprintf("count: ");
-    printContainer(count);
 
     auto found = std::find(range.begin(), range.end(), addr);
     auto countIt = count.begin();
@@ -318,13 +327,20 @@ std::shared_ptr<rt_uint8_t[]> IdxAsset<Owner, Addr, Null, Max>::dispose(std::siz
         //判断是否满足写回条件
         auto& data = ownerSpec.data[addr];
         if(memcmp(data.current.get(), data.backup.get(), size)) {
-            outer->write(addr, data.current.get(), size);
+            owner->write(addr, data.current.get(), size);
         }
 
         auto result = data.current;
         ownerSpec.data.erase(addr);
         rt_kprintf("\033[33mdata size: %d\n\033[0m", ownerSpec.data.size());
         rt_kprintf("\033[33mos size: %d\n\033[0m", ownerSpecs.size());
+
+        rt_kprintf("range: ");
+        printContainer(range);
+
+        rt_kprintf("count: ");
+        printContainer(count);
+
         return result;
     }
 
