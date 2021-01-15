@@ -47,7 +47,7 @@ private:
         void read(rt_uint16_t addr, rt_uint8_t* data, std::size_t size) {
             //at24cxx_read(outer->device, addr, data, size);
             memcpy(data, &buffer[addr], size);
-            rt_kprintf("\033[32mread @%04x, size %d: ", addr, size);
+            rt_kprintf("\033[32mread from %04x, size %d: ", addr, size);
             for(auto i = 0u; i < size; i++) {
                 rt_kprintf("%02x ", data[i]);
             }
@@ -55,7 +55,7 @@ private:
         }
 
         void write(rt_uint16_t addr, rt_uint8_t* data, std::size_t size) {
-            rt_kprintf("\033[34mwrite @%04x, size %d: ", addr, size);
+            rt_kprintf("\033[34mwrite to %04x, size %d: ", addr, size);
             for(auto i = 0u; i < size; i++) {
                 rt_kprintf("%02x ", data[i]);
             }
@@ -64,7 +64,6 @@ private:
             memcpy(&buffer[addr], data, size);
         }
 
-        //TODO: 使用弱指针
         static std::shared_ptr<IdxOwner> get() {
             return *owner;
         }
@@ -83,16 +82,22 @@ private:
 
 
     struct HeapNode {
-        HeapNode(rt_uint16_t size): size(size) {
+//        HeapNode(rt_uint16_t size): size(size) {
+//
+//        }
 
+        static void create(HeapNode& node, rt_uint16_t size) {
+            node = HeapNode{};
+            node.size = size;
         }
 
         rt_uint16_t size;
+        ///node没有被析构，导致prev和next没有被析构
         Idx<HeapNode> prev = nullptr;
         Idx<HeapNode> next = nullptr;
 
         ~HeapNode() {
-            rt_kprintf("\033[33midleNode dector\n\033[0m");
+            rt_kprintf("\033[33mHeapNode dector\n\033[0m");
         }
     };
 
@@ -112,9 +117,10 @@ private:
     };
 
     struct Meta { //元数据头, 放在eeprom开头
-        Meta(std::size_t deviceSize);
+        //Meta(std::size_t deviceSize);
+        static void create(Meta& self, std::size_t deviceSize);
         static Idx<Meta> get();
-        static Idx<Meta> create(std::size_t deviceSize);
+        static Idx<Meta> make(std::size_t deviceSize);
 
         std::size_t magic = typeid(Meta).hash_code(); //魔数，判断是否需要格式化
         HeapList idle = {};

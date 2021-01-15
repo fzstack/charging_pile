@@ -20,13 +20,15 @@ PersistentStorage::PersistentStorage(at24cxx_device_t device, int size): device(
 
 void PersistentStorage::format() {
     auto guard = getCtxGuard();
-    Meta::create(size);
+    Meta::make(size);
 }
 
 void PersistentStorage::test() {
+    rt_kprintf("=======format=======\n");
     format();
-    auto addr = alloc(4);
-    rt_kprintf("addr: %02x", addr);
+//    rt_kprintf("=======alloc=======\n");
+//    auto addr = alloc(4);
+//    rt_kprintf("addr: %02x\n", addr);
 }
 
 rt_uint16_t PersistentStorage::alloc(std::size_t size) {
@@ -35,7 +37,9 @@ rt_uint16_t PersistentStorage::alloc(std::size_t size) {
     auto allocSize = size + sizeof(HeapNode);
 
     //从空闲链表中找到最合适的节点
+    rt_kprintf("get front\n");
     auto curIdle = head->idle.getFront();
+
     auto minDiffNode = Idx<HeapNode>();
     do {
         if(minDiffNode == nullptr) {
@@ -81,9 +85,13 @@ std::shared_ptr<void> PersistentStorage::getCtxGuard() {
     });
 }
 
-PersistentStorage::Meta::Meta(std::size_t deviceSize) {
+void PersistentStorage::Meta::create(Meta& self, std::size_t deviceSize) {
+    self = Meta{};
     auto node = Idx<HeapNode>(sizeof(Meta))(deviceSize - sizeof(Meta) - sizeof(HeapNode));
-    idle.add(node);
+    self.idle.add(node);
+    ///此处node被析构
+    ///我们希望Node内的Idx也被析构
+    ///
 }
 
 PersistentStorage::Idx<PersistentStorage::Meta> PersistentStorage::Meta::get() {
@@ -93,13 +101,16 @@ PersistentStorage::Idx<PersistentStorage::Meta> PersistentStorage::Meta::get() {
     return meta;
 }
 
-PersistentStorage::Idx<PersistentStorage::Meta> PersistentStorage::Meta::create(std::size_t deviceSize) {
+PersistentStorage::Idx<PersistentStorage::Meta> PersistentStorage::Meta::make(std::size_t deviceSize) {
     return Idx<Meta>((rt_uint16_t)0)(deviceSize);
 }
 
 void PersistentStorage::HeapList::add(Idx<HeapNode> node) {
     if(front == nullptr) {
+        rt_kprintf("add head\n");
         front = node;
+        //TODO: 下面两次赋值会导致bug发生
+        ///因为node->next持有了node自身的Idx, 导致引用计数 + 2
         node->next = node;
         node->prev = node;
     } else {
@@ -118,12 +129,11 @@ void PersistentStorage::HeapList::remove(Idx<HeapNode> node) {
         } else {
             front = front->next;
         }
-    } else {
-        auto nodePrev = node->prev;
-        auto nodeNext = node->next;
-        nodePrev->next = nodeNext;
-        nodeNext->prev = nodePrev;
     }
+    auto nodePrev = node->prev;
+    auto nodeNext = node->next;
+    nodePrev->next = nodeNext;
+    nodeNext->prev = nodePrev;
 }
 
 PersistentStorage::Idx<PersistentStorage::HeapNode> PersistentStorage::HeapList::getFront() {

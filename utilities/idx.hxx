@@ -18,6 +18,7 @@
 #include <rtthread.h>
 #include "thread_local.hxx"
 #include <algorithm>
+#include <boost/pfr.hpp>
 
 //NOTE: 目前阻止部分交叠申请, 因为那需要保证buffer连续
 //TODO: shared_ptr持有指针引用导致内存泄漏问题
@@ -28,6 +29,7 @@ public:
     IdxAsset(std::nullptr_t n): addr(Null) {};
 
     void* getPtr(std::size_t size);
+    std::size_t& getRefCount(std::size_t size);
     bool isAccessed() const;
     std::shared_ptr<rt_uint8_t[]> dispose(std::size_t size);
 
@@ -37,7 +39,7 @@ public:
         for(const auto& val: t) {
             rt_kprintf("%d, ", val);
         }
-        rt_kprintf("}\n");
+        rt_kprintf("}");
     }
 
     struct Field {
@@ -79,7 +81,6 @@ public:
     ~Idx() {
         dispose();
         asset_t::field.erase(this);
-        rt_kprintf("\033[33mfield size: %d\n\033[0m", asset_t::field.size());
     }
 
     T* operator->() { return (T*)getPtr(); }
@@ -87,7 +88,8 @@ public:
 
     template<class... Args>
     auto operator()(Args&&... args) {
-        new(getPtr())T(std::forward<Args>(args)...);
+        //new(getPtr())T(std::forward<Args>(args)...);
+        T::create(*(T*)getPtr(), std::forward<Args>(args)...);
         return *this;
     }
 
@@ -100,6 +102,7 @@ public:
         dispose();
         asset_t::addr = other.addr;
         if(other.isAccessed()) {
+            rt_kprintf("%08x@%04x copy and inst from %08x %s\n", this, asset_t::addr, &other, typeid(T).name());
             getPtr();
         }
     }
@@ -119,7 +122,41 @@ private:
         return asset_t::getPtr(sizeof(T));
     }
 
+    std::size_t& getRefCount() {
+        return asset_t::getRefCount(sizeof(T));
+    }
+
     void dispose() {
+        rt_kprintf("%08x@%04x disposing %s\n", this, asset_t::addr, typeid(T).name());
+
+        auto count = 0u;
+
+        if(asset_t::isAccessed()) {
+            auto ptr = getPtr();
+            rt_kprintf("is accessed\n");
+            boost::pfr::for_each_field(*(T*)ptr, [&](auto& field, std::size_t idx) {
+                if(typeid(field) == typeid(Idx<T, Owner, Addr, Null, Max>)) {
+                    if(((Idx<T, Owner, Addr, Null, Max>*)&field)->isAccessed()) {
+                        ++count;
+                    }
+                }
+            });
+            try {
+                auto& refCount = getRefCount();
+                rt_kprintf("!!!!!count: %d, ref: %d!!!!!\n", count, getRefCount());
+                if(count == refCount - 1 && count != 0) {
+                    refCount = 1;
+                    rt_kprintf("~~~~~dispose loop~~~~~\n");
+                    boost::pfr::for_each_field(*(T*)ptr, [&](auto& field, std::size_t idx) {
+                        if(typeid(field) == typeid(Idx<T, Owner, Addr, Null, Max>)) {
+                            asset_t::field.erase(&field);
+                        }
+                    });
+                }
+            } catch(const std::runtime_error& e) {
+
+            }
+        }
         auto obj = asset_t::dispose(sizeof(T));
         if(obj) ((T*)obj.get())->~T();
     }
@@ -147,23 +184,15 @@ void* IdxAsset<Owner, Addr, Null, Max>::getPtr(std::size_t size) {
     if(!owner) throw std::runtime_error{"ctx not provided"};
 
     if(!current) { //未访问过成员
-        rt_kprintf("cur not accessed yet\n");
         //1. 判断地址是否已存在, 即判断addr
         auto ownerSpecKvp = ownerSpecs.find(owner);
         if(ownerSpecKvp == ownerSpecs.end()) {
-            rt_kprintf("owner specs not created yet\n");
             ownerSpecs[owner] = {};
         }
 
         auto& ownerSpec = ownerSpecs[owner];
         auto& range = ownerSpec.range;
         auto& count = ownerSpec.count;
-
-        rt_kprintf("range: ");
-        printContainer(range);
-
-        rt_kprintf("count: ");
-        printContainer(count);
 
         auto dataKvp = ownerSpec.data.find(addr);
         if(dataKvp != ownerSpec.data.end()) {
@@ -181,10 +210,16 @@ void* IdxAsset<Owner, Addr, Null, Max>::getPtr(std::size_t size) {
             if(countVal <= 0) throw std::runtime_error{"range count error"};
             current = data.current;
             ++countVal;
+
+            rt_kprintf("after +@%02x, range: ", addr);
+            printContainer(range);
+            rt_kprintf(", count: ");
+            printContainer(count);
+            rt_kprintf("\n");
+
             return (void*)current.get();
         }
 
-        rt_kprintf("addr not found\n");
         //没找到则创建
         //裂开range、count链表
         auto front = std::lower_bound(range.begin(), range.end(), addr);
@@ -214,12 +249,8 @@ void* IdxAsset<Owner, Addr, Null, Max>::getPtr(std::size_t size) {
 
         } else {
             //左边不需要裂开, 如果不需要裂开, 且计数 > 0, 需要特殊处理
-
-            rt_kprintf("left no need to split\n");
-
             auto back = front;
             ++back;
-
             if(rightAddr > *back) throw not_implemented{"cross detected"};
             auto countback = count.begin();
             std::advance(countback, std::distance(range.begin(), back) - 1);
@@ -236,11 +267,12 @@ void* IdxAsset<Owner, Addr, Null, Max>::getPtr(std::size_t size) {
             }
         }
 
-        rt_kprintf("range: ");
-        printContainer(range);
 
-        rt_kprintf("count: ");
+        rt_kprintf("after ^@%02x, range: ", addr);
+        printContainer(range);
+        rt_kprintf(", count: ");
         printContainer(count);
+        rt_kprintf("\n");
 
         auto data = std::shared_ptr<rt_uint8_t[]>(new rt_uint8_t[size]);
         auto backup = std::shared_ptr<rt_uint8_t[]>(new rt_uint8_t[size]);
@@ -248,8 +280,6 @@ void* IdxAsset<Owner, Addr, Null, Max>::getPtr(std::size_t size) {
         owner->read(addr, data.get(), size);
         memcpy(backup.get(), data.get(), size);
         current = data;
-
-        rt_kprintf("current ptr: %08x\n", data.get());
 
         auto& curData = ownerSpec.data[addr];
 
@@ -259,6 +289,40 @@ void* IdxAsset<Owner, Addr, Null, Max>::getPtr(std::size_t size) {
     }
 
     return (void*)current.get();
+}
+
+template <class Owner, class Addr, Addr Null, Addr Max>
+std::size_t& IdxAsset<Owner, Addr, Null, Max>::getRefCount(std::size_t size) {
+    if(field.find(this) == field.end()) {
+        field[this] = {};
+    }
+    auto& f = field[this];
+    auto owner = f.owner;
+
+    auto ownerSpecKvp = ownerSpecs.find(owner);
+    if(ownerSpecKvp == ownerSpecs.end()) {
+        throw std::runtime_error{"not prepared"};
+    }
+
+    auto& ownerSpec = ownerSpecs[owner];
+    auto& range = ownerSpec.range;
+
+    auto dataKvp = ownerSpec.data.find(addr);
+    if(dataKvp == ownerSpec.data.end()) {
+        throw std::runtime_error{"not prepared"};
+    }
+
+    auto foundIt = std::find(range.begin(), range.end(), addr);
+    auto dist = std::distance(range.begin(), foundIt);
+    auto nextIt = foundIt;
+    ++nextIt;
+    auto rangeSize = std::size_t(*nextIt - addr);
+    if(rangeSize != size) throw std::runtime_error{"range size mismatch"};
+    auto countIt = ownerSpec.count.begin();
+    std::advance(countIt, dist);
+    auto& countVal = *countIt;
+    if(countVal <= 0) throw std::runtime_error{"range count error"};
+    return countVal;
 }
 
 template <class Owner, class Addr, Addr Null, Addr Max>
@@ -277,10 +341,12 @@ std::shared_ptr<rt_uint8_t[]> IdxAsset<Owner, Addr, Null, Max>::dispose(std::siz
     auto owner = f.owner;
     auto& current = f.current;
 
-    rt_kprintf("\033[33mouter ptr %08x\n\033[0m", owner.get());
+    if(!current) {
+        rt_kprintf("%08x current is null\n", this);
+        return nullptr;
+    }
 
-    if(!current) return nullptr;
-    rt_kprintf("current ptr: %08x\n", current.get());
+    rt_kprintf("%08x current is not null\n", this);
 
     auto& ownerSpec = ownerSpecs[owner];
 
@@ -332,23 +398,21 @@ std::shared_ptr<rt_uint8_t[]> IdxAsset<Owner, Addr, Null, Max>::dispose(std::siz
 
         auto result = data.current;
         ownerSpec.data.erase(addr);
-        rt_kprintf("\033[33mdata size: %d\n\033[0m", ownerSpec.data.size());
-        rt_kprintf("\033[33mos size: %d\n\033[0m", ownerSpecs.size());
 
-        rt_kprintf("range: ");
+        rt_kprintf("after =@%02x, range: ", addr);
         printContainer(range);
-
-        rt_kprintf("count: ");
+        rt_kprintf(", count: ");
         printContainer(count);
+        rt_kprintf("\n");
 
         return result;
     }
 
-    rt_kprintf("range: ");
+    rt_kprintf("after -@%02x, range: ", addr);
     printContainer(range);
-
-    rt_kprintf("count: ");
+    rt_kprintf(", count: ");
     printContainer(count);
+    rt_kprintf("\n");
 
     current = nullptr;
     return nullptr;
