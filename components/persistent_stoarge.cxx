@@ -26,9 +26,13 @@ void PersistentStorage::format() {
 void PersistentStorage::test() {
     rt_kprintf("=======format=======\n");
     format();
-//    rt_kprintf("=======alloc=======\n");
-//    auto addr = alloc(4);
-//    rt_kprintf("addr: %02x\n", addr);
+    rt_kprintf("=======alloc=======\n");
+    auto addr1 = alloc(4);
+    rt_kprintf("addr1: %02x\n", addr1);
+    auto addr2 = alloc(4);
+    rt_kprintf("addr2: %02x\n", addr2);
+    auto addr3 = alloc(4);
+    rt_kprintf("addr2: %02x\n", addr3);
 }
 
 rt_uint16_t PersistentStorage::alloc(std::size_t size) {

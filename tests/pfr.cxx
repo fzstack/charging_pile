@@ -18,9 +18,9 @@
 #define LOG_LVL LOG_LVL_DBG
 #include <ulog.h>
 
-
 using namespace std;
 using namespace boost;
+
 
 #ifdef TEST_PFR
 

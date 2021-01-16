@@ -37,7 +37,7 @@ public:
     static void printContainer(U& t) {
         rt_kprintf("{");
         for(const auto& val: t) {
-            rt_kprintf("%d, ", val);
+            rt_kprintf("%02x, ", val);
         }
         rt_kprintf("}");
     }

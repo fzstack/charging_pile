@@ -116,6 +116,7 @@ private:
         Idx<MetaNode> next;
     };
 
+
     struct Meta { //元数据头, 放在eeprom开头
         //Meta(std::size_t deviceSize);
         static void create(Meta& self, std::size_t deviceSize);
@@ -127,7 +128,6 @@ private:
         HeapList alloc = {};
     };
 
-
 public:
 
 //    template<class T>
@@ -136,6 +136,12 @@ public:
 //    }
 
     void format();
+
+    template<class T>
+    void get() {
+
+    }
+
     void test();
 
 
