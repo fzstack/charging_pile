@@ -15,6 +15,7 @@
 #include <utilities/thread_local.hxx>
 #include <stdexcept>
 #include <utilities/idx.hxx>
+#include <array>
 
 extern "C" {
 #include <at24cxx.h>
@@ -80,12 +81,7 @@ private:
     template<class T>
     using Idx = ::Idx<T, IdxOwner, rt_uint16_t, 0xffff, 2048 - 1>;
 
-
     struct HeapNode {
-//        HeapNode(rt_uint16_t size): size(size) {
-//
-//        }
-
         static void create(HeapNode& node, rt_uint16_t size) {
             node = HeapNode{};
             node.size = size;
@@ -93,27 +89,112 @@ private:
 
         rt_uint16_t size;
         ///node没有被析构，导致prev和next没有被析构
-        Idx<HeapNode> prev = nullptr;
-        Idx<HeapNode> next = nullptr;
-
-        ~HeapNode() {
-            rt_kprintf("\033[33mHeapNode dector\n\033[0m");
-        }
+        Idx<HeapNode> prev;
+        Idx<HeapNode> next;
     };
 
-    struct HeapList {
-        void add(Idx<HeapNode> node);
-        void remove(Idx<HeapNode> node);
-        Idx<HeapNode> getFront();
+    template<class T> struct List;
+
+    template<class T>
+    struct ListIterator {
+        ListIterator(List<T> list, Idx<T> node, bool isEnd): list(list), node(node), isEnd(isEnd) {
+
+        }
+
+        ListIterator<T>& operator++() {
+            if(!isEnd) {
+                node = node->next;
+                if(node->next == list.getFront())
+                    isEnd = true;
+            }
+            return *this;
+        }
+
+        Idx<T> operator*() const {
+            if(isEnd) throw not_implemented{"meet end"};
+            return node;
+        }
+
+        bool operator!=(const ListIterator<T>& rhs) {
+            if(isEnd != rhs.isEnd) return true;
+            if(isEnd == true && rhs.isEnd == true) return false;
+            return node != rhs.node;
+        }
+
+        bool operator==(const ListIterator<T>& rhs) {
+            return !(*this != rhs);
+        }
+
+        List<T> list;
+        Idx<T> node;
+        bool isEnd = false;
+    };
+
+    template<class T>
+    struct List {
+        void add(Idx<T> node) {
+            if(front == nullptr) {
+                front = node;
+                //TODO: 下面两次赋值会导致bug发生
+                ///因为node->next持有了node自身的Idx, 导致引用计数 + 2
+                node->next = node;
+                node->prev = node;
+            } else {
+                auto rear = front->prev;
+                rear->next = node;
+                node->prev = rear;
+                front->prev = node;
+                node->next = front;
+            }
+        }
+
+        void remove(Idx<T> node) {
+            if(front == node) {
+                if(front == front->next) { //仅剩一个节点
+                    front = nullptr;
+                } else {
+                    front = front->next;
+                }
+            }
+            auto nodePrev = node->prev;
+            auto nodeNext = node->next;
+            nodePrev->next = nodeNext;
+            nodeNext->prev = nodePrev;
+        }
+
+        ListIterator<T> begin() {
+            return {*this, front, front == nullptr};
+        }
+
+        ListIterator<T> end() {
+            return {*this, front, true};
+        }
+
+        Idx<T> getFront() {
+            return front;
+        }
 
     private:
-        Idx<HeapNode> front = nullptr;
+        Idx<T> front = nullptr;
     };
 
-    struct MetaNode{ //元数据节点
+    struct ObjNode {
+        Idx<ObjNode> prev;
+        Idx<ObjNode> next;
+    };
+
+    struct TypeNode { //元数据节点
+
+        static void create(TypeNode& node, std::size_t hash) {
+            node = TypeNode{};
+            node.hash = hash;
+        }
+
         std::size_t hash; //类型哈希
+        List<ObjNode> obj;
         //TODO: field链表首元节点
-        Idx<MetaNode> next;
+        Idx<TypeNode> prev;
+        Idx<TypeNode> next;
     };
 
 
@@ -124,28 +205,72 @@ private:
         static Idx<Meta> make(std::size_t deviceSize);
 
         std::size_t magic = typeid(Meta).hash_code(); //魔数，判断是否需要格式化
-        HeapList idle = {};
-        HeapList alloc = {};
+        List<HeapNode> idle = {};
+        List<HeapNode> alloc = {};
+        List<TypeNode> type = {};
+    };
+
+private:
+    struct MakeResult {
+        bool created;
+        rt_uint16_t addr;
     };
 
 public:
-
-//    template<class T>
-//    std::shared_ptr<T> make() {
-//        //返回指定类型的智能指针
-//    }
-
     void format();
 
-    template<class T>
-    void get() {
+    void test() {
+        auto guard = getCtxGuard();
+        //format();
+        auto data = std::array<rt_uint8_t, 114>{};
+        owner->read(0, &data[0], 114);
 
+//        auto addr1 = alloc(4);
+//        auto addr2 = alloc(4);
+//        //auto addr3 = alloc(4);
+//        //auto addr4 = alloc(4);
+//
+//        rt_kprintf("====================\n");
+//        rt_kprintf("addr1: %04x\n", addr1);
+//        rt_kprintf("addr2: %04x\n", addr2);
+//        //rt_kprintf("addr3: %04x\n", addr3);
+//        //rt_kprintf("addr4: %04x\n", addr4);
+//        rt_kprintf("====================\n");
     }
 
-    void test();
+    template<class T>
+    Idx<T> make() {
+        auto guard = getCtxGuard();
+        auto result = makeInternal(typeid(T).hash_code(), sizeof(T));
+        auto idx = Idx<T>{result.addr};
+        if(!result.created) {
+            idx();
+        }
+        *idx;
+        return idx;
+    }
 
+
+    class B;
+    class A {
+        int w = 5;
+        Idx<B> idx;
+    };
+
+    class C;
+    class B {
+        float y = 4;
+        Idx<C> idx;
+    };
+
+    class C {
+        char y = 'X';
+        Idx<A> idx;
+    };
 
 private:
+    MakeResult makeInternal(std::size_t hash,std::size_t size);
+
     rt_uint16_t alloc(std::size_t size);
     void free(rt_uint16_t addr);
 
@@ -153,6 +278,7 @@ private:
 
 private:
     std::shared_ptr<IdxOwner> owner = nullptr;
+    std::weak_ptr<void> holder = {};
     at24cxx_device_t device;
     const int size;
 };
@@ -166,6 +292,13 @@ class PersistentStorage: public Singleton<PersistentStorage>, public ::Persisten
     static const int kAddr;
     static const int kSize;
 };
+}
+
+namespace std {
+    template<class T>
+    struct iterator_traits<typename PersistentStorage::ListIterator<T>> {
+        using iterator_category = input_iterator_tag;
+    };
 }
 
 

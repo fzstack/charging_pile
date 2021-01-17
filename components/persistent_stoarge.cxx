@@ -23,16 +23,34 @@ void PersistentStorage::format() {
     Meta::make(size);
 }
 
-void PersistentStorage::test() {
-    rt_kprintf("=======format=======\n");
-    format();
-    rt_kprintf("=======alloc=======\n");
-    auto addr1 = alloc(4);
-    rt_kprintf("addr1: %02x\n", addr1);
-    auto addr2 = alloc(4);
-    rt_kprintf("addr2: %02x\n", addr2);
-    auto addr3 = alloc(4);
-    rt_kprintf("addr2: %02x\n", addr3);
+PersistentStorage::MakeResult PersistentStorage::makeInternal(std::size_t hash, std::size_t size) {
+    //遍历type链表，找到hash code相同的节点
+    auto head = Meta::get();
+    auto& type = head->type;
+    auto found = std::find_if(type.begin(), type.end(), [&](Idx<TypeNode> node){
+        return node->hash == hash;
+    });
+
+    auto typeNode = Idx<TypeNode>{};
+    if(found == type.end()) { //没有找到、添加节点
+        typeNode = Idx<TypeNode>{alloc(sizeof(TypeNode))}(hash);
+
+
+        type.add(typeNode);
+    } else {
+        typeNode = *found;
+    }
+
+    //判断type中的obj链表是否至少包含一个节点
+    auto& obj = typeNode->obj;
+    auto objNode = obj.getFront();
+    bool created = true;
+    if(objNode == nullptr) { //不存在、添加新节点
+        objNode = Idx<ObjNode>{alloc(sizeof(ObjNode) + size)}();
+        obj.add(objNode);
+        created = false;
+    }
+    return MakeResult {created, rt_uint16_t(objNode.get() + sizeof(ObjNode))};
 }
 
 rt_uint16_t PersistentStorage::alloc(std::size_t size) {
@@ -41,7 +59,6 @@ rt_uint16_t PersistentStorage::alloc(std::size_t size) {
     auto allocSize = size + sizeof(HeapNode);
 
     //从空闲链表中找到最合适的节点
-    rt_kprintf("get front\n");
     auto curIdle = head->idle.getFront();
 
     auto minDiffNode = Idx<HeapNode>();
@@ -68,13 +85,15 @@ rt_uint16_t PersistentStorage::alloc(std::size_t size) {
     head->alloc.add(minDiffNode);
 
     auto newIdleNode = Idx<HeapNode>(minDiffNode.get() + sizeof(HeapNode) + size)(minDiffNodeOriSize - size - sizeof(HeapNode));
+//    if(newIdleNode.get() == 0x3e)
+//        throw not_implemented{};
     head->idle.add(newIdleNode);
 
     return minDiffNode.get() + sizeof(HeapNode);
 }
 
 void PersistentStorage::free(rt_uint16_t addr) {
-
+    throw not_implemented{""};
 }
 
 std::shared_ptr<void> PersistentStorage::getCtxGuard() {
@@ -83,10 +102,16 @@ std::shared_ptr<void> PersistentStorage::getCtxGuard() {
         owner = make_shared<IdxOwner>(shared_from_this());
     }
 
-    IdxOwner::owner = owner;
-    return std::shared_ptr<void>(nullptr, [](auto) {
-        IdxOwner::owner = std::shared_ptr<IdxOwner>(nullptr);
-    });
+    if(holder.expired()) {
+        IdxOwner::owner = owner;
+        auto guard = std::shared_ptr<void>(nullptr, [](auto) {
+            IdxOwner::owner = std::shared_ptr<IdxOwner>(nullptr);
+        });
+        holder = guard;
+        return guard;
+    }
+
+    return holder.lock();
 }
 
 void PersistentStorage::Meta::create(Meta& self, std::size_t deviceSize) {
@@ -109,37 +134,3 @@ PersistentStorage::Idx<PersistentStorage::Meta> PersistentStorage::Meta::make(st
     return Idx<Meta>((rt_uint16_t)0)(deviceSize);
 }
 
-void PersistentStorage::HeapList::add(Idx<HeapNode> node) {
-    if(front == nullptr) {
-        rt_kprintf("add head\n");
-        front = node;
-        //TODO: 下面两次赋值会导致bug发生
-        ///因为node->next持有了node自身的Idx, 导致引用计数 + 2
-        node->next = node;
-        node->prev = node;
-    } else {
-        auto rear = front->prev;
-        rear->next = node;
-        node->prev = rear;
-        front->prev = node;
-        node->next = front;
-    }
-}
-
-void PersistentStorage::HeapList::remove(Idx<HeapNode> node) {
-    if(front == node) {
-        if(front == front->next) { //仅剩一个节点
-            front = nullptr;
-        } else {
-            front = front->next;
-        }
-    }
-    auto nodePrev = node->prev;
-    auto nodeNext = node->next;
-    nodePrev->next = nodeNext;
-    nodeNext->prev = nodePrev;
-}
-
-PersistentStorage::Idx<PersistentStorage::HeapNode> PersistentStorage::HeapList::getFront() {
-    return front;
-}
