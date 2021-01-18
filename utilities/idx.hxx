@@ -23,8 +23,9 @@
 #include <queue>
 #include <unordered_map>
 
+#define LOG_MEM_STATE(...) rt_kprintf(##__VA_ARGS__)
+
 //NOTE: 目前阻止部分交叠申请, 因为那需要保证buffer连续
-//TODO: shared_ptr持有指针引用导致内存泄漏问题
 template <class Owner, class Addr, Addr Null, Addr Max>
 class IdxAsset {
 public:
@@ -42,15 +43,12 @@ public:
         auto& owner = ownerSpecs[f.owner];
         auto& range = owner.range;
         auto& data = owner.data;
-        //for each range
         auto first = range.begin();
         auto second = first;
         ++second;
-
         for(; second != range.end(); ++first, ++second) {
             auto found = data.find(*first);
             if(found == data.end()) continue;
-
             auto current = found->second.current.get();
             auto size = *second - *first;
             //判断this是否落在current中
@@ -59,15 +57,6 @@ public:
             }
         }
         return true;
-    }
-
-    template<class U>
-    static void printContainer(U& t) {
-        rt_kprintf("{");
-        for(const auto& val: t) {
-            rt_kprintf("%02x, ", val);
-        }
-        rt_kprintf("}");
     }
 
     struct Field {
@@ -90,230 +79,16 @@ public:
         std::map<Addr, Data> data = {};
     };
 
-    static std::map<void*, Field> field;
-    static std::map<std::shared_ptr<Owner>, OwnerSpec> ownerSpecs;
-
-protected:
-    Addr addr;
-};
-
-template <class T, class Owner, class Addr, Addr Null, Addr Max>
-class Idx: private IdxAsset<Owner, Addr, Null, Max> { //NOTE: 改变指针要调用dispose
-    using asset_t = IdxAsset<Owner, Addr, Null, Max>;
-public:
-    using asset_t::asset_t;
-    Idx(const Idx<T, Owner, Addr, Null, Max>& other) {
-        asset_t::addr = other.addr;
-        if(other.isAccessed()) {
-            getPtr();
-        }
-    }
-
-    ~Idx() {
-        rt_kprintf("dispose %08x due to destrcuct\n", this);
-        dispose();
-        asset_t::field.erase(this);
-    }
-
-    T* operator->() { return (T*)getPtr(); }
-    T& operator*() { return *(T*)getPtr(); }
-
-    template<class... Args>
-    auto operator()(Args&&... args) {
-        //new(getPtr())T(std::forward<Args>(args)...);
-        T::create(*(T*)getPtr(), std::forward<Args>(args)...);
-        return *this;
-    }
-
-    auto operator()() {
-        *(T*)getPtr() = T{};
-        return *this;
-    }
-
-    Addr get() {
-        return asset_t::addr;
-    }
-
-    void operator=(Addr addr) {
-        rt_kprintf("dispose %08x due to copy Addr(%02x)\n", this, addr);
-        if(asset_t::addr == addr) return;
-        dispose(); this->addr = addr;
-    }
-    void operator=(const Idx<T, Owner, Addr, Null, Max>& other) {
-        if(asset_t::addr == other.addr) return;
-        rt_kprintf("dispose %08x due to copy other(%02x)\n", this, other.addr);
-        dispose();
-        asset_t::addr = other.addr;
-        if(other.isAccessed()) {
-            //rt_kprintf("%08x@%04x copy and inst from %08x %s\n", this, asset_t::addr, &other, typeid(T).name());
-            getPtr();
-        }
-    }
-
-    void operator=(Idx<T, Owner, Addr, Null, Max>&& other) {
-        if(asset_t::addr == other.addr) return;
-        rt_kprintf("dispose %08x due to move other(%02x)\n", this, other.addr);
-        dispose();
-        asset_t::addr = other.addr;
-        if(other.isAccessed()) {
-            //rt_kprintf("%08x@%04x copy and inst from %08x %s\n", this, asset_t::addr, &other, typeid(T).name());
-            getPtr();
-        }
-    }
-
-    void operator=(const std::nullptr_t&) { dispose(); asset_t::addr = Null; }
-
-    bool operator==(const std::nullptr_t& n) { return asset_t::addr == Null; }
-    bool operator==(const Idx<T, Owner, Addr, Null, Max>& other) { return asset_t::addr == other.addr; }
-
-    bool operator!=(const std::nullptr_t& n) { return !(*this == n); }
-    bool operator!=(const Idx<T, Owner, Addr, Null, Max>& other) { return !(*this == other); }
-
-private:
-    template<class IT> struct is_idx: public std::false_type { using type = void; };
-    template<class IT> struct is_idx<Idx<IT, Owner, Addr, Null, Max>>: public std::true_type { using type = IT; };
-    template<class IT> static constexpr bool is_idx_v = is_idx<IT>::value;
-    template<class IT> using is_idx_t = typename is_idx<IT>::type;
-
-    std::list<void*> getIdxFieldPtrs() {
-        if(!asset_t::isAccessed())
-            return std::list<void*>{};
-        auto ptr = getPtr();
-        auto idxList = std::list<void*>{};
-        boost::pfr::for_each_field(*(T*)ptr, [&](auto& field, std::size_t idx) {
-            if(is_idx_v<std::decay_t<decltype(field)>>) {
-                idxList.push_back((void*)&field);
-            }
-        });
-        return idxList;
-    }
-
-    void* getPtr() {
-        return asset_t::getPtr(sizeof(T), signal(&Idx<T, Owner, Addr, Null, Max>::getIdxFieldPtrs, this));
-    }
-
-    std::size_t& getRefCount() {
-        return asset_t::getRefCount(sizeof(T), signal(&Idx<T, Owner, Addr, Null, Max>::getIdxFieldPtrs, this));
-    }
-
-    void dispose() {
-        auto obj = asset_t::dispose(sizeof(T));
-        if(obj) {
-            auto& f = asset_t::field[this];
-            ((T*)obj.get())->~T();
-
-            if(f.isRoot) {
-                rt_kprintf("!!!!!!!!!!!!!!!!!!!ROOT(%02x) DISPOSED!!!!!!!!!!!!!!!!!!!\n", asset_t::addr);
-
-                auto marking = std::queue<void*>{};
-                auto visited = std::unordered_map<void*, bool>{};
-
-                //1.获取现在所有的root
-                visited[this] = true;
-                for(const auto& fi: asset_t::field) {
-                    if(fi.first == this || !fi.second.isRoot) continue;
-                    marking.push(fi.first);
-                    rt_kprintf("find root: %08x@%02x\n", fi.first, *(Addr*)fi.first);
-                }
-
-                while(!marking.empty()) {
-                    auto idx = marking.front();
-                    marking.pop();
-                    if(visited[idx]) continue;
-                    auto& fi = asset_t::field[idx];
-                    for(const auto& child: fi.getIdxFieldPtrs()) {
-                        marking.push(child);
-                    }
-                    visited[idx] = true;
-                }
-
-                //2.删除所有未标记的节点
-                for(const auto& fi: asset_t::field) {
-                    auto found = visited.find(fi.first);
-                    if(found != visited.end()) continue;
-                    rt_kprintf("%08x@%02x need to dispose\n", fi.first, *(rt_uint16_t*)fi.first);
-                    ((asset_t*)fi.first)->dispose(fi.second.size);
-                    asset_t::field.erase(fi.first);
-                }
-            }
-        }
-
-        ///如果是一个根被dispose了
-
-        //TODO: 标记删除
-        //TODO: 要知道根的类型
-        //TODO: 需要用到回调
-
-        //需要用到队列
-        //getIdxFields
-
-    }
-};
-
-template <class Owner, class Addr, Addr Null, Addr Max>
-std::map<void*, typename IdxAsset<Owner, Addr, Null, Max>::Field> IdxAsset<Owner, Addr, Null, Max>::field = {};
-
-template <class Owner, class Addr, Addr Null, Addr Max>
-std::map<std::shared_ptr<Owner>, typename IdxAsset<Owner, Addr, Null, Max>::OwnerSpec> IdxAsset<Owner, Addr, Null, Max>::ownerSpecs = {};
-
-template <class Owner, class Addr, Addr Null, Addr Max>
-void* IdxAsset<Owner, Addr, Null, Max>::getPtr(std::size_t size, std::function<std::list<void*>()> getIdxFieldPtrs) {
-    if(field.find(this) == field.end()) {
-        field[this] = {};
-        field[this].isRoot = isRoot();
-        field[this].getIdxFieldPtrs = getIdxFieldPtrs;
-        field[this].size = size;
-        //对于每个ownerSpecs的owner的每个current，判断this是否落在current内
-
-
-
-    }
-    auto& f = field[this];
-    auto owner = f.owner;
-    auto& current = f.current;
-
-    //TODO: 判断是否已求值
-
-    if(addr == Null) throw std::out_of_range{"nullptr"};
-    if(addr + size - 1 > Max) throw std::out_of_range{"out of addr space"};
-    if(!owner) throw std::runtime_error{"ctx not provided"};
-
-    if(!current) { //未访问过成员
-        //1. 判断地址是否已存在, 即判断addr
+    std::shared_ptr<rt_uint8_t[]> createNode(std::shared_ptr<Owner> owner, std::size_t size) {
         auto ownerSpecKvp = ownerSpecs.find(owner);
         if(ownerSpecKvp == ownerSpecs.end()) {
             ownerSpecs[owner] = {};
         }
 
         auto& ownerSpec = ownerSpecs[owner];
+
         auto& range = ownerSpec.range;
         auto& count = ownerSpec.count;
-
-        auto dataKvp = ownerSpec.data.find(addr);
-        if(dataKvp != ownerSpec.data.end()) {
-            auto& data = dataKvp->second;
-            //如果找到, 则需要校验, 判断size是否满足要求
-            auto foundIt = std::find(range.begin(), range.end(), addr);
-            auto dist = std::distance(range.begin(), foundIt);
-            auto nextIt = foundIt;
-            ++nextIt;
-            auto rangeSize = std::size_t(*nextIt - addr);
-            if(rangeSize != size) throw std::runtime_error{"range size mismatch"};
-            auto countIt = ownerSpec.count.begin();
-            std::advance(countIt, dist);
-            auto& countVal = *countIt;
-            if(countVal <= 0) throw std::runtime_error{"range count error"};
-            current = data.current;
-            ++countVal;
-
-            rt_kprintf("%08x after +@%02x, range: ", this, addr);
-            printContainer(range);
-            rt_kprintf(", count: ");
-            printContainer(count);
-            rt_kprintf("\n");
-
-            return (void*)current.get();
-        }
 
         //没找到则创建
         //裂开range、count链表
@@ -362,25 +137,258 @@ void* IdxAsset<Owner, Addr, Null, Max>::getPtr(std::size_t size, std::function<s
             }
         }
 
-
-        rt_kprintf("%08x after ^@%02x, range: ", this, addr);
-        printContainer(range);
-        rt_kprintf(", count: ");
-        printContainer(count);
-        rt_kprintf("\n");
+        //rt_kprintf("%08x after ^@%02x, range: ", this, addr);
+        //printContainer(range);
+        //rt_kprintf(", count: ");
+        //printContainer(count);
+        //rt_kprintf("\n");
 
         auto data = std::shared_ptr<rt_uint8_t[]>(new rt_uint8_t[size]);
         auto backup = std::shared_ptr<rt_uint8_t[]>(new rt_uint8_t[size]);
 
         owner->read(addr, data.get(), size);
         memcpy(backup.get(), data.get(), size);
-        current = data;
 
         auto& curData = ownerSpec.data[addr];
 
         curData.current = data;
         curData.backup = backup;
+
+        return data;
+    }
+
+    template<class U>
+    static void printContainer(U& t) {
+        rt_kprintf("{");
+        for(const auto& val: t) {
+            rt_kprintf("%02x, ", val);
+        }
+        rt_kprintf("}");
+    }
+
+
+    static std::map<void*, Field> field;
+    static std::map<std::shared_ptr<Owner>, OwnerSpec> ownerSpecs;
+
+protected:
+    Addr addr;
+};
+
+template <class T, class Owner, class Addr, Addr Null, Addr Max>
+class Idx: private IdxAsset<Owner, Addr, Null, Max> { //NOTE: 改变指针要调用dispose
+    using asset_t = IdxAsset<Owner, Addr, Null, Max>;
+public:
+    using asset_t::asset_t;
+    Idx(const Idx<T, Owner, Addr, Null, Max>& other) {
+        asset_t::addr = other.addr;
+        if(other.isAccessed()) {
+            getPtr();
+        }
+    }
+
+    ~Idx() {
+        //rt_kprintf("dispose %08x due to destrcuct\n", this);
+        dispose();
+        asset_t::field.erase(this);
+    }
+
+    T* operator->() { return (T*)getPtr(); }
+    T& operator*() { return *(T*)getPtr(); }
+
+    template<class... Args>
+    auto operator()(Args&&... args) {
+        //new(getPtr())T(std::forward<Args>(args)...);
+        T::create(*(T*)getPtr(), std::forward<Args>(args)...);
+        return *this;
+    }
+
+    auto operator()() {
+        *(T*)getPtr() = T{};
+        return *this;
+    }
+
+    Addr get() {
+        return asset_t::addr;
+    }
+
+    void operator=(Addr addr) {
+        //rt_kprintf("dispose %08x due to copy Addr(%02x)\n", this, addr);
+        if(asset_t::addr == addr) return;
+        dispose(); this->addr = addr;
+    }
+    void operator=(const Idx<T, Owner, Addr, Null, Max>& other) {
+        if(asset_t::addr == other.addr) return;
+        //rt_kprintf("dispose %08x due to copy other(%02x)\n", this, other.addr);
+        dispose();
+        asset_t::addr = other.addr;
+        if(other.isAccessed()) {
+            //rt_kprintf("%08x@%04x copy and inst from %08x %s\n", this, asset_t::addr, &other, typeid(T).name());
+            getPtr();
+        }
+    }
+
+    void operator=(Idx<T, Owner, Addr, Null, Max>&& other) {
+        if(asset_t::addr == other.addr) return;
+        //rt_kprintf("dispose %08x due to move other(%02x)\n", this, other.addr);
+        dispose();
+        asset_t::addr = other.addr;
+        if(other.isAccessed()) {
+            //rt_kprintf("%08x@%04x copy and inst from %08x %s\n", this, asset_t::addr, &other, typeid(T).name());
+            getPtr();
+        }
+    }
+
+    void operator=(const std::nullptr_t&) { dispose(); asset_t::addr = Null; }
+
+    bool operator==(const std::nullptr_t& n) { return asset_t::addr == Null; }
+    bool operator==(const Idx<T, Owner, Addr, Null, Max>& other) { return asset_t::addr == other.addr; }
+
+    bool operator!=(const std::nullptr_t& n) { return !(*this == n); }
+    bool operator!=(const Idx<T, Owner, Addr, Null, Max>& other) { return !(*this == other); }
+
+private:
+    template<class IT> struct is_idx: public std::false_type { using type = void; };
+    template<class IT> struct is_idx<Idx<IT, Owner, Addr, Null, Max>>: public std::true_type { using type = IT; };
+    template<class IT> static constexpr bool is_idx_v = is_idx<IT>::value;
+    template<class IT> using is_idx_t = typename is_idx<IT>::type;
+
+    std::list<void*> getIdxFieldPtrs() {
+        if(!asset_t::isAccessed())
+            return std::list<void*>{};
+        auto ptr = getPtr();
+        auto idxList = std::list<void*>{};
+        boost::pfr::for_each_field(*(T*)ptr, [&](auto& field, std::size_t idx) {
+            if(is_idx_v<std::decay_t<decltype(field)>>) {
+                idxList.push_back((void*)&field);
+            }
+        });
+        return idxList;
+    }
+
+    void* getPtr() {
+        return asset_t::getPtr(sizeof(T), signal(&Idx<T, Owner, Addr, Null, Max>::getIdxFieldPtrs, this));
+    }
+
+    std::size_t& getRefCount() {
+        return asset_t::getRefCount(sizeof(T), signal(&Idx<T, Owner, Addr, Null, Max>::getIdxFieldPtrs, this));
+    }
+
+    void dispose() {
+        auto obj = asset_t::dispose(sizeof(T));
+        if(obj) {
+            auto& f = asset_t::field[this];
+            ((T*)obj.get())->~T();
+            if(f.isRoot) {
+                //rt_kprintf("!!!!!!!!!!!!!!!!!!!ROOT(%02x) DISPOSED!!!!!!!!!!!!!!!!!!!\n", asset_t::addr);
+                auto marking = std::queue<void*>{};
+                auto visited = std::unordered_map<void*, bool>{};
+
+                //1.获取现在所有的root
+                visited[this] = true;
+                for(const auto& fi: asset_t::field) {
+                    if(fi.first == this || !fi.second.isRoot) continue;
+                    marking.push(fi.first);
+                    //rt_kprintf("find root: %08x@%02x\n", fi.first, *(Addr*)fi.first);
+                }
+
+                while(!marking.empty()) {
+                    auto idx = marking.front();
+                    marking.pop();
+                    if(visited[idx]) continue;
+
+                    auto found = asset_t::field.find(idx);
+                    if(found != asset_t::field.end()) {
+                        auto& fi = found->second;
+                        for(const auto& child: fi.getIdxFieldPtrs()) {
+                            marking.push(child);
+                        }
+                    }
+                    visited[idx] = true;
+                }
+
+                //2.删除所有未标记的节点
+                for(const auto& fi: asset_t::field) {
+                    auto found = visited.find(fi.first);
+                    if(found != visited.end()) continue;
+                    //rt_kprintf("%08x@%02x need to dispose\n", fi.first, *(rt_uint16_t*)fi.first);
+                    ((asset_t*)fi.first)->dispose(fi.second.size);
+                    asset_t::field.erase(fi.first);
+                }
+            }
+        }
+    }
+};
+
+template <class Owner, class Addr, Addr Null, Addr Max>
+std::map<void*, typename IdxAsset<Owner, Addr, Null, Max>::Field> IdxAsset<Owner, Addr, Null, Max>::field = {};
+
+template <class Owner, class Addr, Addr Null, Addr Max>
+std::map<std::shared_ptr<Owner>, typename IdxAsset<Owner, Addr, Null, Max>::OwnerSpec> IdxAsset<Owner, Addr, Null, Max>::ownerSpecs = {};
+
+template <class Owner, class Addr, Addr Null, Addr Max>
+void* IdxAsset<Owner, Addr, Null, Max>::getPtr(std::size_t size, std::function<std::list<void*>()> getIdxFieldPtrs) {
+    if(field.find(this) == field.end()) {
+        field[this] = {};
+        field[this].isRoot = isRoot();
+        field[this].getIdxFieldPtrs = getIdxFieldPtrs;
+        field[this].size = size;
+    }
+    auto& f = field[this];
+    auto owner = f.owner;
+    auto& current = f.current;
+
+    //TODO: 判断是否已求值
+
+    if(addr == Null) throw std::out_of_range{"nullptr"};
+    if(addr + size - 1 > Max) throw std::out_of_range{"out of addr space"};
+    if(!owner) throw std::runtime_error{"ctx not provided"};
+
+    if(!current) { //未访问过成员 TODO: 判断current是否已失效
+        //1. 判断地址是否已存在, 即判断addr
+        auto ownerSpecKvp = ownerSpecs.find(owner);
+        if(ownerSpecKvp == ownerSpecs.end()) {
+            ownerSpecs[owner] = {};
+        }
+
+        auto& ownerSpec = ownerSpecs[owner];
+        auto& range = ownerSpec.range;
+        //auto& count = ownerSpec.count;
+
+        auto dataKvp = ownerSpec.data.find(addr);
+        if(dataKvp != ownerSpec.data.end()) {
+            auto& data = dataKvp->second;
+            //如果找到, 则需要校验, 判断size是否满足要求
+            auto foundIt = std::find(range.begin(), range.end(), addr);
+            auto dist = std::distance(range.begin(), foundIt);
+            auto nextIt = foundIt;
+            ++nextIt;
+            auto rangeSize = std::size_t(*nextIt - addr);
+            if(rangeSize != size) throw std::runtime_error{"range size mismatch"};
+            auto countIt = ownerSpec.count.begin();
+            std::advance(countIt, dist);
+            auto& countVal = *countIt;
+            if(countVal <= 0) throw std::runtime_error{"range count error"};
+            current = data.current;
+            ++countVal;
+
+            //rt_kprintf("%08x after +@%02x, range: ", this, addr);
+            //printContainer(range);
+            //rt_kprintf(", count: ");
+            //printContainer(count);
+            //rt_kprintf("\n");
+            return (void*)current.get();
+        }
+        current = createNode(owner, size);
         return (void*)current.get();
+    } else {
+        auto& ownerSpec = ownerSpecs[owner];
+        auto& range = ownerSpec.range;
+        auto foundIt = std::find(range.begin(), range.end(), addr);
+        auto nextIt = foundIt;
+        nextIt++;
+        if(foundIt == range.end() || nextIt == range.end() || std::size_t(*nextIt - *foundIt) != size) {
+            current = createNode(owner, size);
+        }
     }
 
     return (void*)current.get();
@@ -455,7 +463,7 @@ std::shared_ptr<rt_uint8_t[]> IdxAsset<Owner, Addr, Null, Max>::dispose(std::siz
     auto found = std::find(range.begin(), range.end(), addr);
 
     if(found == range.end()) {
-        rt_kprintf("%08x @%02x, W already disposed", this, addr);
+        //rt_kprintf("%08x @%02x, W already disposed", this, addr);
         return nullptr;
     }
 
@@ -471,16 +479,13 @@ std::shared_ptr<rt_uint8_t[]> IdxAsset<Owner, Addr, Null, Max>::dispose(std::siz
     ++afterRangeIt;
 
     if(*countIt == 0 || std::size_t(*afterRangeIt - *found) != size) {
-        rt_kprintf("%08x @%02x, W already disposed", this, addr);
+        //rt_kprintf("%08x @%02x, W already disposed", this, addr);
         return nullptr;
     }
     --*countIt;
     if(*countIt <= 0) {
         //准备合并
         if(*afterIt == 0) {
-            //合并后面
-
-
             //rt_kprintf("erase range value %d\n", *afterRangeIt);
             //rt_kprintf("erase count @%d\n", std::distance(count.begin(), afterIt));
             range.erase(afterRangeIt);
@@ -491,10 +496,8 @@ std::shared_ptr<rt_uint8_t[]> IdxAsset<Owner, Addr, Null, Max>::dispose(std::siz
 
             if(*beforeIt == 0) {
                 auto beforeRangeIt = found;
-
                 //rt_kprintf("erase range value %d\n", *beforeRangeIt);
                 //rt_kprintf("erase count @%d\n", std::distance(count.begin(), countIt));
-
                 range.erase(beforeRangeIt);
                 count.erase(countIt);
             }
@@ -509,20 +512,20 @@ std::shared_ptr<rt_uint8_t[]> IdxAsset<Owner, Addr, Null, Max>::dispose(std::siz
         auto result = data.current;
         ownerSpec.data.erase(addr);
 
-        rt_kprintf("%08x after =@%02x, range: ", this, addr);
-        printContainer(range);
-        rt_kprintf(", count: ");
-        printContainer(count);
-        rt_kprintf("\n");
+        //rt_kprintf("%08x after =@%02x, range: ", this, addr);
+        //printContainer(range);
+        //rt_kprintf(", count: ");
+        //printContainer(count);
+        //rt_kprintf("\n");
 
         return result;
     }
 
-    rt_kprintf("%08x after -@%02x, range: ", this, addr);
-    printContainer(range);
-    rt_kprintf(", count: ");
-    printContainer(count);
-    rt_kprintf("\n");
+    //rt_kprintf("%08x after -@%02x, range: ", this, addr);
+    //printContainer(range);
+    //rt_kprintf(", count: ");
+    //printContainer(count);
+    //rt_kprintf("\n");
 
     current = nullptr;
     return nullptr;

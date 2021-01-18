@@ -26,6 +26,10 @@ void PersistentStorage::format() {
 PersistentStorage::MakeResult PersistentStorage::makeInternal(std::size_t hash, std::size_t size) {
     //遍历type链表，找到hash code相同的节点
     auto head = Meta::get();
+    if(!head->isValid()) {
+        format();
+    }
+
     auto& type = head->type;
     auto found = std::find_if(type.begin(), type.end(), [&](Idx<TypeNode> node){
         return node->hash == hash;
@@ -34,8 +38,6 @@ PersistentStorage::MakeResult PersistentStorage::makeInternal(std::size_t hash, 
     auto typeNode = Idx<TypeNode>{};
     if(found == type.end()) { //没有找到、添加节点
         typeNode = Idx<TypeNode>{alloc(sizeof(TypeNode))}(hash);
-
-
         type.add(typeNode);
     } else {
         typeNode = *found;

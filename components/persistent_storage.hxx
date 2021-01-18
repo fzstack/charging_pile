@@ -104,8 +104,10 @@ private:
         ListIterator<T>& operator++() {
             if(!isEnd) {
                 node = node->next;
-                if(node->next == list.getFront())
+                if(node == list.getFront()) {
                     isEnd = true;
+                }
+
             }
             return *this;
         }
@@ -203,6 +205,10 @@ private:
         static void create(Meta& self, std::size_t deviceSize);
         static Idx<Meta> get();
         static Idx<Meta> make(std::size_t deviceSize);
+
+        bool isValid() {
+            return magic == typeid(Meta).hash_code();
+        }
 
         std::size_t magic = typeid(Meta).hash_code(); //魔数，判断是否需要格式化
         List<HeapNode> idle = {};
