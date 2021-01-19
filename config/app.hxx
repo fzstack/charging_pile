@@ -19,6 +19,11 @@ public:
         *cloudProductKey,
         *cloudDeviceSecret;
 };
+
+struct Thing {
+    int maxCurrentMiA = 150;
+};
+
 }
 
 enum class State {

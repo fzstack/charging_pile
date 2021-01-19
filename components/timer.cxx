@@ -20,8 +20,15 @@ Timer::Timer(rt_tick_t time, const char* name, rt_uint8_t flags): timer(std::sha
 }
 
 void Timer::start() {
+    if(running) return;
     rt_timer_start(timer.get());
     running = true;
+}
+
+void Timer::stop() {
+    if(!running) return;
+    rt_timer_stop(timer.get());
+    running = false;
 }
 
 bool Timer::isRunning() {

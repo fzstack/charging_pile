@@ -39,7 +39,11 @@ private:
 private:
     std::shared_ptr<RgbStateNotifier> rgbNotifier;
     std::shared_ptr<Relay> relay;
+
+public:
     std::shared_ptr<Multimeter::Channel> multimeterChannel;
+
+private:
     std::shared_ptr<VirtualLoadDetector> vlodet;
 
 public:

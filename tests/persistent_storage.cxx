@@ -20,8 +20,9 @@ using namespace std;
 #ifdef TEST_PERSISTENT_STORAGE
 static void test_persistent_storage_test() {
     try {
-        auto storage = Preset::PersistentStorage::get();
-        storage->test();
+        rt_kprintf("size: %d\n", sizeof(std::string));
+        //auto storage = Preset::PersistentStorage::get();
+        //storage->test();
     } catch (const exception& e) {
         LOG_E(e.what());
     }

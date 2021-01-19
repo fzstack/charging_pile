@@ -8,10 +8,10 @@
  * 2021-01-03     imgcr       the first version
  */
 
-#include "auto_poweroff_thing_deco.hxx"
 #include <config/bsp.hxx>
+#include <countdown_thing_deco.hxx>
 
-AutoPoweroffThingDeco::AutoPoweroffThingDeco(outer_t* outer): ThingDeco(outer) {
+CountdownThingDeco::CountdownThingDeco(outer_t* outer): ThingDeco(outer) {
     timer.onRun += [this](){
         for(auto i = 0u; i < Config::Bsp::kPortNum; i++) {
             auto guard = getLock();
@@ -41,7 +41,7 @@ AutoPoweroffThingDeco::AutoPoweroffThingDeco(outer_t* outer): ThingDeco(outer) {
     };
 }
 
-void AutoPoweroffThingDeco::init() {
+void CountdownThingDeco::init() {
     inited = true;
 }
 

@@ -191,7 +191,7 @@
 									<listOptionValue builtIn="false" value="_TEST_ALI_CLOUD"/>
 									<listOptionValue builtIn="false" value="_TEST_VIRTUAL_LOAD_DETECTOR"/>
 									<listOptionValue builtIn="false" value="_TEST_CHARGER"/>
-									<listOptionValue builtIn="false" value="_TEST_THING"/>
+									<listOptionValue builtIn="false" value="TEST_THING"/>
 									<listOptionValue builtIn="false" value="_TEST_THREAD_LOCAL"/>
 									<listOptionValue builtIn="false" value="TEST_PERSISTENT_STORAGE"/>
 									<listOptionValue builtIn="false" value="_TEST_IDX"/>

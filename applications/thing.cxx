@@ -55,12 +55,14 @@ void Thing::stop(int port, int timerId) {
     info.timerId = timerId;
 }
 
-#include "auto_poweroff_thing_deco.hxx"
+#include <countdown_thing_deco.hxx>
 #include "event_emit_thing_deco.hxx"
+#include "current_limit_thing_deco.hxx"
 namespace Preset {
 Thing::Thing(): ::Thing({Charger<0>::get(), Charger<1>::get()}, User::get(), LastCharger::get()) {
     addDeco<EventEmitThingDeco>();
-    addDeco<AutoPoweroffThingDeco>();
+    addDeco<CountdownThingDeco>();
+    addDeco<CurrentLimitThingDeco>();
     init();
 }
 }

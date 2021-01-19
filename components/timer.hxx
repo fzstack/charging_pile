@@ -21,6 +21,7 @@ class Timer {
 public:
     Timer(rt_tick_t time, const char* name, rt_uint8_t flags = RT_TIMER_FLAG_PERIODIC);
     virtual void start();
+    virtual void stop();
     bool isRunning();
 protected:
     virtual void run();

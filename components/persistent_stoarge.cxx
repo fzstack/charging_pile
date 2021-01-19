@@ -87,8 +87,6 @@ rt_uint16_t PersistentStorage::alloc(std::size_t size) {
     head->alloc.add(minDiffNode);
 
     auto newIdleNode = Idx<HeapNode>(minDiffNode.get() + sizeof(HeapNode) + size)(minDiffNodeOriSize - size - sizeof(HeapNode));
-//    if(newIdleNode.get() == 0x3e)
-//        throw not_implemented{};
     head->idle.add(newIdleNode);
 
     return minDiffNode.get() + sizeof(HeapNode);
