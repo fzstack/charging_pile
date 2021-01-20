@@ -13,16 +13,12 @@
 #define DBG_TAG "main"
 #define DBG_LVL DBG_LOG
 #include <rtdbg.h>
+#include "app.hxx"
 
 int main(void)
 {
-//    int count = 1;
-//
-//    while (count++)
-//    {
-//        LOG_D("Hello RT-Thread!");
-//        rt_thread_mdelay(1000);
-//    }
-
+#ifdef RUN_APP
+    runApp();
+#endif
     return RT_EOK;
 }

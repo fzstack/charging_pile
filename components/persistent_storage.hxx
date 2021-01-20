@@ -46,23 +46,23 @@ private:
         }
 
         void read(rt_uint16_t addr, rt_uint8_t* data, std::size_t size) {
-            //at24cxx_read(outer->device, addr, data, size);
-            memcpy(data, &buffer[addr], size);
-            rt_kprintf("\033[32mread from %04x, size %d: ", addr, size);
-            for(auto i = 0u; i < size; i++) {
-                rt_kprintf("%02x ", data[i]);
-            }
-            rt_kprintf("\n\033[0m");
+            at24cxx_read(outer->device, addr, data, size);
+            //memcpy(data, &buffer[addr], size);
+//            rt_kprintf("\033[32mread from %04x, size %d: ", addr, size);
+//            for(auto i = 0u; i < size; i++) {
+//                rt_kprintf("%02x ", data[i]);
+//            }
+//            rt_kprintf("\n\033[0m");
         }
 
         void write(rt_uint16_t addr, rt_uint8_t* data, std::size_t size) {
-            rt_kprintf("\033[34mwrite to %04x, size %d: ", addr, size);
-            for(auto i = 0u; i < size; i++) {
-                rt_kprintf("%02x ", data[i]);
-            }
-            rt_kprintf("\n\033[0m");
-            //at24cxx_write(outer->device, addr, data, size);
-            memcpy(&buffer[addr], data, size);
+//            rt_kprintf("\033[34mwrite to %04x, size %d: ", addr, size);
+//            for(auto i = 0u; i < size; i++) {
+//                rt_kprintf("%02x ", data[i]);
+//            }
+//            rt_kprintf("\n\033[0m");
+            at24cxx_write(outer->device, addr, data, size);
+            //memcpy(&buffer[addr], data, size);
         }
 
         static std::shared_ptr<IdxOwner> get() {
@@ -73,7 +73,7 @@ private:
 
     private:
         std::shared_ptr<PersistentStorage> outer;
-        std::array<rt_uint8_t, 2048> buffer;
+        //std::array<rt_uint8_t, 2048> buffer;
     };
 
     friend class IdxOwner;

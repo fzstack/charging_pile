@@ -14,6 +14,7 @@
 #include <map>
 #include <vector>
 #include <memory>
+#include <unordered_map>
 
 enum class HttpMethod {
     Get,
@@ -34,13 +35,13 @@ public:
     std::shared_ptr<HttpRequest> setMethod(HttpMethod method);
 
     const std::string_view getUrl() const;
-    const std::map<std::string, std::string>& getHeaders() const;
+    const std::unordered_map<std::string, std::string>& getHeaders() const;
     const std::vector<char>& getBody() const;
     HttpMethod getMethod() const;
 
 private:
     std::string url;
-    std::map<std::string, std::string> headers = {};
+    std::unordered_map<std::string, std::string> headers = {};
     std::vector<char> body;
     HttpMethod method;
 };

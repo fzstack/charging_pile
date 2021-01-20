@@ -76,7 +76,7 @@ public:
             std::shared_ptr<rt_uint8_t[]> backup = nullptr;
         };
 
-        std::map<Addr, Data> data = {};
+        std::unordered_map<Addr, Data> data = {};
     };
 
     std::shared_ptr<rt_uint8_t[]> createNode(std::shared_ptr<Owner> owner, std::size_t size) {
@@ -167,8 +167,8 @@ public:
     }
 
 
-    static std::map<void*, Field> field;
-    static std::map<std::shared_ptr<Owner>, OwnerSpec> ownerSpecs;
+    static std::unordered_map<void*, Field> field;
+    static std::unordered_map<std::shared_ptr<Owner>, OwnerSpec> ownerSpecs;
 
 protected:
     Addr addr;
@@ -320,10 +320,10 @@ private:
 };
 
 template <class Owner, class Addr, Addr Null, Addr Max>
-std::map<void*, typename IdxAsset<Owner, Addr, Null, Max>::Field> IdxAsset<Owner, Addr, Null, Max>::field = {};
+std::unordered_map<void*, typename IdxAsset<Owner, Addr, Null, Max>::Field> IdxAsset<Owner, Addr, Null, Max>::field = {};
 
 template <class Owner, class Addr, Addr Null, Addr Max>
-std::map<std::shared_ptr<Owner>, typename IdxAsset<Owner, Addr, Null, Max>::OwnerSpec> IdxAsset<Owner, Addr, Null, Max>::ownerSpecs = {};
+std::unordered_map<std::shared_ptr<Owner>, typename IdxAsset<Owner, Addr, Null, Max>::OwnerSpec> IdxAsset<Owner, Addr, Null, Max>::ownerSpecs = {};
 
 template <class Owner, class Addr, Addr Null, Addr Max>
 void* IdxAsset<Owner, Addr, Null, Max>::getPtr(std::size_t size, std::function<std::list<void*>()> getIdxFieldPtrs) {

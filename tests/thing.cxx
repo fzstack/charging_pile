@@ -22,6 +22,7 @@
 
 using namespace std;
 
+//test_thing control [port] [timer_id] [minutes]
 void test_thing(int argc, char** argv) {
     ASSERT_MIN_NARGS(4);
     auto port = atoi(argv[2]);

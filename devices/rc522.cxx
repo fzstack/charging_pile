@@ -97,7 +97,7 @@ void Rc522::pcdReset() {
 }
 
 void Rc522::pcdConfigISOType(char type) {
-    auto sel = map<char, function<void()>> {
+    auto sel = unordered_map<char, function<void()>> {
         {'A', [this](){
             (*this)[Regs::Status2] &= ~0x08;
             (*this)[Regs::Mode] = 0x3d;

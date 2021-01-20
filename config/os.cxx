@@ -16,7 +16,8 @@
 #include <components/state_store.hxx>
 #include <applications/thing.hxx>
 #include <applications/current_limit_thing_deco.hxx>
-#include <countdown_thing_deco.hxx>
+#include <applications/countdown_thing_deco.hxx>
+#include <backup_thing_deco.hxx>
 
 using namespace Config;
 
@@ -29,7 +30,8 @@ const char
     *StateStore::kMutex = "ststor",
     *CountdownThingDeco::kTimer = "tapoff",
     *::Thing::kMutex = "thing",
-    *CurrentLimitThingDeco::kTimer = "kltdec";
+    *CurrentLimitThingDeco::kTimer = "kltdec",
+    *BackupThingDeco::kTimer = "rstdec";
 
 namespace Preset {
 const rt_tick_t CloudTimer::kTime = 60000;

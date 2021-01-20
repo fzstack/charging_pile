@@ -54,10 +54,10 @@ protected:
     }
 
 private:
-    static std::map<std::shared_ptr<Air724>, std::shared_ptr<AirComponentBase::State>> states;
+    static std::unordered_map<std::shared_ptr<Air724>, std::shared_ptr<AirComponentBase::State>> states;
 };
 
-template<class T> typename std::map<std::shared_ptr<Air724>, std::shared_ptr<AirComponentBase::State>> AirComponent<T>::states = {};
+template<class T> typename std::unordered_map<std::shared_ptr<Air724>, std::shared_ptr<AirComponentBase::State>> AirComponent<T>::states = {};
 
 
 #endif /* COMPONENTS_AIR_COMPONENT_HXX_ */

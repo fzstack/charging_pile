@@ -165,7 +165,7 @@ void Json::push_back(Json&& item) {
 }
 
 Json::Type Json::getType() const {
-    return map<int, Type> {
+    return unordered_map<int, Type> {
         {cJSON_NULL, Type::Null},
         {cJSON_Number, Type::Number},
         {cJSON_True, Type::Boolean},

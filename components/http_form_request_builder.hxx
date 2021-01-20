@@ -22,7 +22,7 @@ public:
 
 private:
     std::string url;
-    std::map<std::string, std::string> params = {};
+    std::unordered_map<std::string, std::string> params = {};
 };
 
 

@@ -61,9 +61,9 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
         auto request = Alink::Request::from(data);
         auto methods = request.getMethod();
 
-        auto action = map<string, function<void()>> {
+        auto action = unordered_map<string, function<void()>> {
             {"thing", [&](){
-                auto action = map<string, function<void()>> {
+                auto action = unordered_map<string, function<void()>> {
                     {"service", [&]() {
                         auto identifier = topics[TopicIdx::Thing::Service::Identifier];
                         auto service = services.find(identifier);

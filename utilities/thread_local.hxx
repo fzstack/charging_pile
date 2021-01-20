@@ -16,6 +16,7 @@
 #include <Lock.h>
 #include <tuple>
 #include <memory>
+#include <unordered_map>
 
 template<class T>
 class ThreadLocal {
@@ -67,7 +68,7 @@ private:
 
 private:
     std::shared_ptr<T> pt;
-    std::map<rt_thread_t, T> m = {};
+    std::unordered_map<rt_thread_t, T> m = {};
     static rtthread::Mutex mutex;
 };
 

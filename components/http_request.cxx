@@ -41,7 +41,7 @@ const string_view HttpRequest::getUrl() const {
     return url;
 }
 
-const map<string, string>& HttpRequest::getHeaders() const {
+const unordered_map<string, string>& HttpRequest::getHeaders() const {
     return headers;
 }
 

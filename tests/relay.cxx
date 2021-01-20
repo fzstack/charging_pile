@@ -22,7 +22,7 @@ void test_relay(int argc, char** argv) {
     auto relayA = Preset::Relay<0>::get();
     auto relayB = Preset::Relay<1>::get();
 
-    auto sel = std::map<std::string, std::shared_ptr<Relay>> {
+    auto sel = std::unordered_map<std::string, std::shared_ptr<Relay>> {
         {"A", relayA},
         {"B", relayB},
     };
