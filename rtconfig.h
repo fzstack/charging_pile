@@ -210,6 +210,10 @@
 
 /* system packages */
 
+
+/* Micrium: Micrium software products porting for RT-Thread */
+
+/* end of Micrium: Micrium software products porting for RT-Thread */
 /* end of system packages */
 
 /* peripheral libraries and drivers */
@@ -224,6 +228,10 @@
 /* samples: kernel and components samples */
 
 /* end of samples: kernel and components samples */
+
+/* games: games run on RT-Thread console */
+
+/* end of games: games run on RT-Thread console */
 /* end of miscellaneous packages */
 /* end of RT-Thread online packages */
 

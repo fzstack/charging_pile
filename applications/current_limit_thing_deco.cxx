@@ -40,10 +40,10 @@ CurrentLimitThingDeco::CurrentLimitThingDeco(outer_t* outer): ThingDeco(outer) {
                 }
             };
 
-            timer->onRun += [charger, i]() {
+            timer->onRun += [charger, i, this]() {
                 if(charger->stateStore->oState.value() == State::Charging) {
                     charger->stop();
-                    rt_kprintf("port%d stop due to current limit\n", i);
+                    this->outer->onCurrentLimit(i);
                 }
             };
         }

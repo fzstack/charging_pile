@@ -20,7 +20,7 @@ const char
     *App::cloudProductKey = "a1tltf2GJUn",
     *App::cloudDeviceSecret = "e96d5f79301c20994cb2e984e3cad47b";
 
-string getStateStr(State state) {
+string getStateStr(State::Value state) {
     switch(state) {
     case State::LoadNotInsert:
         return "load_not_insert";

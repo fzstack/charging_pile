@@ -15,6 +15,7 @@
 #include <components/last_charger.hxx>
 #include <components/user.hxx>
 #include <config/bsp.hxx>
+#include <config/app.hxx>
 #include <memory>
 #include <utilities/signals.hxx>
 #include <stdexcept>
@@ -46,6 +47,10 @@ public:
 
     Signals<void(int port)> onPortAccess;
     Signals<void(int port, std::string icNumber)> onIcNumber;
+    Signals<void(int port)> onCurrentLimit;
+    Signals<void()> onCurrentData;
+
+    Signals<std::array<CurrentData, Config::Bsp::kPortNum>()> getCurrentData;
 
 private:
     std::array<ChargerInfo, Config::Bsp::kPortNum> infos;

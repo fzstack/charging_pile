@@ -28,7 +28,8 @@ struct Observable {
         if(value == newVal)
             return newVal;
         value = newVal;
-        onChanged(value);
+        onChanged(newVal);
+
         return newVal;
     }
 

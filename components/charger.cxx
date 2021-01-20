@@ -42,7 +42,7 @@ void Charger::stop() {
     relay->getHandler() = false;
 }
 
-void Charger::assertState(State expectedState, string action) {
+void Charger::assertState(State::Value expectedState, string action) {
     auto state = *stateStore->oState;
         if(state != expectedState)
             throw charger_error{"failed to " + action + ", reason: "s + (state ? getStateStr(*state): "null_state")};

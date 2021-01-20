@@ -1,12 +1,12 @@
 /*
- * linker script for STM32F103RC with GNU ld
+ * linker script for STM32F103RE with GNU ld
  */
 
 /* Program Entry, set to mark it as "used" and avoid gc */
 MEMORY
 {
-    ROM (rx) : ORIGIN = 0x08000000, LENGTH =  256k /* 256K flash */
-    RAM (rw) : ORIGIN = 0x20000000, LENGTH =  48k /* 48K sram */
+    ROM (rx) : ORIGIN = 0x08000000, LENGTH =  512k /* 512K flash */
+    RAM (rw) : ORIGIN = 0x20000000, LENGTH =  64k /* 64K sram */
 }
 ENTRY(Reset_Handler)
 _system_stack_size = 0x400;
@@ -71,7 +71,6 @@ SECTIONS
     } > ROM = 0
 
     /* .ARM.exidx is sorted, so has to go in its own output section.  */
-    
     .ARM.exidx :
     {
         __exidx_start = .;
@@ -81,7 +80,6 @@ SECTIONS
         _sidata = .;
         __exidx_end = .;
     } > ROM
-    
 
     /* .data section which is used for initialized data */
 

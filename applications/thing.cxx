@@ -55,16 +55,19 @@ void Thing::stop(int port, int timerId) {
     info.timerId = timerId;
 }
 
-#include <countdown_thing_deco.hxx>
+#include "countdown_thing_deco.hxx"
 #include "event_emit_thing_deco.hxx"
 #include "current_limit_thing_deco.hxx"
-#include <backup_thing_deco.hxx>
+#include "backup_thing_deco.hxx"
+#include "data_set_thing_deco.hxx"
+
 namespace Preset {
 Thing::Thing(): ::Thing({Charger<0>::get(), Charger<1>::get()}, User::get(), LastCharger::get()) {
     addDeco<EventEmitThingDeco>(); //事件上报功能
     addDeco<CountdownThingDeco>(); //倒计时功能
     addDeco<CurrentLimitThingDeco>(); //限流功能
     addDeco<BackupThingDeco>(); //状态备份功能
+    addDeco<DataSetThingDeco>(); //状态数据上报功能
     init();
 }
 }

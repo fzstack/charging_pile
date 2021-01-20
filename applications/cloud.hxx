@@ -16,6 +16,7 @@
 #include <config/bsp.hxx>
 #include "cloud_timer.hxx"
 #include <utilities/signals.hxx>
+#include <config/app.hxx>
 
 class CloudTimer;
 
@@ -25,33 +26,7 @@ public:
     Cloud(std::shared_ptr<CloudTimer> timer);
     virtual void init();
 
-    struct CurrentData {
-        int port;
-        int timerId;
-        int leftMinutes;
-        struct State {
-            enum Value {
-                LoadNotReady = 1,
-                LoadReady,
-                Charging,
-                Charged,
-                Error,
-            };
-        };
-        State::Value state;
-        float current;
-        float voltage;
-        float consumption;
-        struct Fuse {
-            enum Value {
-                Normal,
-                Fused,
-                Unknown,
-            };
-        };
-        Fuse::Value fuse;
-    };
-    virtual void setCurrentData(std::array<CurrentData, Config::Bsp::kPortNum> data) = 0;
+    virtual void setCurrentData(std::array<CurrentData, Config::Bsp::kPortNum>& data) = 0;
     virtual void setIccid(std::string_view iccid) = 0;
     virtual void setSignal(int signal) = 0;
 

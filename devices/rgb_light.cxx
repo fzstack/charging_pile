@@ -11,13 +11,13 @@
 #include "rgb_light.hxx"
 #include <rtdevice.h>
 
-#include "observable.hxx"
+#include <utilities/observable.hxx>
 #include <string>
 #include <map>
 #include <functional>
 #include <optional>
 
-#include <cmd.hxx>
+#include <utilities/cmd.hxx>
 
 using namespace std;
 using namespace placeholders;

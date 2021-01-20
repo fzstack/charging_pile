@@ -9,6 +9,10 @@
  */
 
 #include "event_emit_thing_deco.hxx"
+#include <config/app.hxx>
+#include <utilities/mp.hxx>
+
+using namespace std;
 
 EventEmitThingDeco::EventEmitThingDeco(outer_t* outer): ThingDeco(outer) {
     inited.onChanged += [this](auto value) {

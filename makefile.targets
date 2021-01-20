@@ -3,4 +3,4 @@ clean2:
 	-$(RM) $(OBJS) *.elf
 	-@echo ' '
     
-*.elf: $(wildcard C:/Tools/RT-ThreadStudio/workspace/charging_pile/linkscripts/STM32F103RC/link.lds)
+*.elf: $(wildcard C:/Tools/RT-ThreadStudio/workspace/charging_pile/linkscripts/STM32F103RE/link.lds)

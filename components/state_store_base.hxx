@@ -20,9 +20,9 @@ class StateStoreBase : public std::enable_shared_from_this<StateStoreBase> {
 public:
     StateStoreBase();
 protected:
-    Observable<std::optional<State>> state;
+    Observable<std::optional<State::Value>> state;
 public:
-    Observer<std::optional<State>> oState;
+    Observer<std::optional<State::Value>> oState;
 };
 
 

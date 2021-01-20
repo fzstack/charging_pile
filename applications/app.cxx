@@ -26,5 +26,40 @@ void runApp() {
             return Cloud::ServiceResult::Failed;
         }
     };
+
+    cloud->onStop += [=](int port, int timerId) {
+        try {
+            thing->stop(port, timerId);
+            return Cloud::ServiceResult::Succeed;
+        } catch(const exception& e) {
+            return Cloud::ServiceResult::Failed;
+        }
+    };
+
+    cloud->onQuery += [=] {
+        thing->onCurrentData();
+    };
+
+    thing->onIcNumber += cloud->post([=](int port, string icNumber) {
+        cloud->emitIcNumber(port, icNumber);
+    });
+
+    thing->onPortAccess += cloud->post([=](int port) {
+        cloud->emitPortAccess(port);
+    });
+
+    thing->onCurrentLimit += cloud->post([=](int port) {
+        cloud->emitCurrentLimit(port);
+    });
+
+    thing->onCurrentData += cloud->post([=]() {
+        thing->getCurrentData([&](auto result){
+            auto data = get_if<std::array<CurrentData, Config::Bsp::kPortNum>>(&result);
+            if(!data) return;
+            cloud->setCurrentData(*data);
+        });
+    });
+
+    cloud->init();
 }
 

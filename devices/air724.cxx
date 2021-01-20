@@ -33,16 +33,19 @@ Air724::Air724(const char* atUartDevice, rt_base_t resetPin): resetPin(resetPin)
     atClient->device->user_data = this;
 
     inited.onChanged += [this](auto value) {
-        if(value) {
+        if(!value) return;
+        if(at_client_obj_wait_connect(atClient, kTimeoutMs) != RT_EOK) {
+            rt_kprintf("try init failed\n");
+            rt_thread_mdelay(10000);
             if(at_client_obj_wait_connect(atClient, kTimeoutMs) != RT_EOK) {
                 throw runtime_error{"connect timeout"};
             }
-
-            auto ess = make<AirEssential>();
-            ess->closeEcho();
-            ess->attachGprs();
-            ess->activatePdp();
         }
+
+        auto ess = make<AirEssential>();
+        ess->closeEcho();
+        ess->attachGprs();
+        ess->activatePdp();
     };
 }
 

@@ -33,7 +33,7 @@ public:
     void stop();
 
 private:
-    void assertState(State expectedState, std::string action);
+    void assertState(State::Value expectedState, std::string action);
 
 
 private:
