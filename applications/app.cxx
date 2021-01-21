@@ -52,7 +52,7 @@ void runApp() {
         cloud->emitCurrentLimit(port);
     });
 
-    thing->onCurrentData += cloud->post([=]() {
+    thing->onCurrentData += cloud->post([=] {
         thing->getCurrentData([&](auto result){
             auto data = get_if<std::array<CurrentData, Config::Bsp::kPortNum>>(&result);
             if(!data) return;
@@ -61,5 +61,13 @@ void runApp() {
     });
 
     cloud->init();
+
+//    {
+//        "port": 0,
+//        "timer_id": 1,
+//        "minutes": 5
+//    }
+
+
 }
 

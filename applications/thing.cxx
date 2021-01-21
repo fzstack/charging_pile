@@ -60,6 +60,7 @@ void Thing::stop(int port, int timerId) {
 #include "current_limit_thing_deco.hxx"
 #include "backup_thing_deco.hxx"
 #include "data_set_thing_deco.hxx"
+#include "consumption_measure_thing_deco.hxx"
 
 namespace Preset {
 Thing::Thing(): ::Thing({Charger<0>::get(), Charger<1>::get()}, User::get(), LastCharger::get()) {
@@ -68,6 +69,7 @@ Thing::Thing(): ::Thing({Charger<0>::get(), Charger<1>::get()}, User::get(), Las
     addDeco<CurrentLimitThingDeco>(); //限流功能
     addDeco<BackupThingDeco>(); //状态备份功能
     addDeco<DataSetThingDeco>(); //状态数据上报功能
+    addDeco<ConsumptionMeasureThingDeco>(); //功耗测量功能
     init();
 }
 }

@@ -12,12 +12,25 @@
 
 #include "thing_deco.hxx"
 #include <utilities/observable.hxx>
+#include <array>
+#include <config/bsp.hxx>
 
 class DataSetThingDeco: public ThingDeco {
     friend outer_t;
     DataSetThingDeco(outer_t* outer);
     virtual void init() override;
 
+private:
+    struct Params {
+        int currDiffThrMiA = 10; //电流变化阈值
+    };
+
+    struct ChargerSpec {
+        int prevCurrMiA = 0;
+    };
+
+private:
+    std::array<ChargerSpec, Config::Bsp::kPortNum> specs;
     Observable<bool> inited = false;
 };
 

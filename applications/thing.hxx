@@ -29,6 +29,7 @@ struct ChargerInfo {
     std::shared_ptr<Charger> charger = {};
     int timerId = 0;
     int leftSeconds = 0;
+    float consumption = 0; //AxV
 };
 
 class Thing {

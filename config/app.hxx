@@ -21,7 +21,7 @@ public:
 };
 
 struct Thing {
-    int maxCurrentMiA = 150;
+    int maxCurrentMiA = 200;
 };
 
 }

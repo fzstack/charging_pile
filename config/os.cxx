@@ -17,7 +17,8 @@
 #include <applications/thing.hxx>
 #include <applications/current_limit_thing_deco.hxx>
 #include <applications/countdown_thing_deco.hxx>
-#include <backup_thing_deco.hxx>
+#include <applications/backup_thing_deco.hxx>
+#include <applications/consumption_measure_thing_deco.hxx>
 
 using namespace Config;
 
@@ -31,7 +32,9 @@ const char
     *CountdownThingDeco::kTimer = "tapoff",
     *::Thing::kMutex = "thing",
     *CurrentLimitThingDeco::kTimer = "kltdec",
-    *BackupThingDeco::kTimer = "rstdec";
+    *BackupThingDeco::kTimer = "btdec",
+    *ConsumptionMeasureThingDeco::kTimer = "cmtdec",
+*ConsumptionMeasureThingDeco::kMutex = "cmtdec";
 
 namespace Preset {
 const rt_tick_t CloudTimer::kTime = 60000;

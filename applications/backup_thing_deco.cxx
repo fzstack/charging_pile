@@ -32,10 +32,12 @@ BackupThingDeco::BackupThingDeco(outer_t* outer): ThingDeco(outer) {
                                 charger->start();
                                 info.leftSeconds = backupCopy.leftSeconds;
                                 info.timerId = backupCopy.timerId;
+                                info.consumption = backupCopy.consumption;
                             }
                             break;
                         case State::LoadNotInsert:
                             backup->leftSeconds = 0;
+                            backup->consumption = 0;
                             break;
                         default:
                             break;
@@ -57,6 +59,7 @@ BackupThingDeco::BackupThingDeco(outer_t* outer): ThingDeco(outer) {
                         if(value == State::Charging || value == State::LoadWaitRemove) {
                             backup->leftSeconds = info.leftSeconds;
                             backup->timerId = info.timerId;
+                            backup->consumption = info.consumption;
                         }
                     }, i);
                 }
@@ -68,6 +71,7 @@ BackupThingDeco::BackupThingDeco(outer_t* outer): ThingDeco(outer) {
                     auto backup = storage->make<Backup<decltype(x)::value>>();
                     auto& info = getInfo(i);
                     backup->leftSeconds = info.leftSeconds;
+                    backup->consumption = info.consumption;
                 }, i);
             };
         }

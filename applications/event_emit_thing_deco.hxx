@@ -18,6 +18,7 @@ class EventEmitThingDeco: public ThingDeco {
     EventEmitThingDeco(outer_t* outer);
     virtual void init() override;
 
+private:
     Observable<bool> inited = false;
 };
 

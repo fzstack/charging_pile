@@ -26,6 +26,7 @@ class BackupThingDeco: public ThingDeco {
     struct Backup {
         int leftSeconds = 0;
         int timerId = 0;
+        float consumption = 0;
     };
 
 private:

@@ -10,6 +10,7 @@
 
 #include "data_set_thing_deco.hxx"
 #include <config/bsp.hxx>
+#include <components/persistent_storage.hxx>
 
 using namespace std;
 
@@ -28,7 +29,7 @@ DataSetThingDeco::DataSetThingDeco(outer_t* outer): ThingDeco(outer) {
                     state: **charger->stateStore->oState,
                     current: (float)**charger->multimeterChannel->current / 1000.f,
                     voltage: (float)**charger->multimeterChannel->voltage,
-                    consumption: 0.f,
+                    consumption: info.consumption,
                     fuse: CurrentData::Fuse::Normal,
                 };
             }
@@ -47,6 +48,16 @@ DataSetThingDeco::DataSetThingDeco(outer_t* outer): ThingDeco(outer) {
                 default:
                     break;
                 };
+            };
+
+            charger->multimeterChannel->current += [this, i, charger](auto value) {
+                if(!value) return;
+                auto& prevCurrMiA = specs[i].prevCurrMiA;
+                auto params = Preset::PersistentStorage::get()->make<Params>();
+                if(abs(*value - prevCurrMiA) >= params->currDiffThrMiA && *charger->stateStore->oState == State::Charging) {
+                    this->outer->onCurrentData();
+                }
+                prevCurrMiA = *value;
             };
         }
     };
