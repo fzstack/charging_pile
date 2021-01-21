@@ -74,6 +74,8 @@ namespace Preset {
 class Thing: public Singleton<Thing>, public ::Thing {
     friend class Singleton<Thing>;
     Thing();
+
+    static std::array<std::shared_ptr<::Charger>, Config::Bsp::kPortNum> getChargers();
 };
 }
 

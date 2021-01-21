@@ -15,6 +15,7 @@
 #include <array>
 #include <components/timer.hxx>
 #include <config/bsp.hxx>
+#include <Mutex.h>
 
 class CurrentLimitThingDeco: public ThingDeco {
     friend outer_t;
@@ -24,9 +25,12 @@ class CurrentLimitThingDeco: public ThingDeco {
     Observable<bool> inited = false;
     std::array<std::shared_ptr<Timer>, Config::Bsp::kPortNum> timers;
 
+    rtthread::Mutex mutex;
+
 private:
     static constexpr int kDuration = 2000;
     static const char* kTimer;
+    static const char* kMutex;
 };
 
 

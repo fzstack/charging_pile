@@ -11,10 +11,12 @@
 #include "current_limit_thing_deco.hxx"
 #include <components/persistent_storage.hxx>
 #include <config/app.hxx>
+#include <Lock.h>
 
 using namespace std;
+using namespace rtthread;
 
-CurrentLimitThingDeco::CurrentLimitThingDeco(outer_t* outer): ThingDeco(outer) {
+CurrentLimitThingDeco::CurrentLimitThingDeco(outer_t* outer): ThingDeco(outer), mutex(kMutex) {
 
     //每个端口一个定时器
     for(auto& timer: timers) {
@@ -27,7 +29,8 @@ CurrentLimitThingDeco::CurrentLimitThingDeco(outer_t* outer): ThingDeco(outer) {
             auto charger = getInfo(i).charger;
             auto timer = timers[i];
 
-            charger->multimeterChannel->current += [charger, timer, i](auto value) {
+            charger->multimeterChannel->current += [this, charger, timer, i](auto value) {
+                auto guard = Lock(mutex);
                 auto storage = Preset::PersistentStorage::get();
                 auto config = storage->make<Config::Thing>();
                 if(!value) return;
@@ -41,6 +44,7 @@ CurrentLimitThingDeco::CurrentLimitThingDeco(outer_t* outer): ThingDeco(outer) {
             };
 
             timer->onRun += [charger, i, this]() {
+                auto guard = Lock(mutex);
                 if(charger->stateStore->oState.value() == State::Charging) {
                     charger->stop();
                     this->outer->onCurrentLimit(i);

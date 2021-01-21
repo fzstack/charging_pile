@@ -55,6 +55,8 @@ void Thing::stop(int port, int timerId) {
     info.timerId = timerId;
 }
 
+#include <array>
+#include <utilities/mp.hxx>
 #include "countdown_thing_deco.hxx"
 #include "event_emit_thing_deco.hxx"
 #include "current_limit_thing_deco.hxx"
@@ -63,7 +65,7 @@ void Thing::stop(int port, int timerId) {
 #include "consumption_measure_thing_deco.hxx"
 
 namespace Preset {
-Thing::Thing(): ::Thing({Charger<0>::get(), Charger<1>::get()}, User::get(), LastCharger::get()) {
+Thing::Thing(): ::Thing(getChargers(), User::get(), LastCharger::get()) {
     addDeco<EventEmitThingDeco>(); //事件上报功能
     addDeco<CountdownThingDeco>(); //倒计时功能
     addDeco<CurrentLimitThingDeco>(); //限流功能
@@ -71,5 +73,15 @@ Thing::Thing(): ::Thing({Charger<0>::get(), Charger<1>::get()}, User::get(), Las
     addDeco<DataSetThingDeco>(); //状态数据上报功能
     addDeco<ConsumptionMeasureThingDeco>(); //功耗测量功能
     init();
+}
+
+std::array<std::shared_ptr<::Charger>, Config::Bsp::kPortNum> Thing::getChargers() {
+    auto result = std::array<std::shared_ptr<::Charger>, Config::Bsp::kPortNum>();
+    for(auto i = 0u; i < result.size(); i++) {
+        magic_switch<Config::Bsp::kPortNum>{}([&](auto v){
+            result[i] = Charger<decltype(v)::value>::get();
+        }, i);
+    }
+    return result;
 }
 }

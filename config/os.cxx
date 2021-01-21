@@ -32,6 +32,7 @@ const char
     *CountdownThingDeco::kTimer = "tapoff",
     *::Thing::kMutex = "thing",
     *CurrentLimitThingDeco::kTimer = "kltdec",
+    *CurrentLimitThingDeco::kMutex = "kltdec",
     *BackupThingDeco::kTimer = "btdec",
     *ConsumptionMeasureThingDeco::kTimer = "cmtdec",
 *ConsumptionMeasureThingDeco::kMutex = "cmtdec";
