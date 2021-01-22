@@ -28,6 +28,7 @@ BackupThingDeco::BackupThingDeco(outer_t* outer): ThingDeco(outer) {
                         case State::LoadInserted:
                             if(backup->leftSeconds != 0) {
                                 auto backupCopy = *backup;
+                                rt_kprintf("port%d state resumed\n", i);
                                 auto guard = getLock();
                                 charger->start();
                                 info.leftSeconds = backupCopy.leftSeconds;
@@ -57,6 +58,7 @@ BackupThingDeco::BackupThingDeco(outer_t* outer): ThingDeco(outer) {
                             break;
                         }
                         if(value == State::Charging || value == State::LoadWaitRemove) {
+                            rt_kprintf("backup port%d due to state transition, {left: %d}\n", i, info.leftSeconds);
                             backup->leftSeconds = info.leftSeconds;
                             backup->timerId = info.timerId;
                             backup->consumption = info.consumption;
@@ -70,6 +72,7 @@ BackupThingDeco::BackupThingDeco(outer_t* outer): ThingDeco(outer) {
                 magic_switch<Config::Bsp::kPortNum>{}([&](auto x){
                     auto backup = storage->make<Backup<decltype(x)::value>>();
                     auto& info = getInfo(i);
+                    rt_kprintf("backup port%d due to timing, {left: %d}\n", i, info.leftSeconds);
                     backup->leftSeconds = info.leftSeconds;
                     backup->consumption = info.consumption;
                 }, i);

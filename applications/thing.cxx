@@ -44,9 +44,15 @@ void Thing::init() {
 void Thing::control(int port, int timerId, int minutes) {
     auto guard = Lock(mutex);
     auto& info = infos[port]; //NOTE: std::array会自动进行边界检查
-    info.charger->start();
-    info.timerId = timerId;
+    auto oldTimerId = info.timerId;
     info.leftSeconds = minutes * 60;
+    info.timerId = timerId;
+    try {
+        info.charger->start();
+    } catch(const exception& e) {
+        info.leftSeconds = 0;
+        info.timerId = oldTimerId;
+    }
 }
 
 void Thing::stop(int port, int timerId) {
@@ -70,6 +76,7 @@ void Thing::config(int currentLimit, int uploadThr, int fuzedThr) {
 #include "data_set_thing_deco.hxx"
 #include "consumption_measure_thing_deco.hxx"
 #include "fuse_detect_thing_deco.hxx"
+#include "noload_detect_thing_deco.hxx"
 
 namespace Preset {
 Thing::Thing(): ::Thing(getChargers(), User::get(), LastCharger::get()) {
@@ -80,6 +87,7 @@ Thing::Thing(): ::Thing(getChargers(), User::get(), LastCharger::get()) {
     addDeco<DataSetThingDeco>(); //状态数据上报功能
     addDeco<ConsumptionMeasureThingDeco>(); //功耗测量功能
     addDeco<FuseDetectThingDeco>(); //保险丝检测功能
+    addDeco<NoloadDetectThingDeco>(); //空载检测功能
     init();
 }
 
