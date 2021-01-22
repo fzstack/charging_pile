@@ -48,6 +48,7 @@ public:
     void config(int currentLimit, int uploadThr, int fuzedThr);
 
     Signals<void(int port)> onPortAccess;
+    Signals<void(int port)> onPortUnplug;
     Signals<void(int port, std::string icNumber)> onIcNumber;
     Signals<void(int port)> onCurrentLimit;
     Signals<void()> onCurrentData;

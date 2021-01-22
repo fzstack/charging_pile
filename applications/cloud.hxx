@@ -31,6 +31,7 @@ public:
     virtual void setSignal(int signal) = 0;
 
     virtual void emitPortAccess(int port) = 0;
+    virtual void emitPortUnplug(int port) = 0;
     virtual void emitIcNumber(int port, std::string_view icNumber) = 0;
     virtual void emitCurrentLimit(int port) = 0;
 

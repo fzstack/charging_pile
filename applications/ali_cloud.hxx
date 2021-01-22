@@ -25,9 +25,10 @@ public:
     virtual void setIccid(std::string_view iccid) override;
     virtual void setSignal(int signal) override;
 
-    virtual void emitPortAccess(int port);
-    virtual void emitIcNumber(int port, std::string_view icNumber);
-    virtual void emitCurrentLimit(int port);
+    virtual void emitPortAccess(int port) override;
+    virtual void emitPortUnplug(int port) override;
+    virtual void emitIcNumber(int port, std::string_view icNumber) override;
+    virtual void emitCurrentLimit(int port) override;
 
     template<class... Args>
     auto post(Args&&... args) {

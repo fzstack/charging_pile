@@ -20,8 +20,16 @@ EventEmitThingDeco::EventEmitThingDeco(outer_t* outer): ThingDeco(outer) {
         for(auto i = 0u; i < Config::Bsp::kPortNum; i++) {
             auto guard = getLock();
             getInfo(i).charger->stateStore->oState += [this, i](auto value) {
-              if(value != State::LoadInserted) return;
-              this->outer->onPortAccess(i);
+              if(!value) return;
+              switch(*value) {
+              case State::LoadInserted:
+                  this->outer->onPortAccess(i);
+                  break;
+              case State::LoadNotInsert:
+                  this->outer->onPortUnplug(i);
+                  break;
+              default: break;
+              }
             };
         }
 

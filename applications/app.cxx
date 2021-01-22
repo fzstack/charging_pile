@@ -52,6 +52,10 @@ void runApp() {
         cloud->emitPortAccess(port);
     });
 
+    thing->onPortUnplug += cloud->post([=](int port) {
+       cloud->emitPortUnplug(port);
+    });
+
     thing->onCurrentLimit += cloud->post([=](int port) {
         cloud->emitCurrentLimit(port);
     });

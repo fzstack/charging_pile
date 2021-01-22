@@ -131,6 +131,13 @@ void AliCloud::emitPortAccess(int port) {
     });
 }
 
+void AliCloud::emitPortUnplug(int port) {
+    if(!isInited) return;
+    device->emit("port_unplug", {
+        {"port", port},
+    });
+}
+
 void AliCloud::emitIcNumber(int port, std::string_view icNumber) {
     if(!isInited) return;
     device->emit("ic_number", {
