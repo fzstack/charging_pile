@@ -69,6 +69,7 @@ void Thing::config(int currentLimit, int uploadThr, int fuzedThr) {
 #include "backup_thing_deco.hxx"
 #include "data_set_thing_deco.hxx"
 #include "consumption_measure_thing_deco.hxx"
+#include "fuse_detect_thing_deco.hxx"
 
 namespace Preset {
 Thing::Thing(): ::Thing(getChargers(), User::get(), LastCharger::get()) {
@@ -78,6 +79,7 @@ Thing::Thing(): ::Thing(getChargers(), User::get(), LastCharger::get()) {
     addDeco<BackupThingDeco>(); //状态备份功能
     addDeco<DataSetThingDeco>(); //状态数据上报功能
     addDeco<ConsumptionMeasureThingDeco>(); //功耗测量功能
+    addDeco<FuseDetectThingDeco>(); //保险丝检测功能
     init();
 }
 

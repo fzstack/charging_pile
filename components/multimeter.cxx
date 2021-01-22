@@ -29,9 +29,16 @@ Multimeter::Multimeter(std::shared_ptr<Hlw8112> device): device(device) {
                     auto valB = *self->device->makeSess<rms_i_b>();
                     auto valU = *self->device->makeSess<rms_u>();
 
+                    self->device->selectChannelA();
+                    auto angleA = *self->device->makeSess<angle>() * 0.0805f;
+                    self->device->selectChannelB();
+                    auto angleB = *self->device->makeSess<angle>() * 0.0805f;
+
                     self->curChA = int(self->calcCurrent(valA.data, self->curCChA));
                     self->curChB = int(self->calcCurrent(valB.data, self->curCChB));
                     self->vol = int(self->calcVoltage(valU.data, self->volC));
+                    self->angleA = angleA;
+                    self->angleB = angleB;
                 } catch(const exception& e) {
                     rt_kprintf("\033[39m{%s} %s\n\033[0m", typeid(e).name(), e.what());
                 }
@@ -59,10 +66,10 @@ void Multimeter::init() {
 std::shared_ptr<Multimeter::Channel> Multimeter::getChannel(ChPort port) {
     switch(port) {
      case ChPort::A:
-         return std::make_shared<Channel>(curChA, vol);
+         return std::make_shared<Channel>(curChA, vol, angleA);
          break;
      case ChPort::B:
-         return std::make_shared<Channel>(curChB, vol);
+         return std::make_shared<Channel>(curChB, vol, angleB);
          break;
     }
     return nullptr;

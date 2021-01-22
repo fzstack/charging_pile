@@ -19,6 +19,7 @@
 #include <applications/countdown_thing_deco.hxx>
 #include <applications/backup_thing_deco.hxx>
 #include <applications/consumption_measure_thing_deco.hxx>
+#include <applications/fuse_detect_thing_deco.hxx>
 #include <components/persistent_storage.hxx>
 
 using namespace Config;
@@ -37,6 +38,7 @@ const char
     *BackupThingDeco::kTimer = "btdec",
     *ConsumptionMeasureThingDeco::kTimer = "cmtdec",
     *ConsumptionMeasureThingDeco::kMutex = "cmtdec",
+    *FuseDetectThingDeco::kTimer = "fdtdec",
     *PersistentStorage::kMutex = "persto";
 
 namespace Preset {

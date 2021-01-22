@@ -109,6 +109,8 @@ struct pin: public def<def_pin, 0x1d> {
     };
 };
 
+using angle = def<uint16_t, 0x22>;
+
 struct def_rms_i_a {
     rt_uint32_t data: 24;
 };

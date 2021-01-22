@@ -30,6 +30,14 @@ Hlw8112::Hlw8112(const char* uartDeviceName) {
 
 }
 
+void Hlw8112::selectChannelA() {
+    specCmd(0x5a);
+}
+
+void Hlw8112::selectChannelB() {
+    specCmd(0xa5);
+}
+
 void Hlw8112::writeEnable() {
     specCmd(0xe5);
 }
@@ -47,6 +55,9 @@ void Hlw8112::init() {
         sess->chs_ib = true;
         sess->dup_sel = emucon2::DupSel::f3_4Hz;
         sess->sdo_cmos = false;
+
+        sess->wave_en = true; //使能瞬时波形
+        sess->zx_en = true; //使能相角检测
     } {
         auto sess = makeSess<emucon>();
         sess->hpf_i_a_off = false; //关闭高通滤波器

@@ -68,6 +68,9 @@ public:
         return Session<T>(this);
     }
 
+    void selectChannelA();
+    void selectChannelB();
+
 private:
     void writeEnable();
     void writeDisable();

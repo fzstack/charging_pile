@@ -28,9 +28,10 @@ public:
 
     class Channel {
     public:
-        Channel(Observable<std::optional<int>>& current, Observable<std::optional<int>>& voltage): current(current), voltage(voltage) { }
+        Channel(Observable<std::optional<int>>& current, Observable<std::optional<int>>& voltage, Observable<std::optional<float>>& angle): current(current), voltage(voltage), angle(angle) { }
         Observer<std::optional<int>> current;
         Observer<std::optional<int>> voltage;
+        Observer<std::optional<float>> angle;
     };
     friend class Channel;
 
@@ -47,6 +48,7 @@ private:
     std::shared_ptr<Hlw8112> device;
     std::shared_ptr<rt_timer> timer;
     Observable<std::optional<int>> curChA, curChB, vol;
+    Observable<std::optional<float>> angleA, angleB;
     rt_uint16_t curCChA, curCChB, volC;
 
     Observable<bool> inited = {false};
