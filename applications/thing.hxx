@@ -45,6 +45,7 @@ public:
     }
     void control(int port, int timerId, int minutes);
     void stop(int port, int timerId);
+    void config(int currentLimit, int uploadThr, int fuzedThr);
 
     Signals<void(int port)> onPortAccess;
     Signals<void(int port, std::string icNumber)> onIcNumber;

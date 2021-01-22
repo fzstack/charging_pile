@@ -19,6 +19,7 @@
 #include <applications/countdown_thing_deco.hxx>
 #include <applications/backup_thing_deco.hxx>
 #include <applications/consumption_measure_thing_deco.hxx>
+#include <components/persistent_storage.hxx>
 
 using namespace Config;
 
@@ -35,7 +36,8 @@ const char
     *CurrentLimitThingDeco::kMutex = "kltdec",
     *BackupThingDeco::kTimer = "btdec",
     *ConsumptionMeasureThingDeco::kTimer = "cmtdec",
-*ConsumptionMeasureThingDeco::kMutex = "cmtdec";
+    *ConsumptionMeasureThingDeco::kMutex = "cmtdec",
+    *PersistentStorage::kMutex = "persto";
 
 namespace Preset {
 const rt_tick_t CloudTimer::kTime = 60000;

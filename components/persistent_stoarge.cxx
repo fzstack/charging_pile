@@ -9,12 +9,13 @@
  */
 
 #include "persistent_storage.hxx"
+#include <Lock.h>
 
 using namespace std;
 
 ThreadLocal<std::shared_ptr<typename PersistentStorage::IdxOwner>> PersistentStorage::IdxOwner::owner;
 
-PersistentStorage::PersistentStorage(at24cxx_device_t device, int size): device(device), size(size) {
+PersistentStorage::PersistentStorage(at24cxx_device_t device, int size): device(device), size(size), mutex(kMutex) {
 
 }
 
@@ -25,6 +26,7 @@ void PersistentStorage::format() {
 
 PersistentStorage::MakeResult PersistentStorage::makeInternal(std::size_t hash, std::size_t size) {
     //遍历type链表，找到hash code相同的节点
+    auto guard = rtthread::Lock(mutex);
     auto head = Meta::get();
     if(!head->isValid()) {
         format();

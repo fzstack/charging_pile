@@ -20,10 +20,6 @@ public:
         *cloudDeviceSecret;
 };
 
-struct Thing {
-    int maxCurrentMiA = 200;
-};
-
 }
 
 struct State {

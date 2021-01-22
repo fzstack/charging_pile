@@ -17,8 +17,8 @@ using namespace std;
 
 const char
     *App::cloudDeviceName = "863701042917152",
-    *App::cloudProductKey = "a1tltf2GJUn",
-    *App::cloudDeviceSecret = "e96d5f79301c20994cb2e984e3cad47b";
+    *App::cloudProductKey = "a1mKT2XMEnq",
+    *App::cloudDeviceSecret = "4ede507e2250b4eb2bed1efb6f079c51";
 
 string getStateStr(State::Value state) {
     switch(state) {

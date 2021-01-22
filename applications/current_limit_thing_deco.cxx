@@ -32,11 +32,11 @@ CurrentLimitThingDeco::CurrentLimitThingDeco(outer_t* outer): ThingDeco(outer), 
             charger->multimeterChannel->current += [this, charger, timer, i](auto value) {
                 auto guard = Lock(mutex);
                 auto storage = Preset::PersistentStorage::get();
-                auto config = storage->make<Config::Thing>();
+                auto params = storage->make<Params>();
                 if(!value) return;
 
                 rt_kprintf("port%d current: %dmA\n", i, *value);
-                if(*value > config->maxCurrentMiA) {
+                if(*value > params->maxCurrentMiA) {
                     if(!timer->isRunning() && charger->stateStore->oState.value() == State::Charging) timer->start();
                 } else {
                     if(timer->isRunning()) timer->stop();
@@ -56,5 +56,10 @@ CurrentLimitThingDeco::CurrentLimitThingDeco(outer_t* outer): ThingDeco(outer), 
 
 void CurrentLimitThingDeco::init() {
     inited = true;
+}
+
+void CurrentLimitThingDeco::config(int currentLimit, int uploadThr, int fuzedThr) {
+    auto params = Preset::PersistentStorage::get()->make<Params>();
+    params->maxCurrentMiA = currentLimit;
 }
 

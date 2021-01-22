@@ -66,3 +66,8 @@ DataSetThingDeco::DataSetThingDeco(outer_t* outer): ThingDeco(outer) {
 void DataSetThingDeco::init() {
     inited = true;
 }
+
+void DataSetThingDeco::config(int currentLimit, int uploadThr, int fuzedThr) {
+    auto params = Preset::PersistentStorage::get()->make<Params>();
+    params->currDiffThrMiA = uploadThr;
+}

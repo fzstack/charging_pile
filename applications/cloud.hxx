@@ -43,6 +43,7 @@ public:
     };
     Signals<ServiceResult::Value(int port, int timerId, int minutes)> onControl = {};
     Signals<ServiceResult::Value(int port, int timerId)> onStop = {};
+    Signals<void(int currentLimit, int uploadThr, int fuzedThr)> onConfig = {};
 
 protected:
     virtual void setSignalInterval() = 0;

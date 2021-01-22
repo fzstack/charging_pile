@@ -22,6 +22,7 @@ class ThingDeco: public Nested<Thing> {
 protected:
     using nested_t::Nested;
     virtual void init() = 0;
+    virtual void config(int currentLimit, int uploadThr, int fuzedThr) {};
     ChargerInfo& getInfo(int port);
     std::shared_ptr<User> getUser();
     std::shared_ptr<LastCharger> getLast();

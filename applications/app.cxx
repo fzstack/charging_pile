@@ -40,6 +40,10 @@ void runApp() {
         thing->onCurrentData();
     };
 
+    cloud->onConfig += [=](int currentLimit, int uploadThr, int fuzedThr) {
+        thing->config(currentLimit, uploadThr, fuzedThr);
+    };
+
     thing->onIcNumber += cloud->post([=](int port, string icNumber) {
         cloud->emitIcNumber(port, icNumber);
     });

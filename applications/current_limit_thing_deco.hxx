@@ -21,6 +21,11 @@ class CurrentLimitThingDeco: public ThingDeco {
     friend outer_t;
     CurrentLimitThingDeco(outer_t* outer);
     virtual void init() override;
+    virtual void config(int currentLimit, int uploadThr, int fuzedThr) override;
+
+    struct Params {
+        int maxCurrentMiA = 200; //电流变化阈值
+    };
 
     Observable<bool> inited = false;
     std::array<std::shared_ptr<Timer>, Config::Bsp::kPortNum> timers;

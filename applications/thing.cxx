@@ -55,6 +55,12 @@ void Thing::stop(int port, int timerId) {
     info.timerId = timerId;
 }
 
+void Thing::config(int currentLimit, int uploadThr, int fuzedThr) {
+    for(auto deco: decos) {
+        deco->config(currentLimit, uploadThr, fuzedThr);
+    }
+}
+
 #include <array>
 #include <utilities/mp.hxx>
 #include "countdown_thing_deco.hxx"

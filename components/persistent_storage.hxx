@@ -16,6 +16,7 @@
 #include <stdexcept>
 #include <utilities/idx.hxx>
 #include <array>
+#include <Mutex.h>
 
 extern "C" {
 #include <at24cxx.h>
@@ -230,18 +231,6 @@ public:
         //format();
         auto data = std::array<rt_uint8_t, 114>{};
         owner->read(0, &data[0], 114);
-
-//        auto addr1 = alloc(4);
-//        auto addr2 = alloc(4);
-//        //auto addr3 = alloc(4);
-//        //auto addr4 = alloc(4);
-//
-//        rt_kprintf("====================\n");
-//        rt_kprintf("addr1: %04x\n", addr1);
-//        rt_kprintf("addr2: %04x\n", addr2);
-//        //rt_kprintf("addr3: %04x\n", addr3);
-//        //rt_kprintf("addr4: %04x\n", addr4);
-//        rt_kprintf("====================\n");
     }
 
     template<class T>
@@ -256,24 +245,6 @@ public:
         return idx;
     }
 
-
-    class B;
-    class A {
-        int w = 5;
-        Idx<B> idx;
-    };
-
-    class C;
-    class B {
-        float y = 4;
-        Idx<C> idx;
-    };
-
-    class C {
-        char y = 'X';
-        Idx<A> idx;
-    };
-
 private:
     MakeResult makeInternal(std::size_t hash,std::size_t size);
 
@@ -287,6 +258,8 @@ private:
     std::weak_ptr<void> holder = {};
     at24cxx_device_t device;
     const int size;
+    static const char* kMutex;
+    rtthread::Mutex mutex;
 };
 
 #include <utilities/singleton.hxx>

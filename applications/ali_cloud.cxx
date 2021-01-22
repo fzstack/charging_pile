@@ -63,6 +63,20 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
             }
         };
 
+        this->device->services["config"] += [this](auto r, const auto params)  {
+            try {
+                onConfig([r](auto err) mutable {
+                    if(!err) {
+                        r(Json {});
+                    } else {
+                        r(*err);
+                    }
+                }, params["current_limit"], params["upload_thr"], params["fused_thr"]);
+            } catch(const exception& e) {
+                r(std::current_exception());
+            }
+        };
+
         this->device->login(Config::App::cloudDeviceName, Config::App::cloudProductKey, Config::App::cloudDeviceSecret);
 
         auto ess = this->air->make<AirEssential>();
