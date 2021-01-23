@@ -67,7 +67,7 @@ void DataSetThingDeco::init() {
     inited = true;
 }
 
-void DataSetThingDeco::config(int currentLimit, int uploadThr, int fuzedThr) {
+void DataSetThingDeco::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
     auto params = Preset::PersistentStorage::get()->make<Params>();
     params->currDiffThrMiA = uploadThr;
 }

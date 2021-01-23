@@ -57,11 +57,11 @@ private:
         }
 
         void write(rt_uint16_t addr, rt_uint8_t* data, std::size_t size) {
-//            rt_kprintf("\033[34mwrite to %04x, size %d: ", addr, size);
-//            for(auto i = 0u; i < size; i++) {
-//                rt_kprintf("%02x ", data[i]);
-//            }
-//            rt_kprintf("\n\033[0m");
+            rt_kprintf("\033[34mwrite to %04x, size %d: ", addr, size);
+            for(auto i = 0u; i < size; i++) {
+                rt_kprintf("%02x ", data[i]);
+            }
+            rt_kprintf("\n\033[0m");
             at24cxx_write(outer->device, addr, data, size);
             //memcpy(&buffer[addr], data, size);
         }

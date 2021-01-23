@@ -54,6 +54,7 @@ private:
 };
 
 #include <utilities/singleton.hxx>
+
 namespace Preset {
 template<int R>
 class Charger: public Singleton<Charger<R>>, public ::Charger {
@@ -69,6 +70,7 @@ class Charger: public Singleton<Charger<R>>, public ::Charger {
         VirtualLoadDetector<R>::get()->init();
         VoiceNotifier::get()->watch(StateStore<R>::get(), getPSV());
     }
+
     static constexpr PortSpecifiedVoice getPSV() {
         switch(R) {
         case 0:

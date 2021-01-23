@@ -32,12 +32,16 @@ public:
 
 #include <utilities/singleton.hxx>
 #include "state_store.hxx"
+#include <utilities/mp.hxx>
 namespace Preset {
 class LastCharger: public Singleton<LastCharger>, public ::LastCharger {
     friend class Singleton<LastCharger>;
     LastCharger(): ::LastCharger() {
-        watch(StateStore<0>::get());
-        watch(StateStore<1>::get());
+        for(auto i = 0u; i < Config::Bsp::kPortNum; i++) {
+            magic_switch<Config::Bsp::kPortNum>{}([&](auto x) {
+                watch(StateStore<decltype(x)::value>::get());
+            }, i);
+        }
     }
 };
 }

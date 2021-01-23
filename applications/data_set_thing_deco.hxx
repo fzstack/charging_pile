@@ -19,7 +19,7 @@ class DataSetThingDeco: public ThingDeco {
     friend outer_t;
     DataSetThingDeco(outer_t* outer);
     virtual void init() override;
-    virtual void config(int currentLimit, int uploadThr, int fuzedThr) override;
+    virtual void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) override;
 
 private:
     struct Params {

@@ -81,7 +81,6 @@ struct Signals<R(P...)> {
     void operator()(std::shared_ptr<Deliver<L, F>>&& r, P ...p) {
         for(const auto& cb: cbs) {
             auto signal = ret_sig_t();
-            rt_kprintf("is rvalue!!\n");
             r->addTo(signal, DeliverType::ShortTerm);
             cb(signal, p...);
         }
@@ -91,7 +90,6 @@ struct Signals<R(P...)> {
     void operator()(const std::shared_ptr<Deliver<L, F>>& r, P ...p) {
         for(const auto& cb: cbs) {
             auto signal = ret_sig_t();
-            rt_kprintf("is lvalue other func!!\n");
             r->addTo(signal);
             cb(signal, p...);
         }
@@ -160,7 +158,6 @@ struct Signals<void(P...)> {
     void operator()(std::shared_ptr<Deliver<L, F>>&& r, P ...p) {
         for(const auto& cb: cbs) {
             auto signal = ret_sig_t();
-            rt_kprintf("is rvalue!!\n");
             r->addTo(signal, DeliverType::ShortTerm);
             cb(signal, p...);
         }
@@ -170,7 +167,6 @@ struct Signals<void(P...)> {
     void operator()(const std::shared_ptr<Deliver<L, F>>& r, P ...p) {
         for(const auto& cb: cbs) {
             auto signal = ret_sig_t();
-            rt_kprintf("is lvalue other func!!\n");
             r->addTo(signal);
             cb(signal, p...);
         }

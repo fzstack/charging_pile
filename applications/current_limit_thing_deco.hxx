@@ -21,7 +21,7 @@ class CurrentLimitThingDeco: public ThingDeco {
     friend outer_t;
     CurrentLimitThingDeco(outer_t* outer);
     virtual void init() override;
-    virtual void config(int currentLimit, int uploadThr, int fuzedThr) override;
+    virtual void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) override;
 
     struct Params {
         int maxCurrentMiA = 200; //电流变化阈值

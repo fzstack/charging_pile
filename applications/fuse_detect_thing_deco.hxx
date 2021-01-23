@@ -21,6 +21,11 @@ class FuseDetectThingDeco: public ThingDeco {
     friend outer_t;
     FuseDetectThingDeco(outer_t* outer);
     virtual void init() override;
+    virtual void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) override;
+
+    struct Params {
+        int fuzedS2Thr = 10000000;
+    };
 
     struct ChargerSpec {
         std::list<float> angleHist = {};

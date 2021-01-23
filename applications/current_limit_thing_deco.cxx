@@ -58,7 +58,7 @@ void CurrentLimitThingDeco::init() {
     inited = true;
 }
 
-void CurrentLimitThingDeco::config(int currentLimit, int uploadThr, int fuzedThr) {
+void CurrentLimitThingDeco::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
     auto params = Preset::PersistentStorage::get()->make<Params>();
     params->maxCurrentMiA = currentLimit;
 }

@@ -59,3 +59,8 @@ NoloadDetectThingDeco::NoloadDetectThingDeco(outer_t* outer): ThingDeco(outer) {
 void NoloadDetectThingDeco::init() {
     inited = true;
 }
+
+void NoloadDetectThingDeco::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
+    auto params = Preset::PersistentStorage::get()->make<Params>();
+    params->noloadCurrThr = noloadCurrThr;
+}

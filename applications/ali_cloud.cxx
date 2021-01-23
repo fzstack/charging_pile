@@ -71,7 +71,7 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
                     } else {
                         r(*err);
                     }
-                }, params["current_limit"], params["upload_thr"], params["fused_thr"]);
+                }, params["current_limit"], params["upload_thr"], params["fused_thr"], params["noload_curr_thr"]);
             } catch(const exception& e) {
                 r(std::current_exception());
             }

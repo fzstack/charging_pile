@@ -61,9 +61,9 @@ void Thing::stop(int port, int timerId) {
     info.timerId = timerId;
 }
 
-void Thing::config(int currentLimit, int uploadThr, int fuzedThr) {
+void Thing::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
     for(auto deco: decos) {
-        deco->config(currentLimit, uploadThr, fuzedThr);
+        deco->config(currentLimit, uploadThr, fuzedThr, noloadCurrThr);
     }
 }
 

@@ -51,13 +51,9 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
     });
 
     mqtt->onMessage += thread->post([this](string topic, string data) {
-        rt_kprintf("\033[35mthread: %s\033[0m\n", rt_thread_self()->name);
         rt_kprintf("topic: %s\ndata: %s\n", topic.c_str(), data.c_str());
 
         auto topics = split(topic, '/');
-        for(const auto& t: topics) {
-            rt_kprintf("%s\n", t.c_str());
-        }
         auto request = Alink::Request::from(data);
         auto methods = request.getMethod();
 
@@ -104,11 +100,8 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
                 }), request.getParams());
             }},
         };
-
         auto found = action.find(topics[TopicIdx::ThingOrRrpc]);
         if(found != action.end()) found->second();
-
-        rt_kprintf("\033[35m------\033[0m\n");
     });
     thread->start();
 }

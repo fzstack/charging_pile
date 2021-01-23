@@ -9,6 +9,7 @@
  */
 
 #include "fuse_detect_thing_deco.hxx"
+#include <components/persistent_storage.hxx>
 #include <numeric>
 #include <cmath>
 
@@ -46,5 +47,10 @@ FuseDetectThingDeco::FuseDetectThingDeco(outer_t* outer): ThingDeco(outer) {
 
 void FuseDetectThingDeco::init() {
     inited = true;
+}
+
+void FuseDetectThingDeco::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
+    auto params = Preset::PersistentStorage::get()->make<Params>();
+    params->fuzedS2Thr = fuzedThr;
 }
 

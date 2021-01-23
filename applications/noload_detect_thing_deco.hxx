@@ -20,6 +20,7 @@ class NoloadDetectThingDeco: public ThingDeco {
     friend outer_t;
     NoloadDetectThingDeco(outer_t* outer);
     virtual void init() override;
+    virtual void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) override;
 
     struct Params {
         int noloadCurrThr = 10; //空载电流阈值
