@@ -7,10 +7,9 @@
  * Date           Author       Notes
  * 2021-01-21     imgcr       the first version
  */
-#ifndef APPLICATIONS_CONSUMPTION_MEASURE_THING_DECO_HXX_
-#define APPLICATIONS_CONSUMPTION_MEASURE_THING_DECO_HXX_
+#pragma once
 
-#include "thing_deco.hxx"
+#include "base.hxx"
 #include <utilities/observable.hxx>
 #include <components/timer.hxx>
 #include <rtthread.h>
@@ -18,9 +17,13 @@
 #include <config/bsp.hxx>
 #include <Mutex.h>
 
-class ConsumptionMeasureThingDeco: public ThingDeco {
+namespace Things::Decos {
+/**
+ * @description: 功耗测量功能类
+ */
+class ConsumptionMeasurer: public Base {
     friend outer_t;
-    ConsumptionMeasureThingDeco(outer_t* outer);
+    ConsumptionMeasurer(outer_t* outer);
     virtual void init() override;
 
     struct ChargerSpec {
@@ -40,7 +43,5 @@ class ConsumptionMeasureThingDeco: public ThingDeco {
     static const char* kTimer;
     static const char* kMutex;
 };
+}
 
-
-
-#endif /* APPLICATIONS_CONSUMPTION_MEASURE_THING_DECO_HXX_ */

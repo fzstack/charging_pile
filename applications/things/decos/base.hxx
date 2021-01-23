@@ -7,17 +7,17 @@
  * Date           Author       Notes
  * 2021-01-03     imgcr       the first version
  */
-#ifndef APPLICATIONS_THING_DECO_HXX_
-#define APPLICATIONS_THING_DECO_HXX_
+#pragma once
 
 #include <utilities/nested.hxx>
-#include "thing.hxx"
+#include <applications/thing.hxx>
 #include <Lock.h>
 
 class Thing;
 class ChargerInfo;
 
-class ThingDeco: public Nested<Thing> {
+namespace Things::Decos {
+class Base: public Nested<Thing> {
     friend outer_t;
 protected:
     using nested_t::Nested;
@@ -28,7 +28,4 @@ protected:
     std::shared_ptr<LastCharger> getLast();
     rtthread::Lock getLock();
 };
-
-
-
-#endif /* APPLICATIONS_THING_DECO_HXX_ */
+}

@@ -15,15 +15,16 @@
 #include <components/multimeter.hxx>
 #include <components/state_store.hxx>
 #include <applications/thing.hxx>
-#include <applications/current_limit_thing_deco.hxx>
-#include <applications/countdown_thing_deco.hxx>
-#include <applications/backup_thing_deco.hxx>
-#include <applications/consumption_measure_thing_deco.hxx>
-#include <applications/fuse_detect_thing_deco.hxx>
-#include <applications/noload_detect_thing_deco.hxx>
+#include <applications/things/decos/current_limiter.hxx>
+#include <applications/things/decos/counter.hxx>
+#include <applications/things/decos/backuper.hxx>
+#include <applications/things/decos/consumption_measurer.hxx>
+#include <applications/things/decos/fuse_detecter.hxx>
+#include <applications/things/decos/noload_detecter.hxx>
 #include <components/persistent_storage.hxx>
 
 using namespace Config;
+using namespace Things::Decos;
 
 const char
     *Os::kAliIotDeviceThreadName = "iot_dev",
@@ -32,15 +33,15 @@ const char
     *VirtualLoadDetector::kTimer = "vlodet",
     *Multimeter::kTimer = "mulmtr",
     *StateStore::kMutex = "ststor",
-    *CountdownThingDeco::kTimer = "tapoff",
+    *Counter::kTimer = "tapoff",
     *::Thing::kMutex = "thing",
-    *CurrentLimitThingDeco::kTimer = "kltdec",
-    *CurrentLimitThingDeco::kMutex = "kltdec",
-    *BackupThingDeco::kTimer = "btdec",
-    *ConsumptionMeasureThingDeco::kTimer = "cmtdec",
-    *ConsumptionMeasureThingDeco::kMutex = "cmtdec",
-    *FuseDetectThingDeco::kTimer = "fdtdec",
-    *NoloadDetectThingDeco::kTimer = "nltdec",
+    *CurrentLimiter::kTimer = "kltdec",
+    *CurrentLimiter::kMutex = "kltdec",
+    *Backuper::kTimer = "btdec",
+    *ConsumptionMeasurer::kTimer = "cmtdec",
+    *ConsumptionMeasurer::kMutex = "cmtdec",
+    *FuseDetecter::kTimer = "fdtdec",
+    *NoloadDetecter::kTimer = "nltdec",
     *PersistentStorage::kMutex = "persto";
 
 namespace Preset {

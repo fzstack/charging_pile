@@ -8,11 +8,13 @@
  * 2021-01-23     imgcr       the first version
  */
 
-#include "noload_detect_thing_deco.hxx"
 #include <config/bsp.hxx>
 #include <components/persistent_storage.hxx>
+#include "noload_detecter.hxx"
 
-NoloadDetectThingDeco::NoloadDetectThingDeco(outer_t* outer): ThingDeco(outer) {
+using namespace Things::Decos;
+
+NoloadDetecter::NoloadDetecter(outer_t* outer): Base(outer) {
     inited.onChanged += [this](auto value) {
         if(!value) return;
         for(auto i = 0u; i < Config::Bsp::kPortNum; i++) {
@@ -56,11 +58,11 @@ NoloadDetectThingDeco::NoloadDetectThingDeco(outer_t* outer): ThingDeco(outer) {
     };
 }
 
-void NoloadDetectThingDeco::init() {
+void NoloadDetecter::init() {
     inited = true;
 }
 
-void NoloadDetectThingDeco::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
+void NoloadDetecter::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
     auto params = Preset::PersistentStorage::get()->make<Params>();
     params->noloadCurrThr = noloadCurrThr;
 }

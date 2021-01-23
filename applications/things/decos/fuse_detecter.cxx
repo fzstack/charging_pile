@@ -8,14 +8,15 @@
  * 2021-01-23     imgcr       the first version
  */
 
-#include "fuse_detect_thing_deco.hxx"
 #include <components/persistent_storage.hxx>
+#include "fuse_detecter.hxx"
 #include <numeric>
 #include <cmath>
 
 using namespace std;
+using namespace Things::Decos;
 
-FuseDetectThingDeco::FuseDetectThingDeco(outer_t* outer): ThingDeco(outer) {
+FuseDetecter::FuseDetecter(outer_t* outer): Base(outer) {
     inited.onChanged += [this](auto value) {
         if(!value) return;
         timer.onRun += [this] {
@@ -45,11 +46,11 @@ FuseDetectThingDeco::FuseDetectThingDeco(outer_t* outer): ThingDeco(outer) {
     };
 }
 
-void FuseDetectThingDeco::init() {
+void FuseDetecter::init() {
     inited = true;
 }
 
-void FuseDetectThingDeco::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
+void FuseDetecter::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
     auto params = Preset::PersistentStorage::get()->make<Params>();
     params->fuzedS2Thr = fuzedThr;
 }

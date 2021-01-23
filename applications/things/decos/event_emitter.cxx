@@ -8,13 +8,14 @@
  * 2021-01-03     imgcr       the first version
  */
 
-#include "event_emit_thing_deco.hxx"
 #include <config/app.hxx>
+#include "event_emitter.hxx"
 #include <utilities/mp.hxx>
 
 using namespace std;
+using namespace Things::Decos;
 
-EventEmitThingDeco::EventEmitThingDeco(outer_t* outer): ThingDeco(outer) {
+EventEmitter::EventEmitter(outer_t* outer): Base(outer) {
     inited.onChanged += [this](auto value) {
         if(!value) return;
         for(auto i = 0u; i < Config::Bsp::kPortNum; i++) {
@@ -47,7 +48,7 @@ EventEmitThingDeco::EventEmitThingDeco(outer_t* outer): ThingDeco(outer) {
     };
 }
 
-void EventEmitThingDeco::init() {
+void EventEmitter::init() {
     inited = true;
 }
 

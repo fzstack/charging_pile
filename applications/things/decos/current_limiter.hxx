@@ -7,19 +7,22 @@
  * Date           Author       Notes
  * 2021-01-19     imgcr       the first version
  */
-#ifndef APPLICATIONS_CURRENT_LIMIT_THING_DECO_HXX_
-#define APPLICATIONS_CURRENT_LIMIT_THING_DECO_HXX_
+#pragma once
 
-#include "thing_deco.hxx"
+#include "base.hxx"
 #include <utilities/observable.hxx>
 #include <array>
 #include <components/timer.hxx>
 #include <config/bsp.hxx>
 #include <Mutex.h>
 
-class CurrentLimitThingDeco: public ThingDeco {
+namespace Things::Decos {
+/**
+ * @description: 限流功能类
+ */
+class CurrentLimiter: public Base {
     friend outer_t;
-    CurrentLimitThingDeco(outer_t* outer);
+    CurrentLimiter(outer_t* outer);
     virtual void init() override;
     virtual void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) override;
 
@@ -37,7 +40,5 @@ private:
     static const char* kTimer;
     static const char* kMutex;
 };
+}
 
-
-
-#endif /* APPLICATIONS_CURRENT_LIMIT_THING_DECO_HXX_ */

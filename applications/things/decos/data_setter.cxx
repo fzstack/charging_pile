@@ -8,13 +8,14 @@
  * 2021-01-21     imgcr       the first version
  */
 
-#include "data_set_thing_deco.hxx"
 #include <config/bsp.hxx>
 #include <components/persistent_storage.hxx>
+#include "data_setter.hxx"
 
 using namespace std;
+using namespace Things::Decos;
 
-DataSetThingDeco::DataSetThingDeco(outer_t* outer): ThingDeco(outer) {
+DataSetter::DataSetter(outer_t* outer): Base(outer) {
     inited.onChanged += [this](auto value) {
         if(!value) return;
         this->outer->getCurrentData += [this] {
@@ -63,11 +64,11 @@ DataSetThingDeco::DataSetThingDeco(outer_t* outer): ThingDeco(outer) {
     };
 }
 
-void DataSetThingDeco::init() {
+void DataSetter::init() {
     inited = true;
 }
 
-void DataSetThingDeco::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
+void DataSetter::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
     auto params = Preset::PersistentStorage::get()->make<Params>();
     params->currDiffThrMiA = uploadThr;
 }

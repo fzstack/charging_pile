@@ -7,15 +7,18 @@
  * Date           Author       Notes
  * 2021-01-03     imgcr       the first version
  */
-#ifndef APPLICATIONS_COUNTDOWN_THING_DECO_HXX_
-#define APPLICATIONS_COUNTDOWN_THING_DECO_HXX_
+#pragma once
 
-#include "thing_deco.hxx"
+#include "base.hxx"
 #include <utilities/observable.hxx>
 
-class CountdownThingDeco: public ThingDeco {
+namespace Things::Decos {
+/**
+ * @description: 倒计时功能类
+ */
+class Counter: public Base {
     friend outer_t;
-    CountdownThingDeco(outer_t* outer);
+    Counter(outer_t* outer);
     virtual void init() override;
 
     Observable<bool> inited = false;
@@ -23,7 +26,4 @@ class CountdownThingDeco: public ThingDeco {
     Timer timer = {1000, kTimer};
     static const char* kTimer;
 };
-
-
-
-#endif /* APPLICATIONS_COUNTDOWN_THING_DECO_HXX_ */
+}

@@ -7,18 +7,21 @@
  * Date           Author       Notes
  * 2021-01-23     imgcr       the first version
  */
-#ifndef APPLICATIONS_NOLOAD_DETECT_THING_DECO_HXX_
-#define APPLICATIONS_NOLOAD_DETECT_THING_DECO_HXX_
+#pragma once
 
-#include "thing_deco.hxx"
+#include "base.hxx"
 #include <utilities/observable.hxx>
 #include <components/timer.hxx>
 #include <array>
 #include <config/bsp.hxx>
 
-class NoloadDetectThingDeco: public ThingDeco {
+namespace Things::Decos {
+/**
+ * @description: 空载检测功能类
+ */
+class NoloadDetecter: public Base {
     friend outer_t;
-    NoloadDetectThingDeco(outer_t* outer);
+    NoloadDetecter(outer_t* outer);
     virtual void init() override;
     virtual void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) override;
 
@@ -35,7 +38,5 @@ class NoloadDetectThingDeco: public ThingDeco {
     static const char* kTimer;
     static constexpr int kDuration = 4000; //空载判断区间
 };
+}
 
-
-
-#endif /* APPLICATIONS_NOLOAD_DETECT_THING_DECO_HXX_ */

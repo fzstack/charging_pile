@@ -7,17 +7,20 @@
  * Date           Author       Notes
  * 2021-01-20     imgcr       the first version
  */
-#ifndef APPLICATIONS_BACKUP_THING_DECO_HXX_
-#define APPLICATIONS_BACKUP_THING_DECO_HXX_
+#pragma once
 
-#include "thing_deco.hxx"
+#include "base.hxx"
 #include <utilities/observable.hxx>
 #include <config/bsp.hxx>
 #include <components/timer.hxx>
 
-class BackupThingDeco: public ThingDeco {
+namespace Things::Decos {
+/**
+ * @description: 状态备份功能类
+ */
+class Backuper: public Base {
     friend outer_t;
-    BackupThingDeco(outer_t* outer);
+    Backuper(outer_t* outer);
     virtual void init() override;
 
     Observable<bool> inited = false;
@@ -40,7 +43,5 @@ private:
     static const char* kTimer;
 
 };
+}
 
-
-
-#endif /* APPLICATIONS_BACKUP_THING_DECO_HXX_ */

@@ -1,10 +1,11 @@
-#include <backup_thing_deco.hxx>
 #include <utilities/mp.hxx>
 #include <components/persistent_storage.hxx>
+#include "backuper.hxx"
 
 using namespace std;
+using namespace Things::Decos;
 
-BackupThingDeco::BackupThingDeco(outer_t* outer): ThingDeco(outer) {
+Backuper::Backuper(outer_t* outer): Base(outer) {
     inited.onChanged += [this](auto value) {
         if(!value) return;
 
@@ -81,7 +82,7 @@ BackupThingDeco::BackupThingDeco(outer_t* outer): ThingDeco(outer) {
     };
 }
 
-void BackupThingDeco::init() {
+void Backuper::init() {
     inited = true;
 }
 

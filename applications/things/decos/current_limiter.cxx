@@ -8,15 +8,16 @@
  * 2021-01-19     imgcr       the first version
  */
 
-#include "current_limit_thing_deco.hxx"
 #include <components/persistent_storage.hxx>
 #include <config/app.hxx>
 #include <Lock.h>
+#include "current_limiter.hxx"
 
 using namespace std;
 using namespace rtthread;
+using namespace Things::Decos;
 
-CurrentLimitThingDeco::CurrentLimitThingDeco(outer_t* outer): ThingDeco(outer), mutex(kMutex) {
+CurrentLimiter::CurrentLimiter(outer_t* outer): Base(outer), mutex(kMutex) {
 
     //每个端口一个定时器
     for(auto& timer: timers) {
@@ -54,11 +55,11 @@ CurrentLimitThingDeco::CurrentLimitThingDeco(outer_t* outer): ThingDeco(outer), 
     };
 }
 
-void CurrentLimitThingDeco::init() {
+void CurrentLimiter::init() {
     inited = true;
 }
 
-void CurrentLimitThingDeco::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
+void CurrentLimiter::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
     auto params = Preset::PersistentStorage::get()->make<Params>();
     params->maxCurrentMiA = currentLimit;
 }

@@ -8,13 +8,14 @@
  * 2021-01-21     imgcr       the first version
  */
 
-#include "consumption_measure_thing_deco.hxx"
+#include "consumption_measurer.hxx"
 #include <Lock.h>
 
 using namespace std;
 using namespace rtthread;
+using namespace Things::Decos;
 
-ConsumptionMeasureThingDeco::ConsumptionMeasureThingDeco(outer_t* outer): ThingDeco(outer), mutex(kMutex) {
+ConsumptionMeasurer::ConsumptionMeasurer(outer_t* outer): Base(outer), mutex(kMutex) {
     inited.onChanged += [this](auto value) {
         if(!value) return;
         for(auto i = 0u; i < Config::Bsp::kPortNum; i++) {
@@ -61,7 +62,7 @@ ConsumptionMeasureThingDeco::ConsumptionMeasureThingDeco(outer_t* outer): ThingD
     };
 }
 
-void ConsumptionMeasureThingDeco::update(ChargerInfo& info, ChargerSpec& spec) {
+void ConsumptionMeasurer::update(ChargerInfo& info, ChargerSpec& spec) {
     auto guard = Lock(mutex);
     if(*info.charger->stateStore->oState != State::Charging) return;
     info.consumption += spec.prevCurr / 1000.f * spec.prevVol * (rt_tick_get() - spec.tick) / 1000.f;
@@ -70,6 +71,6 @@ void ConsumptionMeasureThingDeco::update(ChargerInfo& info, ChargerSpec& spec) {
     spec.prevVol = info.charger->multimeterChannel->voltage.value().value_or(0);
 }
 
-void ConsumptionMeasureThingDeco::init() {
+void ConsumptionMeasurer::init() {
     inited = true;
 }

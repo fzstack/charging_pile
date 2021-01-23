@@ -9,9 +9,11 @@
  */
 
 #include <config/bsp.hxx>
-#include <countdown_thing_deco.hxx>
+#include "counter.hxx"
 
-CountdownThingDeco::CountdownThingDeco(outer_t* outer): ThingDeco(outer) {
+using namespace Things::Decos;
+
+Counter::Counter(outer_t* outer): Base(outer) {
     timer.onRun += [this](){
         auto guard = getLock();
         for(auto i = 0u; i < Config::Bsp::kPortNum; i++) {
@@ -41,7 +43,7 @@ CountdownThingDeco::CountdownThingDeco(outer_t* outer): ThingDeco(outer) {
     };
 }
 
-void CountdownThingDeco::init() {
+void Counter::init() {
     inited = true;
 }
 
