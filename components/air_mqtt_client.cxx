@@ -51,6 +51,11 @@ void AirMqttClient::subscribe(std::string_view topic) {
 }
 
 void AirMqttClient::publish(std::string_view topic, std::string_view data) {
+    rt_kprintf("***[%d] topic: ", rt_tick_get());
+    rt_kputs(topic.data());
+    rt_kputs(", data: ");
+    rt_kputs(data.data());
+    rt_kputs("***\n");
     auto resp = createResp();
     if(at_obj_exec_cmd(getAtClient(), resp.get(), "AT+MPUB=\"%s\",0,0,\"%s\"", escape(topic).c_str(), escape(data).c_str()) != RT_EOK)
         throw runtime_error{"timeout when config mqtt"};

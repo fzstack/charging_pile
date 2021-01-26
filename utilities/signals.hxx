@@ -185,6 +185,13 @@ struct Signals<void(P...)> {
     std::list<std::function<signal_f>> cbs;
 };
 
+template<class L, class F>
+void runOn(std::shared_ptr<Deliver<L, F>>&& r) {
+    auto signal = Signals<void()>{};
+    r->addTo(signal, DeliverType::ShortTerm);
+    signal();
+}
+
 template<class F, class T>
 auto signal(F&& f, T&& t) {
     return [f = std::forward<F>(f), t = std::forward<T>(t)](auto&&... args) {

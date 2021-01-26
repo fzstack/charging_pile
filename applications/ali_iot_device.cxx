@@ -103,7 +103,7 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
         auto found = action.find(topics[TopicIdx::ThingOrRrpc]);
         if(found != action.end()) found->second();
     });
-    thread->start();
+    //thread->start();
 }
 
 //TODO: Signal 转 function
@@ -132,10 +132,7 @@ void AliIotDevice::login(string_view deviceName, string_view productKey, string_
 
     mqtt->login(productKey.data() + ".iot-as-mqtt.cn-shanghai.aliyuncs.com"s, deviceName, iotId, iotToken);
     LOG_I("login succeed");
-
-    rt_uint32_t used;
-    rt_memory_info(RT_NULL, &used, RT_NULL);
-    rt_kprintf("\033[94login succeed, used mem: %d\n\033[0m", used);
+    thread->start();
 }
 
 void AliIotDevice::emit(std::string_view event, Json params) {

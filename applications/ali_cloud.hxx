@@ -43,7 +43,6 @@ private:
     std::shared_ptr<Air724> air;
     Signals<void()> signal = {};
     Observable<bool> inited = {false};
-    bool isInited = false;
 };
 
 #include <utilities/singleton.hxx>

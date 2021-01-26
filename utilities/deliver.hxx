@@ -24,6 +24,9 @@ struct Signals;
 template <class L, class F = decltype(&L::operator())>
 class Deliver;
 
+template<class L, class F>
+void runOn(std::shared_ptr<Deliver<L, F>>&& r);
+
 enum class DeliverType {
     LongTerm,
     ShortTerm,
@@ -68,6 +71,7 @@ template<class L, class C, class... A>
 class Deliver<L, void(C::*)(A...) const>: public DeliverBase {
     using base_t = DeliverBase;
     template<class T> friend struct Signals;
+    template<class LL, class LF> friend void runOn(std::shared_ptr<Deliver<LL, LF>>&& r);
     using signals_cb_t = Signals<void(A...)>;
 public:
     Deliver(outer_t* outer, L&& f): base_t(outer), f(std::forward<L>(f)) {

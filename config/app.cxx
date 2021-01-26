@@ -14,11 +14,13 @@
 
 using namespace Config;
 using namespace std;
-
+//867435054397377
 const char
-    *App::cloudDeviceName = "863701042917152",
+    //*App::cloudDeviceName = "863701042917152",
+    *App::cloudDeviceName = "867435054397377", //联调设备
     *App::cloudProductKey = "a1mKT2XMEnq",
-    *App::cloudDeviceSecret = "4ede507e2250b4eb2bed1efb6f079c51";
+    //*App::cloudDeviceSecret = "4ede507e2250b4eb2bed1efb6f079c51";
+    *App::cloudDeviceSecret = "70bb22c4ff10eb464b4954917a573824"; //联调设备
 
 string getStateStr(State::Value state) {
     switch(state) {

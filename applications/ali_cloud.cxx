@@ -36,7 +36,7 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
                 onControl([r](auto result) mutable {
                     if(auto state = get_if<ServiceResult::Value>(&result)) {
                         r(Json {
-                           {"state", int(state)},
+                           {"state", int(*state)},
                         });
                     } else if(auto err = get_if<exception_ptr>(&result)) {
                         r(*err);
@@ -52,7 +52,7 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
                 onStop([r](auto result) mutable {
                     if(auto state = get_if<ServiceResult::Value>(&result)) {
                         r(Json {
-                           {"state", int(state)},
+                           {"state", int(*state)},
                         });
                     } else if(auto err = get_if<exception_ptr>(&result)) {
                         r(*err);
@@ -79,8 +79,10 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
 
         this->device->login(Config::App::cloudDeviceName, Config::App::cloudProductKey, Config::App::cloudDeviceSecret);
 
-        auto ess = this->air->make<AirEssential>();
-        setIccid(ess->getIccid());
+        runOn(this->device->thread->post([=]{
+            auto ess = this->air->make<AirEssential>();
+            setIccid(ess->getIccid());
+        }));
 
         signal += this->device->thread->post([=](){
             auto ess = this->air->make<AirEssential>();
@@ -88,7 +90,6 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
         });
 
         Cloud::init();
-        this->isInited = true;
     };
 }
 
@@ -97,7 +98,6 @@ void AliCloud::init() {
 }
 
 void AliCloud::setCurrentData(std::array<CurrentData, Config::Bsp::kPortNum>& data) {
-    if(!isInited) return;
     auto value = Json::array({});
     for(const auto& item: data) {
         value.push_back({
@@ -115,31 +115,26 @@ void AliCloud::setCurrentData(std::array<CurrentData, Config::Bsp::kPortNum>& da
 }
 
 void AliCloud::setIccid(std::string_view iccid) {
-    if(!isInited) return;
     device->set("iccid", iccid);
 }
 
 void AliCloud::setSignal(int signal) {
-    if(!isInited) return;
     device->set("signal", signal);
 }
 
 void AliCloud::emitPortAccess(int port) {
-    if(!isInited) return;
     device->emit("port_access", {
         {"port", port},
     });
 }
 
 void AliCloud::emitPortUnplug(int port) {
-    if(!isInited) return;
     device->emit("port_unplug", {
         {"port", port},
     });
 }
 
 void AliCloud::emitIcNumber(int port, std::string_view icNumber) {
-    if(!isInited) return;
     device->emit("ic_number", {
        {"port", port},
        {"ic_number", icNumber},
@@ -147,14 +142,12 @@ void AliCloud::emitIcNumber(int port, std::string_view icNumber) {
 }
 
 void AliCloud::emitCurrentLimit(int port) {
-    if(!isInited) return;
     device->emit("current_limit", {
        {"port", port},
     });
 }
 
 void AliCloud::setSignalInterval() {
-    if(!isInited) return;
     signal();
 }
 
