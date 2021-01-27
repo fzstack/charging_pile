@@ -227,6 +227,20 @@
 /* samples: kernel and components samples */
 
 /* end of samples: kernel and components samples */
+#define PKG_USING_CRCLIB
+#define CRCLIB_USING_CRC8
+#define CRC8_USING_CONST_TABLE
+#define CRC8_POLY_8C
+#define CRC8_POLY 140
+#define CRCLIB_USING_CRC16
+#define CRC16_USING_CONST_TABLE
+#define CRC16_POLY_A001
+#define CRC16_POLY 40961
+#define CRCLIB_USING_CRC32
+#define CRC32_USING_CONST_TABLE
+#define CRC32_POLY_EDB88320
+#define CRC32_POLY 3988292384
+#define PKG_USING_CRCLIB_V100
 
 /* games: games run on RT-Thread console */
 

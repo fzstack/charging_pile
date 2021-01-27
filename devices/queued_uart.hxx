@@ -24,7 +24,7 @@ public:
 
     rt_size_t send(void* data, int len) const;
 
-    void recv(void* data, int len, rt_int32_t timeout = 10);
+    virtual void recv(void* data, int len, rt_int32_t timeout = 10);
     void clear();
 
 private:

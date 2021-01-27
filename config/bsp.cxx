@@ -17,6 +17,7 @@
 #include <devices/hlw8112.hxx>
 #include <devices/air724.hxx>
 #include <components/persistent_storage.hxx>
+#include <components/packet.hxx>
 
 namespace Preset {
 template<> const rt_base_t RgbLight<0>::kRPin = GET_PIN(B, 13);
@@ -50,4 +51,6 @@ const rt_base_t Air724::kResetPin = GET_PIN(C, 4);
 const char* PersistentStorage::kI2c = "i2c1";
 const int PersistentStorage::kAddr = 0;
 const int PersistentStorage::kSize = 2048;
+
+const char *Packet::kUart = "uart3";
 }

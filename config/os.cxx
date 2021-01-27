@@ -22,6 +22,7 @@
 #include <applications/things/decos/fuse_detecter.hxx>
 #include <applications/things/decos/noload_detecter.hxx>
 #include <components/persistent_storage.hxx>
+#include <components/packet.hxx>
 
 using namespace Config;
 using namespace Things::Decos;
@@ -47,4 +48,10 @@ const char
 namespace Preset {
 const rt_tick_t CloudTimer::kTime = 60000;
 const char *CloudTimer::kName = "cloud";
+
+const char* Packet::kThread = "packet";
+const int
+    Packet::kThreadStack = 1024,
+    Packet::kThreadPrio = 20,
+    Packet::kThreadTick = 2;
 }

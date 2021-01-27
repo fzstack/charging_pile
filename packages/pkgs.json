@@ -13,5 +13,10 @@
   "path": "/packages/peripherals/at24cxx", 
   "ver": "latest", 
   "name": "AT24CXX"
+ }, 
+ {
+  "path": "/packages/misc/crclib", 
+  "ver": "v1.00", 
+  "name": "CRCLIB"
  }
 ]
