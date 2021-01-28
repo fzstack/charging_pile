@@ -27,13 +27,15 @@ struct Control {
 
 static void test_packet() {
     auto packet = Preset::Packet::get();
-    packet->on<PacketA>([](auto p) {
-        rt_kprintf("p.a = %d\n", p->a);
-    });
+//    packet->on<PacketA>([](auto p) {
+//        rt_kprintf("p.a = %d\n", p->a);
+//    });
+//
+//    packet->on<Packets::Control>([](auto p) {
+//       rt_kprintf("port: %d, timerId: %d, minutes: %d\n", p->port, p->timerId, p->minutes);
+//    });
 
-    packet->on<Packets::Control>([](auto p) {
-       rt_kprintf("port: %d, timerId: %d, minutes: %d\n", p->port, p->timerId, p->minutes);
-    });
+    packet->emit<PacketA>(PacketA{4});
 }
 
 MSH_CMD_EXPORT(test_packet, );

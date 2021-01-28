@@ -10,12 +10,12 @@
 
 #include "app.hxx"
 #include "thing.hxx"
-#include "ali_cloud.hxx"
+#include "proxy_cloud.hxx"
 
 using namespace std;
 
 void runApp() {
-    auto cloud = Preset::AliCloud::get();
+    auto cloud = Preset::ProxyCloud::get();
     auto thing = Preset::Thing::get();
 
     cloud->onControl += [=](int port, int timerId, int minutes) {
@@ -44,29 +44,29 @@ void runApp() {
         thing->config(currentLimit, uploadThr, fuzedThr, noloadCurThr);
     };
 
-    thing->onIcNumber += cloud->post([=](int port, string icNumber) {
+    thing->onIcNumber += [=](int port, string icNumber) {
         cloud->emitIcNumber(port, icNumber);
-    });
+    };
 
-    thing->onPortAccess += cloud->post([=](int port) {
+    thing->onPortAccess += [=](int port) {
         cloud->emitPortAccess(port);
-    });
+    };
 
-    thing->onPortUnplug += cloud->post([=](int port) {
+    thing->onPortUnplug += [=](int port) {
        cloud->emitPortUnplug(port);
-    });
+    };
 
-    thing->onCurrentLimit += cloud->post([=](int port) {
+    thing->onCurrentLimit += [=](int port) {
         cloud->emitCurrentLimit(port);
-    });
+    };
 
-    thing->onCurrentData += cloud->post([=] {
+    thing->onCurrentData += [=] {
         thing->getCurrentData([&](auto result){
             auto data = get_if<std::array<CurrentData, Config::Bsp::kPortNum>>(&result);
             if(!data) return;
             cloud->setCurrentData(*data);
         });
-    });
+    };
 
     cloud->init();
 

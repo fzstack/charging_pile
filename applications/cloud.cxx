@@ -18,5 +18,5 @@ Cloud::Cloud(shared_ptr<CloudTimer> timer): timer(timer) {
 }
 
 void Cloud::init() {
-    timer->start();
+    if(timer != nullptr) timer->start();
 }

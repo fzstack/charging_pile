@@ -17,13 +17,15 @@
 #include <devices/queued_uart.hxx>
 #include <utilities/thread.hxx>
 #include <map>
-extern "C" {
-#include "crc16.h"
-}
+#include <utilities/crc16.hxx>
+#include <Mutex.h>
 
 //包头    类型         值          CRC
 //0xa5 4字节 结构体的值  xxx
-
+template <class T>
+struct PacketTrait {
+    using result_t = void;
+};
 
 //需要一个packet线程来获得数据
 class Packet {
@@ -60,6 +62,24 @@ public:
         typeInfos.insert({typeid(T).hash_code(), {std::make_shared<CallbackImpl<T>>(cb), size: sizeof(T)}});
     }
 
+    template<class T>
+    void emit(T& t) {
+        emitInternal(typeid(T).hash_code(), (rt_uint8_t*)(void*)&t, sizeof(T));
+    }
+
+    template<class T>
+    void emit(T&& t) {
+        emitInternal(typeid(T).hash_code(), (rt_uint8_t*)(void*)&t, sizeof(T));
+    }
+
+    template<class T, class... A>
+    void emit(A&&... a) {
+        auto t = T(std::forward<A>(a)...);
+        emitInternal(typeid(T).hash_code(), (rt_uint8_t*)(void*)&t, sizeof(T));
+    }
+
+    void emitInternal(std::size_t hashCode, rt_uint8_t* data, int len);
+
 private:
 
     void handleFrame();
@@ -71,16 +91,22 @@ private:
         return t;
     }
 
+    template<class T>
+    void write(T&& t) {
+        writeData((rt_uint8_t*)(void*)&t, sizeof(T));
+    }
+
     enum class ControlChar: rt_uint8_t {
         Head = 0xa5,
         Escape = 0xff,
     };
 
     void readData(rt_uint8_t* data, int len);
+    void writeData(rt_uint8_t* data, int len);
     std::variant<rt_uint8_t, ControlChar> readByte();
+    void writeByte(std::variant<rt_uint8_t, ControlChar> b);
     rt_uint8_t readAtom();
-    void resetCrc();
-    rt_uint16_t getCrc();
+    void writeAtom(rt_uint8_t b);
 
 
 private:
@@ -103,7 +129,9 @@ private:
     std::shared_ptr<QueuedUart> uart;
     std::shared_ptr<Thread> thread;
     std::map<std::size_t, TypeInfo> typeInfos = {};
-    rt_uint16_t crcVal = CRC16_INIT_VAL;
+    Crc16 recvCrc, sendCrc;
+    rtthread::Mutex mutex;
+    static const char* kMutex;
 };
 
 #include <utilities/singleton.hxx>

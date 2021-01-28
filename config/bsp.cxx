@@ -18,6 +18,7 @@
 #include <devices/air724.hxx>
 #include <components/persistent_storage.hxx>
 #include <components/packet.hxx>
+#include <devices/ttp229.hxx>
 
 namespace Preset {
 template<> const rt_base_t RgbLight<0>::kRPin = GET_PIN(B, 13);
@@ -53,4 +54,9 @@ const int PersistentStorage::kAddr = 0;
 const int PersistentStorage::kSize = 2048;
 
 const char *Packet::kUart = "uart3";
+
+const rt_base_t
+    Ttp229::kSclPin = GET_PIN(C, 2),
+    Ttp229::kSdoPin = GET_PIN(C, 3);
+
 }

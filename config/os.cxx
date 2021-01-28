@@ -23,6 +23,7 @@
 #include <applications/things/decos/noload_detecter.hxx>
 #include <components/persistent_storage.hxx>
 #include <components/packet.hxx>
+#include <devices/ttp229.hxx>
 
 using namespace Config;
 using namespace Things::Decos;
@@ -43,7 +44,8 @@ const char
     *ConsumptionMeasurer::kMutex = "cmtdec",
     *FuseDetecter::kTimer = "fdtdec",
     *NoloadDetecter::kTimer = "nltdec",
-    *PersistentStorage::kMutex = "persto";
+    *PersistentStorage::kMutex = "persto",
+    *Packet::kMutex = "packet";
 
 namespace Preset {
 const rt_tick_t CloudTimer::kTime = 60000;
@@ -54,4 +56,10 @@ const int
     Packet::kThreadStack = 1024,
     Packet::kThreadPrio = 20,
     Packet::kThreadTick = 2;
+
+const char* Ttp229::kThread = "ttp229";
+const int
+    Ttp229::kThreadStack = 512,
+    Ttp229::kThreadPrio = 1,
+    Ttp229::kThreadTick = 10;
 }

@@ -10,6 +10,7 @@
 
 #include "packet.hxx"
 #include <stdexcept>
+#include <Lock.h>
 
 using namespace std;
 
@@ -29,7 +30,7 @@ Packet::Packet(std::shared_ptr<QueuedUart> uart, std::shared_ptr<Thread> thread)
 void Packet::handleFrame() {
     auto head = (ControlChar*){};
     while(true) {
-        resetCrc();
+        recvCrc.reset();
         auto b = readByte();
         head = get_if<ControlChar>(&b);
         if(head != nullptr && *head == ControlChar::Head) break; //改成do while这里会莫名其妙有个warning
@@ -42,11 +43,35 @@ void Packet::handleFrame() {
     auto buff = shared_ptr<rt_uint8_t[]>(new rt_uint8_t[info.size]);
     readData(buff.get(), info.size);
 
-    auto crcExpect = getCrc();
+    auto crcExpect = recvCrc.get();
     auto crcActual = read<rt_uint16_t>();
 
     if(crcExpect != crcActual) throw invalid_frame_error{""};
     info.callback->invoke(buff);
+}
+
+void Packet::emitInternal(std::size_t hashCode, rt_uint8_t* data, int len) {
+    auto guard = rtthread::Lock{mutex};
+    rt_kprintf("emit: ");
+    sendCrc.reset();
+    writeByte(ControlChar::Head);
+    write(hashCode);
+    writeData(data, len);
+    auto crcActual = sendCrc.get();
+    write(crcActual);
+    rt_kprintf("\n");
+}
+
+void Packet::readData(rt_uint8_t* data, int len) {
+    for(auto i = 0; i < len; i++) {
+        data[i] = get<rt_uint8_t>(readByte());
+    }
+}
+
+void Packet::writeData(rt_uint8_t* data, int len) {
+    for(auto i = 0; i < len; i++) {
+        writeByte(data[i]);
+    }
 }
 
 std::variant<rt_uint8_t, Packet::ControlChar> Packet::readByte() {
@@ -62,24 +87,30 @@ std::variant<rt_uint8_t, Packet::ControlChar> Packet::readByte() {
     return b;
 };
 
-void Packet::readData(rt_uint8_t* data, int len) {
-    for(auto i = 0; i < len; i++) {
-        data[i] = get<rt_uint8_t>(readByte());
+void Packet::writeByte(std::variant<rt_uint8_t, ControlChar> b) {
+    if(auto cc = get_if<ControlChar>(&b)) {
+        //不需要转义
+        writeAtom(rt_uint8_t(*cc));
+    } else if(auto dat = get_if<rt_uint8_t>(&b)) {
+        if(*dat == rt_uint8_t(ControlChar::Head) || *dat == rt_uint8_t(ControlChar::Escape))
+            writeAtom(rt_uint8_t(ControlChar::Escape));
+        writeAtom(*dat);
     }
 }
+
+
 
 rt_uint8_t Packet::readAtom() {
     auto b = rt_uint8_t{};
     uart->recv(&b, sizeof(b), RT_WAITING_FOREVER);
-    crc16_cyc_cal(crcVal, &b, 1);
+    recvCrc.update(b);
     return b;
 }
 
-void Packet::resetCrc() {
-    crcVal = CRC16_INIT_VAL;
+void Packet::writeAtom(rt_uint8_t b) {
+    uart->send(&b, sizeof(b));
+    rt_kprintf("%02x ", b);
+    sendCrc.update(b);
 }
 
-rt_uint16_t Packet::getCrc() {
-    return crcVal ^ CRC16_INIT_VAL;
-}
 

@@ -10,7 +10,83 @@
 #ifndef CONFIG_CO_HXX_
 #define CONFIG_CO_HXX_
 
+#include "bsp.hxx"
+#include "app.hxx"
+#include <components/packet.hxx>
+#include <applications/cloud.hxx>
 
+namespace Packets {
+struct Init {
+
+};
+
+namespace Props {
+struct CurrentData {
+    ::CurrentData value[::Config::Bsp::kPortNum];
+};
+
+struct Iccid {
+    char value[21];
+};
+
+struct Signal {
+    int value;
+};
+}
+
+namespace Events {
+struct PortAccess {
+    int port;
+};
+
+struct PortUnplug {
+    int port;
+};
+
+struct IcNumber {
+    int port;
+    char icNumber[9];
+};
+
+struct CurrentLimit {
+    int port;
+};
+}
+
+namespace Services {
+struct Query {
+
+};
+
+struct Control {
+    int port;
+    int timerId;
+    int minutes;
+};
+
+struct Stop {
+    int port;
+    int timerId;
+};
+
+struct Config {
+    int currentLimit;
+    int uploadThr;
+    int fuzedThr;
+    int noloadCurrThr;
+};
+}
+}
+
+template<>
+struct PacketTrait<Packets::Services::Control> {
+    using result_t = ::Cloud::ServiceResult::Value;
+};
+
+template<>
+struct PacketTrait<Packets::Services::Stop> {
+    using result_t = ::Cloud::ServiceResult::Value;
+};
 
 
 
