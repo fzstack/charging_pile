@@ -24,6 +24,7 @@
 #include <components/persistent_storage.hxx>
 #include <components/packet.hxx>
 #include <devices/ttp229.hxx>
+#include <utilities/shared_thread.hxx>
 
 using namespace Config;
 using namespace Things::Decos;
@@ -60,6 +61,14 @@ const int
 const char* Ttp229::kThread = "ttp229";
 const int
     Ttp229::kThreadStack = 512,
-    Ttp229::kThreadPrio = 1,
+    Ttp229::kThreadPrio = 3,
     Ttp229::kThreadTick = 10;
+
+template<> const char* SharedThread<Priority::High>::kThread = "high";
+template<> const int SharedThread<Priority::High>::kThreadStack = 1024;
+template<> const int SharedThread<Priority::High>::kThreadTick = 10;
 }
+
+
+
+

@@ -14,7 +14,6 @@
 #include <rtthread.h>
 #include <utilities/thread.hxx>
 #include <utilities/event.hxx>
-#include <utilities/signals.hxx>
 
 class Ttp229 {
 public:

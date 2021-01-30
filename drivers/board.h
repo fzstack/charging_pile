@@ -23,18 +23,18 @@ extern "C"
 
 #define CHIP_FAMILY_STM32
 #define CHIP_SERIES_STM32F1
-#define CHIP_NAME_STM32F103RE
+#define CHIP_NAME_STM32F103RC
 
 /*-------------------------- CHIP CONFIG END --------------------------*/
 
 /*-------------------------- ROM/RAM CONFIG BEGIN --------------------------*/
 
 #define ROM_START              ((uint32_t)0x08000000)
-#define ROM_SIZE               (512 * 1024)
+#define ROM_SIZE               (256 * 1024)
 #define ROM_END                ((uint32_t)(ROM_START + ROM_SIZE))
 
 #define RAM_START              (0x20000000)
-#define RAM_SIZE               (64 * 1024)
+#define RAM_SIZE               (48 * 1024)
 #define RAM_END                (RAM_START + RAM_SIZE)
 
 /*-------------------------- ROM/RAM CONFIG END --------------------------*/
@@ -104,8 +104,8 @@ extern "C"
 
 /*#define BSP_USING_I2C1*/
 #ifdef BSP_USING_I2C1
-#define BSP_I2C1_SCL_PIN    GET_PIN(B, 8)
-#define BSP_I2C1_SDA_PIN    GET_PIN(B, 9)
+#define BSP_I2C1_SCL_PIN    GET_PIN(B, 3)
+#define BSP_I2C1_SDA_PIN    GET_PIN(B, 4)
 #endif
 
 /*#define BSP_USING_I2C2*/

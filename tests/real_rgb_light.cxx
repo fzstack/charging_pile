@@ -9,8 +9,8 @@
  */
 
 #include <rtthread.h>
+#include "real_rgb_light.hxx"
 #include <utilities/cmd.hxx>
-#include <tests/rgb_light.hxx>
 #include <map>
 #include <string>
 #include <optional>
@@ -22,12 +22,12 @@
 
 using namespace std;
 
-#ifdef TEST_RGB_LIGHT
-static void test_rgb_light(int argc, char** argv) {
+#ifdef TEST_REAL_RGB_LIGHT
+static void test_real_rgb_light(int argc, char** argv) {
     ASSERT_MIN_NARGS(3);
 
-    auto rgbLightA = Preset::RgbLight<0>::get();
-    auto rgbLightB = Preset::RgbLight<1>::get();
+    auto rgbLightA = Preset::RealRgbLight<0>::get();
+    auto rgbLightB = Preset::RealRgbLight<1>::get();
 
     auto m = map<string, Observable<optional<bool>>&>{
         {"A-R", rgbLightA->r}, {"A-G", rgbLightA->g}, {"A-B", rgbLightA->b},
@@ -42,5 +42,5 @@ static void test_rgb_light(int argc, char** argv) {
 }
 
 
-MSH_CMD_EXPORT(test_rgb_light, test_rgb_light);
+MSH_CMD_EXPORT(test_real_rgb_light, );
 #endif

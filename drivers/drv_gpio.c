@@ -41,7 +41,7 @@ struct pin_irq_map
 };
 
 
-static const struct pin_index pins[] = 
+const struct pin_index pins[] =
 {
 #if defined(GPIOA)
     __STM32_PIN(0 ,  A, 0 ),

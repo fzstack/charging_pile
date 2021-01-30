@@ -12,13 +12,20 @@
 #include <devices/ttp229.hxx>
 #include <rtthread.h>
 
-int init_ttp229() {
+int init_test_ttp229() {
     auto ttp229 = Preset::Ttp229::get();
     ttp229->onData += [](auto value){
-        rt_kprintf("data: %04x", value);
+        rt_kprintf("data: %d\n", value);
     };
+    rt_kprintf("ttp229 test inited\n");
+    return RT_EOK;
 }
 
-MSH_CMD_EXPORT(init_ttp229, );
+void test_x() {
+    rt_kprintf("x\n");
+}
+
+INIT_APP_EXPORT(init_test_ttp229);
+MSH_CMD_EXPORT(test_x, );
 
 #endif

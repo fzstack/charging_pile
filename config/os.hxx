@@ -10,6 +10,8 @@
 #ifndef CONFIG_OS_HXX_
 #define CONFIG_OS_HXX_
 
+#include <rtthread.h>
+
 namespace Config {
 class Os {
 public:
@@ -22,6 +24,22 @@ public:
         *kAliIotDeviceThreadName;
 };
 }
+
+enum class Priority {
+    High,
+};
+
+template<Priority Proi>
+struct PriorityTrait {
+    //static constexpr rt_uint8_t value = 0;
+};
+
+template<>
+struct PriorityTrait<Priority::High> {
+    static constexpr rt_uint8_t value = 2;
+};
+
+
 
 
 

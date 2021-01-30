@@ -5,9 +5,12 @@
  *
  * Change Logs:
  * Date           Author       Notes
- * 2021-01-30     imgcr       the first version
+ * 2021-01-28     imgcr       the first version
  */
 
-#include "rgb_light.hxx"
+#include "shared_thread.hxx"
 
+void SharedThread::run(void *p) {
+    post.poll();
+}
 

@@ -33,6 +33,12 @@ struct Observable {
         return newVal;
     }
 
+    void operator=(Observable<T>& other) {
+        other.onChanged += [this](const auto& v) {
+            (*this) = value;
+        };
+    }
+
     bool operator==(const T& other) {
         return value == other;
     }
