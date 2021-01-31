@@ -15,7 +15,7 @@
 
 class RgbLight {
 public:
-    RgbLight();
+    RgbLight() {}
 
     Observable<std::optional<bool>> r = {}, g = {}, b = {};
 };

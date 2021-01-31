@@ -14,8 +14,14 @@
 #include <limits>
 
 namespace Colors {
+struct Argb;
+
 struct Rgb {
     rt_uint8_t r, g, b;
+
+    Argb toArgb(rt_uint8_t alpha);
+
+    static const Rgb kBlack;
 };
 
 struct Argb {
@@ -33,6 +39,10 @@ struct Argb {
 
     void operator+=(const Argb& other) {
         *this = *this + other;
+    }
+
+    bool operator==(const Argb& other) {
+        return a == other.a && r == other.r && g == other.g && b == other.b;
     }
 
     operator Rgb() {

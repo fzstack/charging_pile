@@ -24,7 +24,6 @@ void Core::add(std::shared_ptr<Widget> widget) {
     widgets.sort([](const auto& a, const auto& b) {
         return a->zIndex < b->zIndex;
     });
-    rt_kprintf("widget count: %d\n", widgets.size());
 }
 
 void Core::invalidWidget(std::shared_ptr<Widget> widget) {

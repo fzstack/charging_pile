@@ -44,7 +44,7 @@ void test_rgb_state_notifier(int argc, char** argv) {
     auto stateVal = atoi(argv[2]);
     ASSERT_ARG(state, 1 <= stateVal && stateVal <= 5);
 
-    found->second->state = State(stateVal);
+    found->second->state = State::Value(stateVal);
 }
 
 static int init_test_rgb_state_notifier() {

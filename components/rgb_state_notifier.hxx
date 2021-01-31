@@ -11,7 +11,7 @@
 
 #define APPLICATIONS2_RGB_STATE_NOTIFIER_HXX_
 
-#include <devices/real_rgb_light.hxx>
+#include <devices/rgb_light.hxx>
 #include "state_store_base.hxx"
 #include <memory>
 #include <rtthread.h>
@@ -35,11 +35,12 @@ private:
 };
 
 #include <utilities/singleton.hxx>
+#include <ui/rgb_light_widget.hxx>
 namespace Preset {
 template<int R>
 class RgbStateNotifier: public Singleton<RgbStateNotifier<R>>, public ::RgbStateNotifier {
     friend class Singleton<RgbStateNotifier<R>>;
-    RgbStateNotifier(): ::RgbStateNotifier(RealRgbLight<R>::get()) {}
+    RgbStateNotifier(): ::RgbStateNotifier(RgbLightWidget<R>::get()) {}
 };
 }
 

@@ -12,6 +12,7 @@
 #include <map>
 #include <utilities/err.hxx>
 #include <ui/ws_screen.hxx>
+#include <ui/rgb_light_widget.hxx>
 
 using namespace Config;
 using namespace std;
@@ -27,6 +28,9 @@ namespace Preset {
 const int
     WsScreen::kWidth = 5,
     WsScreen::kHeight = 2;
+
+template<> const int RgbLightWidget<0>::zIndex = 0;
+template<> const int RgbLightWidget<1>::zIndex = 0;
 }
 
 string getStateStr(State::Value state) {

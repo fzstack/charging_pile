@@ -38,7 +38,7 @@ void Ws2812::flush() {
     auto high = Preset::SharedThread<Priority::High>::get();
     high->exec([this](){
         reset();
-        for(auto i = 0; i < frame.size(); i++) {
+        for(auto i = 0u; i < frame.size(); i++) {
             writePixel(frame[i]);
         }
     });
