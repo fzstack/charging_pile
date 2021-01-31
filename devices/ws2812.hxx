@@ -14,6 +14,7 @@
 #include <memory>
 #include <vector>
 #include <rthw.h>
+#include <ui/colors.hxx>
 
 class Ws2812 {
 public:
@@ -23,16 +24,12 @@ public:
     void flush();
     void reset();
 
-    struct Color {
-        rt_uint8_t R, G, B;
-    };
+    void test(Colors::Rgb c);
 
-    void test(Color c);
-
-    Color& getPixel(int idx);
+    Colors::Rgb& getPixel(int idx);
     std::size_t getCount();
 
-    void writePixel(Color pixel);
+    void writePixel(Colors::Rgb pixel);
 
 private:
 
@@ -48,7 +45,7 @@ private:
 
 private:
     rt_base_t dinPin;
-    std::vector<Color> frame;
+    std::vector<Colors::Rgb> frame;
     volatile uint32_t* bssr;
 
     static constexpr int
@@ -69,6 +66,7 @@ class Ws2812: public Singleton<Ws2812>, public ::Ws2812 {
     friend singleton_t;
     Ws2812(): ::Ws2812(kDinPin, kNum) {}
     static const rt_base_t kDinPin;
+public:
     static const int kNum;
 };
 }

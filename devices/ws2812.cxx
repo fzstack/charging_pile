@@ -53,7 +53,7 @@ void Ws2812::reset() {
     *bssr = 1 << (4 + 16);
 }
 
-void Ws2812::test(Color c) {
+void Ws2812::test(Colors::Rgb c) {
     auto high = Preset::SharedThread<Priority::High>::get();
     high->exec([this, c]{
         reset();
@@ -63,7 +63,7 @@ void Ws2812::test(Color c) {
     });
 }
 
-Ws2812::Color& Ws2812::getPixel(int idx) {
+Colors::Rgb& Ws2812::getPixel(int idx) {
     return frame[idx];
 }
 
@@ -71,10 +71,10 @@ std::size_t Ws2812::getCount() {
     return frame.size();
 }
 
-void Ws2812::writePixel(Color pixel) {
-    writeByte(pixel.R);
-    writeByte(pixel.G);
-    writeByte(pixel.B);
+void Ws2812::writePixel(Colors::Rgb pixel) {
+    writeByte(pixel.r);
+    writeByte(pixel.g);
+    writeByte(pixel.b);
 }
 
 void Ws2812::writeByte(rt_uint8_t b) {

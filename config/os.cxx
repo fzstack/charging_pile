@@ -25,6 +25,7 @@
 #include <components/packet.hxx>
 #include <devices/ttp229.hxx>
 #include <utilities/shared_thread.hxx>
+#include <ui/ws_screen.hxx>
 
 using namespace Config;
 using namespace Things::Decos;
@@ -67,6 +68,9 @@ const int
 template<> const char* SharedThread<Priority::High>::kThread = "high";
 template<> const int SharedThread<Priority::High>::kThreadStack = 1024;
 template<> const int SharedThread<Priority::High>::kThreadTick = 10;
+
+const int WsScreen::kDuration = 20;
+const char* WsScreen::kTimer = "wscrn";
 }
 
 

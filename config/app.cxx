@@ -11,6 +11,7 @@
 #include "app.hxx"
 #include <map>
 #include <utilities/err.hxx>
+#include <ui/ws_screen.hxx>
 
 using namespace Config;
 using namespace std;
@@ -21,6 +22,12 @@ const char
     *App::cloudProductKey = "a1mKT2XMEnq",
     //*App::cloudDeviceSecret = "4ede507e2250b4eb2bed1efb6f079c51";
     *App::cloudDeviceSecret = "70bb22c4ff10eb464b4954917a573824"; //联调设备
+
+namespace Preset {
+const int
+    WsScreen::kWidth = 5,
+    WsScreen::kHeight = 2;
+}
 
 string getStateStr(State::Value state) {
     switch(state) {

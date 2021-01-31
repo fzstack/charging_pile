@@ -7,8 +7,7 @@
  * Date           Author       Notes
  * 2020-08-25     imgcr       the first version
  */
-#ifndef UTILITIES_STATIC_CTOR_HXX_
-#define UTILITIES_STATIC_CTOR_HXX_
+#pragma once
 
 template <class T>
 struct StaticCtor {
@@ -21,11 +20,6 @@ private:
 
 protected:
     StaticCtor() {
-        //TODO: 待测试
         static Helper helper;
     }
 };
-
-
-
-#endif /* UTILITIES_STATIC_CTOR_HXX_ */

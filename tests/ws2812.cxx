@@ -32,9 +32,9 @@ void test_ws2812_at(int argc, char** argv) {
     int cur = atoi(argv[1]);
     for(auto i = 0; i < 10; i++) {
         if(i == cur) {
-            ws2812->getPixel(i) = Ws2812::Color{R: 255, G: 255, B: 255};
+            ws2812->getPixel(i) = Colors::Rgb{r: 255, g: 255, b: 255};
         } else {
-            ws2812->getPixel(i) = Ws2812::Color{R: 0, G: 0, B: 0};
+            ws2812->getPixel(i) = Colors::Rgb{r: 0, g: 0, b: 0};
         }
     }
 }
@@ -57,7 +57,7 @@ public:
     virtual void update(std::shared_ptr<Ws2812> ws) override {
         for(auto i = 0u; i < kNLights; i++) {
             auto bri = (rt_uint8_t)((sin(t * 2 * 3.1415926 / kNMax) + 1) * (numeric_limits<rt_uint8_t>::max() / 2.));
-            ws->getPixel(i) = Ws2812::Color{bri, bri, bri};
+            ws->getPixel(i) = Colors::Rgb{bri, bri, bri};
         }
         t++;
         t %= kNMax;
@@ -78,7 +78,7 @@ class RunMode: public AniMode {
                 phase = 1;
             }
             auto bri = rt_uint8_t(255 * lightFunc(phase));
-            ws->getPixel(mapPos(curPixel)) = Ws2812::Color{bri, bri, bri};
+            ws->getPixel(mapPos(curPixel)) = Colors::Rgb{bri, bri, bri};
         }
         t++;
         t %= kNPerPixel;
