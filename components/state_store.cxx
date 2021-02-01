@@ -19,8 +19,8 @@ StateStore::StateStore(): mutex(kMutex) {
 
 void StateStore::watch(std::shared_ptr<Relay> relay) {
     this->relay = relay;
-    relay->getHandler().onChanged += [this](auto value){
-        if(value && !*value) {
+    relay->value.onChanged += [this](auto value){
+        if(value == Relay::Off) {
             state = State::LoadWaitRemove; //TODO: 在一秒后调用update
             return;
         }
@@ -50,10 +50,8 @@ void StateStore::update() {
 
 
     if(relay) {
-        auto relayVal = *relay->getHandler();
-
         //如果继电器闭合，那么必在充电
-        if(relayVal && *relayVal) {
+        if(*relay->value == Relay::On) {
             state = State::Charging;
             return;
         }

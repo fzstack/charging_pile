@@ -35,15 +35,31 @@ const char
 const GPIO_TypeDef* Rc522::kSsGpioX = GPIOA;
 const rt_uint16_t Rc522::kSsGpioPin = GPIO_PIN_4;
 
-template<> const rt_base_t Relay<0>::kPin = GET_PIN(B, 2);
-template<> const rt_base_t Relay<1>::kPin = GET_PIN(B, 7);
+template<> const rt_base_t Relay<0>::kPin = GET_PIN(A, 2);
+template<> const rt_base_t Relay<1>::kPin = GET_PIN(A, 3);
+template<> const rt_base_t Relay<2>::kPin = GET_PIN(A, 4);
+template<> const rt_base_t Relay<3>::kPin = GET_PIN(B, 15);
+template<> const rt_base_t Relay<4>::kPin = GET_PIN(C, 6);
+template<> const rt_base_t Relay<5>::kPin = GET_PIN(C, 9);
+template<> const rt_base_t Relay<6>::kPin = GET_PIN(A, 8);
+template<> const rt_base_t Relay<7>::kPin = GET_PIN(C, 10);
+template<> const rt_base_t Relay<8>::kPin = GET_PIN(C, 2);
+template<> const rt_base_t Relay<9>::kPin = GET_PIN(C, 1);
 
 const rt_base_t
     Wtn6::kDataPin = GET_PIN(C, 8),
     Wtn6::kBusyPin = GET_PIN(C, 7);
 
 template<> const rt_base_t LoadDetector<0>::kPin = GET_PIN(B, 0);
+template<> const rt_base_t LoadDetector<1>::kPin = GET_PIN(B, 1);
+template<> const rt_base_t LoadDetector<1>::kPin = GET_PIN(B, 2);
+template<> const rt_base_t LoadDetector<1>::kPin = GET_PIN(B, 3);
+template<> const rt_base_t LoadDetector<1>::kPin = GET_PIN(B, 4);
 template<> const rt_base_t LoadDetector<1>::kPin = GET_PIN(B, 5);
+template<> const rt_base_t LoadDetector<1>::kPin = GET_PIN(B, 6);
+template<> const rt_base_t LoadDetector<1>::kPin = GET_PIN(B, 7);
+template<> const rt_base_t LoadDetector<1>::kPin = GET_PIN(B, 8);
+template<> const rt_base_t LoadDetector<1>::kPin = GET_PIN(B, 9);
 
 const char *Hlw8112::kUart = "uart5";
 

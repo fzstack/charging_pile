@@ -26,8 +26,8 @@ VirtualLoadDetector::VirtualLoadDetector(
     inited.onChanged += [this](auto value) {
         if(!value) return;
         this->physical->oState += [this](auto value){ update(); };
-        this->relay->getHandler().onChanged += [this](auto value) {
-            if(value && !*value) {
+        this->relay->value.onChanged += [this](auto value) {
+            if(value == Relay::Off) {
                 timer.start();
                 return;
             }
@@ -50,8 +50,7 @@ void VirtualLoadDetector::init() {
 void VirtualLoadDetector::update() {
     auto lock = Lock{mutex};
 
-    auto relayHandler = *relay->getHandler();
-    if(relayHandler && *relayHandler) {
+    if(*relay->value == Relay::On) {
         state = true;
         return;
     }

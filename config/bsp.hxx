@@ -14,7 +14,7 @@
 namespace Config {
 class Bsp {
 public:
-    static constexpr int kPortNum = 2;
+    static constexpr int kPortNum = 10;
 
     template<class T, int R>
     using assert_t = std::enable_if_t<R >= 0 && R < kPortNum, T>;

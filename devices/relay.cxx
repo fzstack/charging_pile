@@ -8,13 +8,23 @@
  * 2020-08-26     imgcr       the first version
  */
 
-#include <rtdevice.h>
 #include "relay.hxx"
-#include <map>
-#include <string>
 
-#define LOG_TAG "dev.relay"
-#define LOG_LVL LOG_LVL_DBG
-#include <ulog.h>
-#include <utilities/cmd.hxx>
+using namespace std;
 
+Relay::Relay(rt_base_t pin, Polar polar): pin(pin), polar(polar) {
+    value.onChanged += [this](auto val) {
+        if(val) {
+            switch(*val) {
+            case Relay::On:
+                *this->pin = onPinVal;
+                break;
+            case Relay::Off:
+                *this->pin = offPinVal;
+                break;
+            }
+        } else {
+            *this->pin = nullopt;
+        }
+    };
+}

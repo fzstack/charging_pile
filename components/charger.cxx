@@ -34,12 +34,12 @@ void Charger::init() {
 
 void Charger::start() {
     assertState(State::LoadInserted, "start charging");
-    relay->getHandler() = true;
+    relay->value = Relay::On;
 }
 
 void Charger::stop() {
     assertState(State::Charging, "stop charging");
-    relay->getHandler() = false;
+    relay->value = Relay::Off;
 }
 
 void Charger::assertState(State::Value expectedState, string action) {
