@@ -30,10 +30,11 @@ void Core::invalidWidget(std::shared_ptr<Widget> widget) {
     //调用widget的onDraw函数
     widget->onDraw(make_shared<Graphics>(widget->buffer));
 
+
     //重新计算缓存
     buffer->fill(widget->x, widget->y, widget->width, widget->height, Colors::Argb::kBlack);
     for(auto wi: widgets) {
-        buffer->blend(widget->x, widget->y, widget->x - wi->x, widget->y - wi->y, wi->buffer, widget->width, widget->height);
+        buffer->blend(widget->x, widget->y, wi->x, wi->y, wi->buffer, widget->width, widget->height);
     }
 
     for(auto i = widget->x; i < widget->x + widget->width; i++) {

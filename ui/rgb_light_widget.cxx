@@ -21,7 +21,7 @@ RgbLightWidget::RgbLightWidget(int x, int y, int zIndex): Widget(x, y, kSize, kS
 }
 
 void RgbLightWidget::onDraw(std::shared_ptr<Graphics> graphics) {
-    graphics->fillRect(*tween.oCurrVal, 0, 0, width, height);
+    graphics->setPixel(*tween.oCurrVal, 0, 0);
 }
 
 void RgbLightWidget::update() {

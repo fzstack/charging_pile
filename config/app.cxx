@@ -32,6 +32,8 @@ const int
 
 template<> const int RgbLightWidget<0>::zIndex = 0;
 template<> const int RgbLightWidget<1>::zIndex = 0;
+template<> const int RgbLightWidget<2>::zIndex = 0;
+template<> const int RgbLightWidget<3>::zIndex = 0;
 const int LoadingWidget::zIndex = 1;
 }
 

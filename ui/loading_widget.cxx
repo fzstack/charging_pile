@@ -22,12 +22,13 @@ LoadingWidget::LoadingWidget(int x, int y, int width, int height, int zIndex, st
 }
 
 void LoadingWidget::onDraw(std::shared_ptr<Graphics> graphics) {
+    graphics->fillRect(kBackground, 0, 0, width, height); //80%透明度的黑色背景
     for(auto i = 0; i < particleNum; i++) {
         auto [dx, dy] = getPosFromIdx(i);
         auto tarVal = fmod(curVal - phaseStep * i + 1, 1);
         auto curColor = kBaseColor;
         curColor.a *= timing(tarVal);
-        graphics->setPixel(curColor, dx, dy);
+        graphics->addPixel(curColor, dx, dy); //绘制loading条
     }
 }
 
@@ -58,5 +59,7 @@ int LoadingWidget::particleNumFromSize(int width, int height) {
     return height <= 1 ? width * height : width * 2 + (height - 2) * 2;
 }
 
-const Colors::Argb LoadingWidget::kBaseColor = {10, 255, 255, 255};
+const Colors::Argb
+    LoadingWidget::kBaseColor = {20, 255, 255, 255},
+    LoadingWidget::kBackground = {200, 0, 0, 0};
 

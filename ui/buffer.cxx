@@ -32,14 +32,21 @@ void Buffer::fill(int x, int y, int width, int height, Colors::Argb color) {
 }
 
 void Buffer::blend(int selfX, int selfY, int otherX, int otherY, shared_ptr<Buffer> other, int width, int height) {
-    auto w = min({this->width - selfX, other->width - otherX, width});
-    auto h = min({this->height - selfY, other->height - otherY, height});
-
-    //自己的一块区域和另一个缓存的另一块区域混合
-    if(w <= 0 || h <= 0) return;
-    for(auto dx = 0; dx < w; dx++) {
-        for(auto dy = 0; dy < h; dy++) {
-            this->buf[selfX + dx][selfY + dy] += other->buf[otherX + dx][otherY + dy];
+//    auto w = min({this->width - selfX, other->width - otherX, width});
+//    auto h = min({this->height - selfY, other->height - otherY, height});
+//
+//    //自己的一块区域和另一个缓存的另一块区域混合
+//    if(w <= 0 || h <= 0 || selfX < 0 || selfY < 0 || otherX < 0 || otherY < 0) return;
+//    for(auto dx = 0; dx < w; dx++) {
+//        for(auto dy = 0; dy < h; dy++) {
+//            this->buf[selfX + dx][selfY + dy] += other->buf[otherX + dx][otherY + dy];
+//        }
+//    }
+    for(auto dx = selfX; dx < selfX + width; dx++) {
+        for(auto dy = selfY; dy < selfY + height; dy++) {
+            if(dx >= otherX && dy >= otherY && dx < otherX + other->width && dy < otherY + other->height) {
+                this->buf[dx][dy] += other->buf[dx - otherX][dy - otherY];
+            }
         }
     }
 }

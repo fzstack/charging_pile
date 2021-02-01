@@ -27,8 +27,8 @@ private:
     const int particleNum = particleNumFromSize(width, height);
     const float phaseStep = 1.f / (particleNum);
     float curVal = 0;
-    static constexpr int kDuration = 1500;
-    static const Colors::Argb kBaseColor;
+    static constexpr int kDuration = 1700;
+    static const Colors::Argb kBaseColor, kBackground;
 };
 
 #include <utilities/singleton.hxx>
