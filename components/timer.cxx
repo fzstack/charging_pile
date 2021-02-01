@@ -15,7 +15,7 @@ using namespace std;
 Timer::Timer(rt_tick_t time, const char* name, rt_uint8_t flags): timer(std::shared_ptr<rt_timer>(rt_timer_create(name, [](auto p){
     auto timer = (Timer*)p;
     timer->run();
-}, this, time, flags | RT_TIMER_FLAG_SOFT_TIMER), rt_timer_delete)), flags(flags) {
+}, this, time, flags | RT_TIMER_FLAG_SOFT_TIMER), rt_timer_delete)), duration(time), flags(flags) {
 
 }
 
@@ -33,6 +33,10 @@ void Timer::stop() {
 
 bool Timer::isRunning() {
     return running;
+}
+
+int Timer::getDuration() {
+    return (int)duration;
 }
 
 void Timer::run() {

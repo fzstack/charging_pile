@@ -21,3 +21,7 @@ void Graphics::fillRect(Colors::Argb color, int x, int y, int width, int height)
         }
     }
 }
+
+void Graphics::setPixel(Colors::Argb color, int x, int y) {
+    buffer->buf[x][y] = color;
+}

@@ -16,8 +16,8 @@
 class Graphics {
 public:
     Graphics(std::shared_ptr<Buffer> buffer);
-    //TODO: ctor
     void fillRect(Colors::Argb color, int x, int y, int width, int height);
+    void setPixel(Colors::Argb color, int x, int y);
 private:
     std::shared_ptr<Buffer> buffer;
 };

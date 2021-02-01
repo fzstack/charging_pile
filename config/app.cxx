@@ -13,6 +13,7 @@
 #include <utilities/err.hxx>
 #include <ui/ws_screen.hxx>
 #include <ui/rgb_light_widget.hxx>
+#include <ui/loading_widget.hxx>
 
 using namespace Config;
 using namespace std;
@@ -31,6 +32,7 @@ const int
 
 template<> const int RgbLightWidget<0>::zIndex = 0;
 template<> const int RgbLightWidget<1>::zIndex = 0;
+const int LoadingWidget::zIndex = 1;
 }
 
 string getStateStr(State::Value state) {

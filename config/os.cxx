@@ -26,6 +26,7 @@
 #include <devices/ttp229.hxx>
 #include <utilities/shared_thread.hxx>
 #include <ui/ws_screen.hxx>
+#include <ui/loading_widget.hxx>
 
 using namespace Config;
 using namespace Things::Decos;
@@ -71,6 +72,9 @@ template<> const int SharedThread<Priority::High>::kThreadTick = 10;
 
 const int WsScreen::kDuration = 20;
 const char* WsScreen::kTimer = "wscrn";
+
+const int LoadingWidget::kDuration = 20;
+const char* LoadingWidget::kTimer = "lodwgt";
 }
 
 
