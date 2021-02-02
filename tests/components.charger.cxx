@@ -12,6 +12,7 @@
 #include <utilities/cmd.hxx>
 #include <map>
 #include <config/bsp.hxx>
+#include <utilities/mp.hxx>
 
 #define LOG_TAG "test.charger"
 #define LOG_LVL LOG_LVL_DBG
@@ -19,29 +20,24 @@
 
 using namespace std;
 
-std::shared_ptr<Charger> getCharger(int i) {
-    switch(i) {
-    case 0:
-        return Preset::Charger<0>::get();
-    case 1:
-        return Preset::Charger<1>::get();
-    default:
-        throw out_of_range{"resource id out of range"};
-    }
-}
-
 static void test_charger(int argc, char** argv) {
     ASSERT_MIN_NARGS(3);
 
-    auto i = atoi(argv[1]);
-    ASSERT_ARG(charger, 0 <= i && i < Config::Bsp::kPortNum);
+    auto r = atoi(argv[1]);
+    ASSERT_ARG(charger, 0 <= r && r < Config::Bsp::kPortNum);
+
+    auto charger = shared_ptr<Charger>{};
+
+    magic_switch<Config::Bsp::kPortNum>{}([&](auto v){
+        charger = Preset::Charger<decltype(v)::value>::get();
+    }, r);
 
     auto cmds = map<string, function<void()>> {
-        {"start", [=](){
-            getCharger(i)->start();
+        {"start", [&](){
+            charger->start();
         }},
-        {"stop", [=](){
-            getCharger(i)->stop();
+        {"stop", [&](){
+            charger->stop();
         }},
     };
     auto found = cmds.find(argv[2]);
@@ -51,7 +47,13 @@ static void test_charger(int argc, char** argv) {
 
 static int init_test_charger() {
     for(auto i = 0; i < Config::Bsp::kPortNum; i++) {
-        getCharger(i)->init();
+        magic_switch<Config::Bsp::kPortNum>{}([&](auto v){
+            rt_kprintf("initing %d\n", i);
+            Preset::Charger<decltype(v)::value>::get()->init();
+            rt_uint32_t used;
+            rt_memory_info(nullptr, &used, nullptr);
+            printf("used: %d\n", used);
+        }, i);
     }
     return RT_EOK;
 }

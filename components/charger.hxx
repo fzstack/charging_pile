@@ -68,17 +68,17 @@ class Charger: public Singleton<Charger<R>>, public ::Charger {
     ) {
         MultiMeterChannel<R>::Owner::get()->init();
         VirtualLoadDetector<R>::get()->init();
-        VoiceNotifier::get()->watch(StateStore<R>::get(), getPSV());
+        //VoiceNotifier::get()->watch(StateStore<R>::get(), getPSV());
     }
 
     static constexpr PortSpecifiedVoice getPSV() {
         switch(R) {
         case 0:
-            return {Voices::PortAPluged, Voices::PortAUnpluged};
+            return {Voices::Port0Pluged, Voices::Port0Unpluged};
         case 1:
-            return {Voices::PortBPluged, Voices::PortBUnpluged};
+            return {Voices::Port1Pluged, Voices::Port1Unpluged};
         default:
-            throw not_implemented{"resource id out of range"};
+            return {Voices::Slience, Voices::Slience};
         }
     }
 };

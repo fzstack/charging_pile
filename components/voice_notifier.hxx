@@ -20,14 +20,14 @@
 
 enum class Voices: rt_uint8_t {
     Slience, //20ms静音
-    PortAPluged, //一号插座已插入
-    PortBPluged, //二号插座已插入
+    Port0Pluged, //一号插座已插入
+    Port1Pluged, //二号插座已插入
     NoPay, //请扫码或刷卡充电
     CardDetected, //刷卡成功
     StartCharing, //开始充电
     NotAvailable, //当前设备不可用，请更换设备尝试
-    PortAUnpluged, //一号插座已拔出
-    PortBUnpluged,
+    Port0Unpluged, //一号插座已拔出
+    Port1Unpluged,
     PlugNotReady, //请先插入充电器
     BalanceNotEnough, //当前卡余额不足，请充值
     ChargeCompleted, //充电已完成
