@@ -74,6 +74,7 @@ public:
     using Owner = Multimeter<MmR>;
     static std::shared_ptr<::Multimeter::Channel> get() {
         auto mltmtr = Owner::get();
+        mltmtr->init();
         auto chn = R % 2 == 0 ? ::Multimeter::ChPort::A : ::Multimeter::ChPort::B;
         return mltmtr->getChannel(chn);
     }
