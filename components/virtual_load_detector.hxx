@@ -16,6 +16,7 @@
 #include <utilities/observable.hxx>
 #include <Mutex.h>
 #include "timer.hxx"
+#include <memory>
 
 class VirtualLoadDetector {
 public:
@@ -24,6 +25,7 @@ public:
 
 private:
     void update();
+    void createTimer();
 
     Observable<bool> inited = {false};
     std::shared_ptr<LoadDetector> physical;
@@ -33,7 +35,7 @@ private:
 public:
     Observer<std::optional<bool>> oState;
 private:
-    Timer timer;
+    std::shared_ptr<Timer> timer = nullptr;
     static rtthread::Mutex mutex;
 
 private:

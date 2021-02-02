@@ -10,6 +10,7 @@
 #include "virtual_load_detector.hxx"
 #include <Lock.h>
 
+using namespace std;
 using namespace rtthread;
 
 VirtualLoadDetector::VirtualLoadDetector(
@@ -20,24 +21,21 @@ VirtualLoadDetector::VirtualLoadDetector(
   relay(relay),
   multimeterChannel(multimeterChannel),
   state(),
-  oState(state),
-  timer(kRelayOffStateUpdateDelayMs, kTimer, RT_TIMER_FLAG_ONE_SHOT) {
+  oState(state) {
     inited.onChanged += [this](auto value) {
         if(!value) return;
         this->physical->oState += [this](auto value){ update(); };
         this->relay->value.onChanged += [this](auto value) {
             if(value == Relay::Off) {
-                timer.start();
+                if(timer == nullptr)
+                    createTimer();
+                timer->start();
                 return;
             }
             update();
         };
         this->multimeterChannel->current += [this](auto value) { update(); };
         this->multimeterChannel->voltage += [this](auto value) { update(); };
-        this->timer.onRun += [this]() {
-            rt_kprintf("vlod timer runned\n");
-            update();
-        };
         update();
     };
 }
@@ -54,8 +52,17 @@ void VirtualLoadDetector::update() {
         return;
     }
 
-    if(timer.isRunning()) return;
+    if(timer->isRunning()) return;
     state = this->physical->oState.value();
+}
+
+void VirtualLoadDetector::createTimer() {
+    timer = make_shared<Timer>(kRelayOffStateUpdateDelayMs, kTimer, RT_TIMER_FLAG_ONE_SHOT);
+    timer->onRun += [this] {
+        rt_kprintf("vlod timer runned\n");
+        update();
+        timer = nullptr;
+    };
 }
 
 Mutex VirtualLoadDetector::mutex = {kMutex};
