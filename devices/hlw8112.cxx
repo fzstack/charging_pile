@@ -9,25 +9,58 @@
  */
 
 #include "hlw8112.hxx"
+#include <rtthread.h>
 
 using namespace std;
 using namespace Hlw8112ns::Regs;
 
-Hlw8112::Hlw8112(const char* uartDeviceName) {
-    struct serial_configure conf = RT_SERIAL_CONFIG_DEFAULT;
-    conf.data_bits = DATA_BITS_9;
-    conf.baud_rate = BAUD_RATE_9600;
-    conf.parity = PARITY_EVEN;
-    uart = make_shared<QueuedUart>(uartDeviceName, &conf);
+Hlw8112::Hlw8112() {
     writable.onChanged += [this](auto value) {
-      if(!value) return;
-      if(*value) {
+        if(!value) return;
+        if(*value) {
           writeEnable();
-      } else {
+        } else {
           writeDisable();
-      }
+        }
     };
 
+    inited.onChanged += [this](auto value) {
+        if(!value) return;
+        specCmd(0x96);
+        rt_thread_mdelay(1);
+        writable = nullopt;
+        writable = true;
+        {
+            auto sess = makeSess<emucon2>();
+            sess->chs_ib = true;
+            sess->dup_sel = emucon2::DupSel::f3_4Hz;
+            sess->sdo_cmos = false;
+
+            sess->wave_en = true; //使能瞬时波形
+            sess->zx_en = true; //使能相角检测
+        } {
+            auto sess = makeSess<emucon>();
+            sess->hpf_i_a_off = false; //关闭高通滤波器
+            sess->hpf_i_b_off = false;
+            sess->hpf_u_off = false;
+            sess->comp_off = true;
+        } {
+            auto sess = makeSess<pin>();
+            sess->p1_sel = pin::PSel::IRQ;
+        } {
+            auto sess = makeSess<ie>();
+            sess->dupd = true;
+        } {
+            auto sess = makeSess<syscon>();
+            sess->adc1_on = true;
+            sess->pga_i_a = syscon::PGA::x16;
+            sess->adc2_on = true;
+            sess->pga_i_b = syscon::PGA::x16;
+            sess->adc3_on = true;
+            sess->pga_u = syscon::PGA::x1;
+        }
+        writable = false;
+    };
 }
 
 void Hlw8112::selectChannelA() {
@@ -47,84 +80,14 @@ void Hlw8112::writeDisable() {
 }
 
 void Hlw8112::init() {
-    specCmd(0x96);
-    writable = nullopt;
-    writable = true;
-    {
-        auto sess = makeSess<emucon2>();
-        sess->chs_ib = true;
-        sess->dup_sel = emucon2::DupSel::f3_4Hz;
-        sess->sdo_cmos = false;
-
-        sess->wave_en = true; //使能瞬时波形
-        sess->zx_en = true; //使能相角检测
-    } {
-        auto sess = makeSess<emucon>();
-        sess->hpf_i_a_off = false; //关闭高通滤波器
-        sess->hpf_i_b_off = false;
-        sess->hpf_u_off = false;
-        sess->comp_off = true;
-    } {
-        auto sess = makeSess<pin>();
-        sess->p1_sel = pin::PSel::IRQ;
-    } {
-        auto sess = makeSess<ie>();
-        sess->dupd = true;
-    } {
-        auto sess = makeSess<syscon>();
-        sess->adc1_on = true;
-        sess->pga_i_a = syscon::PGA::x16;
-        sess->adc2_on = true;
-        sess->pga_i_b = syscon::PGA::x16;
-        sess->adc3_on = true;
-        sess->pga_u = syscon::PGA::x1;
-    }
-    writable = false;
-}
-
-void Hlw8112::cmd(int cmd, void* data, int len) {
-    char cs = 0;
-    uart->send<char>(0xa5);
-    cs += 0xa5;
-
-    uart->send<char>(cmd);
-    cs += cmd;
-
-    for(char* p = (char*)data + len - 1; p >= (char*)data; p--) {
-        uart->send(p, 1);
-        cs += *p;
-    }
-
-    cs = ~cs;
-    uart->send(cs);
+    inited = true;
 }
 
 void Hlw8112::specCmd(char cmd) {
     this->cmd(0xea, (void*)&cmd, 1);
 }
 
-void Hlw8112::readReg(char addr, void* data, int len, rt_int32_t timeout) {
-    char cs_expect = 0, cs;
-    uart->send<char>(0xa5);
-    cs_expect += 0xa5;
-
-    uart->send(addr);
-    cs_expect += addr;
-
-    for(char* p = (char*)data + len - 1; p >= (char*)data; p--) {
-        uart->recv(p, 1, timeout);
-        cs_expect += *p;
-    }
-    cs_expect = ~cs_expect;
-    uart->recv(&cs, 1, timeout);
-
-    if(cs != cs_expect) {
-        uart->clear();
-        throw hlw8112_error{"wrong checksum"};
-    }
-
-}
-
 void Hlw8112::writeReg(int addr, void* data, int len) {
     cmd(addr | 0x80, data, len);
 }
+

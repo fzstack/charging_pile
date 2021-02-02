@@ -11,8 +11,6 @@
 #define DEVICES_HLW8112_HXX_
 
 #include "hlw8112_regs.hxx"
-#include "queued_uart.hxx"
-#include <memory>
 #include <utilities/observable.hxx>
 #include <optional>
 #include <utilities/nested.hxx>
@@ -20,7 +18,7 @@
 
 class Hlw8112 {
 public:
-    Hlw8112(const char* uartDeviceName);
+    Hlw8112();
     void init();
 private:
     template<class T>
@@ -71,34 +69,24 @@ public:
     void selectChannelA();
     void selectChannelB();
 
-private:
+protected:
+    virtual void cmd(int cmd, void* data, int len) = 0;
+    virtual void readReg(char addr, void* data, int len, rt_int32_t timeout = 5) = 0;
     void writeEnable();
     void writeDisable();
-    void cmd(int cmd, void* data, int len);
-    void specCmd(char cmd);
 
-    void readReg(char addr, void* data, int len, rt_int32_t timeout = 5);
+private:
+    void specCmd(char cmd);
     void writeReg(int addr, void* data, int len);
 
 public:
-    Observable<std::optional<bool>> writable;
-
+    Observable<std::optional<bool>> writable = {};
 private:
-    std::shared_ptr<QueuedUart> uart;
+    Observable<bool> inited = {false};
 };
 
 class hlw8112_error: virtual public std::runtime_error {
     using std::runtime_error::runtime_error;
 };
-
-
-#include <utilities/singleton.hxx>
-namespace Preset {
-class Hlw8112: public Singleton<Hlw8112>, public ::Hlw8112 {
-    friend class Singleton<Hlw8112>;
-    Hlw8112(): ::Hlw8112(kUart) {}
-    static const char *kUart;
-};
-}
 
 #endif /* DEVICES_HLW8112_HXX_ */

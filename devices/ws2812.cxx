@@ -12,14 +12,7 @@
 #include <rtdevice.h>
 #include <utilities/shared_thread.hxx>
 #include <stm32f1xx.h>
-
-struct pin_index
-{
-    int index;
-    GPIO_TypeDef *gpio;
-    uint32_t pin;
-};
-extern const struct pin_index pins[];
+#include "devices/pin_map.hxx"
 
 Ws2812::Ws2812(rt_base_t dinPin, int num): dinPin(dinPin), frame(num) {
     rt_pin_mode(dinPin, PIN_MODE_OUTPUT);

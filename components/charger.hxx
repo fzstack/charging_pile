@@ -62,11 +62,11 @@ class Charger: public Singleton<Charger<R>>, public ::Charger {
     Charger(): ::Charger(
         RgbStateNotifier<R>::get(),
         Relay<R>::get(),
-        Multimeter::get()->getChannel(Multimeter::getPort<R>()),
+        MultiMeterChannel<R>::get(),
         VirtualLoadDetector<R>::get(),
         StateStore<R>::get()
     ) {
-        Multimeter::get()->init();
+        MultiMeterChannel<R>::Owner::get()->init();
         VirtualLoadDetector<R>::get()->init();
         VoiceNotifier::get()->watch(StateStore<R>::get(), getPSV());
     }

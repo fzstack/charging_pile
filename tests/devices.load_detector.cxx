@@ -11,6 +11,7 @@
 
 #include <devices/load_detector.hxx>
 #include <utilities/cmd.hxx>
+#include <utilities/mp.hxx>
 #include <rtthread.h>
 #include <functional>
 
@@ -22,18 +23,18 @@ using namespace std;
 using namespace placeholders;
 
 static int init_test_load_detector() {
-    auto lodDetA = Preset::LoadDetector<0>::get();
-    auto lodDetB = Preset::LoadDetector<1>::get();
-    lodDetA->oState += [](auto state){
-        if(state) {
-            LOG_D("A %s", *state ? "pluged" : "unpluged");
-        }
-    };
-    lodDetB->oState += [](auto state){
-        if(state) {
-            LOG_D("B %s", *state ? "pluged" : "unpluged");
-        }
-    };
+
+    for(auto i = 0; i < Config::Bsp::kPortNum; i++) {
+        magic_switch<Config::Bsp::kPortNum>{}([&](auto v) {
+            auto lodDet = Preset::LoadDetector<decltype(v)::value>::get();
+            lodDet->oState += [i](auto state){
+                if(state) {
+                    LOG_D("[%d] %s", i, *state ? "pluged" : "unpluged");
+                }
+            };
+
+        }, i);
+    }
     LOG_I("inited, plug to test");
     return RT_EOK;
 }

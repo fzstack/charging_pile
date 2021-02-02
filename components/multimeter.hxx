@@ -12,7 +12,7 @@
 
 #include <utilities/static_ctor.hxx>
 #include <utilities/observable.hxx>
-#include <devices/hlw8112.hxx>
+#include <devices/spi_hlw8112.hxx>
 #include <devices/hlw8112_regs.hxx>
 #include <memory>
 #include <tuple>
@@ -60,20 +60,22 @@ private:
 
 #include <utilities/singleton.hxx>
 namespace Preset {
-class Multimeter: public Singleton<Multimeter>, public ::Multimeter {
-    friend class Singleton<Multimeter>;
-    Multimeter(): ::Multimeter(Hlw8112::get()) {}
+template <int R>
+class Multimeter: public Singleton<Multimeter<R>>, public ::Multimeter {
+    friend class Singleton<Multimeter<R>>;
+    Multimeter(): ::Multimeter(SpiHlw8112<R>::get()) {}
+};
+
+template <int R>
+class MultiMeterChannel {
+private:
+    static constexpr int MmR = R / 2;
 public:
-    template<int R>
-    static constexpr Multimeter::ChPort getPort() {
-        switch(R) {
-        case 0:
-            return Multimeter::ChPort::B;
-        case 1:
-            return Multimeter::ChPort::A;
-        default:
-            throw std::runtime_error{"resource id out of range"};
-        }
+    using Owner = Multimeter<MmR>;
+    static std::shared_ptr<::Multimeter::Channel> get() {
+        auto mltmtr = Owner::get();
+        auto chn = R % 2 == 0 ? ::Multimeter::ChPort::A : ::Multimeter::ChPort::B;
+        return mltmtr->getChannel(chn);
     }
 };
 }
