@@ -77,6 +77,22 @@ class Charger: public Singleton<Charger<R>>, public ::Charger {
             return {Voices::Port0Pluged, Voices::Port0Unpluged};
         case 1:
             return {Voices::Port1Pluged, Voices::Port1Unpluged};
+        case 2:
+            return {Voices::Port2Pluged, Voices::Port2Unpluged};
+        case 3:
+            return {Voices::Port3Pluged, Voices::Port3Unpluged};
+        case 4:
+            return {Voices::Port4Pluged, Voices::Port4Unpluged};
+        case 5:
+            return {Voices::Port5Pluged, Voices::Port5Unpluged};
+        case 6:
+            return {Voices::Port6Pluged, Voices::Port6Unpluged};
+        case 7:
+            return {Voices::Port7Pluged, Voices::Port7Unpluged};
+        case 8:
+            return {Voices::Port8Pluged, Voices::Port8Unpluged};
+        case 9:
+            return {Voices::Port9Pluged, Voices::Port9Unpluged};
         default:
             return {Voices::Slience, Voices::Slience};
         }

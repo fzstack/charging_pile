@@ -60,6 +60,6 @@ float RgbLightWidget::ColorTween::ease(float x) {
 }
 
 Colors::Rgb
-    RgbLightWidget::kRed = {215, 15, 2},
-    RgbLightWidget::kGreen = {25, 174, 9},
+    RgbLightWidget::kRed = {200, 35, 2},
+    RgbLightWidget::kGreen = {60, 150, 5},
     RgbLightWidget::kBlue = {2, 140, 211};

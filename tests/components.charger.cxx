@@ -42,7 +42,13 @@ static void test_charger(int argc, char** argv) {
     };
     auto found = cmds.find(argv[2]);
     ASSERT_ARG(cmd, found != cmds.end());
-    found->second();
+
+    try {
+        found->second();
+    } catch(const exception& e) {
+        rt_kprintf("{%s} %s\n", typeid(e).name(), e.what());
+    }
+
 }
 
 static int init_test_charger() {

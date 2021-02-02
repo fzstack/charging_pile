@@ -16,6 +16,9 @@
 #include <memory.h>
 #include <map>
 #include <functional>
+#include <array>
+#include <config/bsp.hxx>
+#include <utilities/mp.hxx>
 
 #define LOG_TAG "test.rgb_state_notifier"
 #define LOG_LVL LOG_LVL_DBG
@@ -24,39 +27,44 @@
 using namespace std;
 
 class FakeStore: public StateStoreBase {
-    friend void test_rgb_state_notifier(int argc, char** argv);
 public:
     FakeStore() = default;
+    void setState(State::Value state) {
+        this->state = state;
+    }
 };
 
-static shared_ptr<FakeStore> fakeA, fakeB;
+static array<std::shared_ptr<FakeStore>, Config::Bsp::kPortNum> states;
 
-void test_rgb_state_notifier(int argc, char** argv) {
+static void test_rgb_state_notifier(int argc, char** argv) {
     ASSERT_MIN_NARGS(3);
-    auto sel = std::map<std::string, shared_ptr<FakeStore>> {
-        {"A", fakeA},
-        {"B", fakeB},
-    };
 
-    auto found = sel.find(argv[1]);
-    ASSERT_ARG(store, found != sel.end());
+    auto store = atoi(argv[1]);
+    ASSERT_ARG(store, 0 <= store && store < Config::Bsp::kPortNum);
 
     auto stateVal = atoi(argv[2]);
     ASSERT_ARG(state, 1 <= stateVal && stateVal <= 5);
 
-    found->second->state = State::Value(stateVal);
+    states[store]->setState(State::Value(stateVal));
 }
 
 static int init_test_rgb_state_notifier() {
-    auto notifierA = Preset::RgbStateNotifier<0>::get();
-    auto notifierB = Preset::RgbStateNotifier<1>::get();
-
-    fakeA = make_shared<FakeStore>();
-    fakeB = make_shared<FakeStore>();
-
-    notifierA->watch(fakeA);
-    notifierB->watch(fakeB);
-
+    for(auto i = 0; i < Config::Bsp::kPortNum; i++) {
+        magic_switch<Config::Bsp::kPortNum>{}([&](auto v){
+            rt_uint32_t used;
+            rt_memory_info(nullptr, &used, nullptr);
+            auto before = used;
+            auto notifier = Preset::RgbStateNotifier<decltype(v)::value>::get();
+            rt_memory_info(nullptr, &used, nullptr);
+            rt_kprintf("[%d] notifier inc: %d\n", i, used - before);
+            before = used;
+            states[i] = make_shared<FakeStore>();
+            notifier->watch(states[i]);
+            states[i]->setState(State::LoadNotInsert);
+            rt_memory_info(nullptr, &used, nullptr);
+            rt_kprintf("[%d] store inc: %d\n", i, used - before);
+        }, i);
+    }
     return RT_EOK;
 }
 
