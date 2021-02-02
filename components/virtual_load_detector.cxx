@@ -21,7 +21,6 @@ VirtualLoadDetector::VirtualLoadDetector(
   multimeterChannel(multimeterChannel),
   state(),
   oState(state),
-  mutex(kMutex),
   timer(kRelayOffStateUpdateDelayMs, kTimer, RT_TIMER_FLAG_ONE_SHOT) {
     inited.onChanged += [this](auto value) {
         if(!value) return;
@@ -58,3 +57,5 @@ void VirtualLoadDetector::update() {
     if(timer.isRunning()) return;
     state = this->physical->oState.value();
 }
+
+Mutex VirtualLoadDetector::mutex = {kMutex};

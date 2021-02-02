@@ -8,5 +8,12 @@
  * 2021-02-01     imgcr       the first version
  */
 
+#include "tween.hxx"
 
+using namespace rtthread;
 
+float TweenBase::ease(float x) {
+    return x;
+}
+
+Mutex TweenBase::mutex = {kMutex};

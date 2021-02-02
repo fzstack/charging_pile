@@ -28,26 +28,20 @@ LoadDetector::LoadDetector(rt_base_t pin): pin(pin), oState(state) {
     }, this);
     rt_pin_irq_enable(pin, PIN_IRQ_ENABLE);
 
-    timer = std::shared_ptr<rt_timer>(rt_timer_create(kTimer, [](auto p) {
-        auto self = (LoadDetector*)p;
-
+    timer.onRun += [this]{
         auto size = kArraySize;
-
-        if(!self->fulled)
-            size = self->rear;
-
+        if(!fulled)
+            size = rear;
         auto now = rt_tick_get();
         auto count = int{};
-
         for(auto i = 0; i < size; i++) {
-            if(now - self->ticks[i] < kDetectWndMs)
+            if(now - ticks[i] < kDetectWndMs)
                 count++;
         }
+        state = count >= kArraySize * kValidRatioPc / 100;
+    };
 
-        self->state = count >= self->kArraySize * self->kValidRatioPc / 100;
-    }, this, kDetectWndMs, RT_TIMER_FLAG_PERIODIC | RT_TIMER_FLAG_SOFT_TIMER), [](auto p) {
-        rt_timer_stop(p);
-        rt_timer_delete(p);
-    });
-    rt_timer_start(timer.get());
+    timer.start();
 }
+
+Timer LoadDetector::timer = {kDetectWndMs, kTimer};

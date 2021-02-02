@@ -16,6 +16,7 @@
 #include <utilities/observable.hxx>
 #include <utilities/observer.hxx>
 #include <memory>
+#include <components/timer.hxx>
 
 class LoadDetector {
 public:
@@ -23,7 +24,6 @@ public:
 
 private:
     rt_base_t pin;
-    std::shared_ptr<rt_timer> timer;
 
     //kInvdThrDurationMs内少于kInvdThrNMin有效信号则无效
     //参数调整:
@@ -42,6 +42,8 @@ public:
     Observer<std::optional<bool>> oState;
 private:
     static const char* kTimer;
+    static Timer timer;
+
 };
 
 #include <utilities/singleton.hxx>

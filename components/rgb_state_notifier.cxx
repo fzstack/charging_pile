@@ -13,28 +13,24 @@
 #include <map>
 #include <string>
 #include <functional>
+#include <Lock.h>
 
 #define LOG_TAG "dev.rgb"
 #define LOG_LVL LOG_LVL_DBG
 #include <ulog.h>
 
-RgbStateNotifier::RgbStateNotifier(std::shared_ptr<RgbLight> light): light(light) {
-    mutex = std::shared_ptr<rt_mutex>(rt_mutex_create("RSN", RT_IPC_FLAG_FIFO), [](auto p) {
-        rt_mutex_delete(p);
-    });
+using namespace std;
+using namespace rtthread;
 
+RgbStateNotifier::RgbStateNotifier(std::shared_ptr<RgbLight> light): light(light) {
     k.onChanged += [this](auto value) {
         render();
     };
 
-    timer = std::shared_ptr<rt_timer>(rt_timer_create("RSN", [](auto p) {
-        auto self = (RgbStateNotifier*)p;
-        self->k++;
-    }, this, kRoundDurMs, RT_TIMER_FLAG_PERIODIC | RT_TIMER_FLAG_SOFT_TIMER), [](auto p) {
-        rt_timer_stop(p);
-        rt_timer_delete(p);
-    });
-    rt_timer_start(timer.get());
+    timer.onRun += [this] {
+        k++;
+    };
+    timer.start();
 }
 
 void RgbStateNotifier::watch(std::shared_ptr<StateStoreBase> store) {
@@ -46,7 +42,7 @@ void RgbStateNotifier::watch(std::shared_ptr<StateStoreBase> store) {
 }
 
 void RgbStateNotifier::render() {
-    auto guard = LockGuard(mutex.get());
+    auto guard = Lock(mutex);
 
     if(!store || !store->oState.value()) {
         light->r = light->g = light->b = false;
@@ -77,3 +73,6 @@ void RgbStateNotifier::render() {
             break;
     }
 }
+
+Timer RgbStateNotifier::timer = {kRoundDurMs, kTimer};
+Mutex RgbStateNotifier::mutex = {kMutex};

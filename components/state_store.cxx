@@ -13,7 +13,7 @@
 
 using namespace rtthread;
 
-StateStore::StateStore(): mutex(kMutex) {
+StateStore::StateStore() {
 
 }
 
@@ -48,7 +48,6 @@ void StateStore::watch(std::shared_ptr<VirtualLoadDetector> virtualLoadDetector)
 void StateStore::update() {
     auto lock = Lock(mutex);
 
-
     if(relay) {
         //如果继电器闭合，那么必在充电
         if(*relay->value == Relay::On) {
@@ -68,12 +67,6 @@ void StateStore::update() {
 
     //如果继电器断开、负载已接入，那么可能有两种情况
     //负载已接入状态、充电已完成状态
-
-
-
-
-
-
-
 }
 
+Mutex StateStore::mutex = {kMutex};

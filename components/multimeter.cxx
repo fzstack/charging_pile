@@ -19,43 +19,35 @@ using namespace std;
 
 Multimeter::Multimeter(std::shared_ptr<Hlw8112> device): device(device) {
     inited.onChanged += [this](auto value) {
-        if(value) {
-            this->device->init();
-            timer = shared_ptr<rt_timer>(rt_timer_create(kTimer, [](auto p) {
-                auto self = (Multimeter*)p;
+        if(!value) return;
+        this->device->init();
+        timer.onRun += [this]{
+            try {
+                auto& device = this->device;
+                auto valA = *device->makeSess<rms_i_a>();
+                auto valB = *device->makeSess<rms_i_b>();
+                auto valU = *device->makeSess<rms_u>();
 
-                try {
-                    auto valA = *self->device->makeSess<rms_i_a>();
-                    auto valB = *self->device->makeSess<rms_i_b>();
-                    auto valU = *self->device->makeSess<rms_u>();
+                device->selectChannelA();
+                auto angleA = *device->makeSess<angle>() * 0.0805f;
+                device->selectChannelB();
+                auto angleB = *device->makeSess<angle>() * 0.0805f;
 
-                    self->device->selectChannelA();
-                    auto angleA = *self->device->makeSess<angle>() * 0.0805f;
-                    self->device->selectChannelB();
-                    auto angleB = *self->device->makeSess<angle>() * 0.0805f;
+                curChA = int(calcCurrent(valA.data, curCChA));
+                curChB = int(calcCurrent(valB.data, curCChB));
+                vol = int(calcVoltage(valU.data, volC));
+                this->angleA = angleA;
+                this->angleB = angleB;
+            } catch(const exception& e) {
+                rt_kprintf("\033[39m{%s} %s\n\033[0m", typeid(e).name(), e.what());
+            }
+        };
 
-                    self->curChA = int(self->calcCurrent(valA.data, self->curCChA));
-                    self->curChB = int(self->calcCurrent(valB.data, self->curCChB));
-                    self->vol = int(self->calcVoltage(valU.data, self->volC));
-                    self->angleA = angleA;
-                    self->angleB = angleB;
-                } catch(const exception& e) {
-                    rt_kprintf("\033[39m{%s} %s\n\033[0m", typeid(e).name(), e.what());
-                }
+        curCChA = *this->device->makeSess<rms_i_a_c>();
+        curCChB = *this->device->makeSess<rms_i_b_c>();
+        volC = *this->device->makeSess<rms_u_c>();
 
-            }, this, kTimerDurMs, RT_TIMER_FLAG_PERIODIC | RT_TIMER_FLAG_SOFT_TIMER), [](auto p) {
-                rt_timer_stop(p);
-                rt_timer_delete(p);
-            });
-
-            curCChA = *this->device->makeSess<rms_i_a_c>();
-            curCChB = *this->device->makeSess<rms_i_b_c>();
-            volC = *this->device->makeSess<rms_u_c>();
-
-            rt_timer_start(timer.get());
-        } else {
-            timer = nullptr;
-        }
+        timer.start();
     };
 }
 
@@ -82,4 +74,6 @@ float Multimeter::calcCurrent(float val, float valc) {
 float Multimeter::calcVoltage(float val, float valc) {
     return 1.0 * val * valc / (1.0 * (1 << 22)) / 100;
 }
+
+Timer Multimeter::timer = {kTimerDurMs, kTimer};
 

@@ -32,8 +32,8 @@ private:
     std::shared_ptr<VirtualLoadDetector> virtualLoadDetector;
 
 private:
-    rtthread::Mutex mutex;
     static const char* kMutex;
+    static rtthread::Mutex mutex;
 
 };
 

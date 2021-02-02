@@ -14,6 +14,7 @@
 #include <utilities/observable.hxx>
 #include <devices/spi_hlw8112.hxx>
 #include <devices/hlw8112_regs.hxx>
+#include <components/timer.hxx>
 #include <memory>
 #include <tuple>
 #include <optional>
@@ -46,7 +47,6 @@ private:
 
 private:
     std::shared_ptr<Hlw8112> device;
-    std::shared_ptr<rt_timer> timer;
     Observable<std::optional<int>> curChA, curChB, vol;
     Observable<std::optional<float>> angleA, angleB;
     rt_uint16_t curCChA, curCChB, volC;
@@ -55,6 +55,7 @@ private:
 
     const static int kTimerDurMs = 1000;
     static const char* kTimer;
+    static Timer timer;
 
 };
 

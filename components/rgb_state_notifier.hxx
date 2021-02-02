@@ -15,6 +15,8 @@
 #include "state_store_base.hxx"
 #include <memory>
 #include <rtthread.h>
+#include <components/timer.hxx>
+#include <Mutex.h>
 
 class StateStore;
 
@@ -28,10 +30,13 @@ private:
     void render();
     std::shared_ptr<RgbLight> light;
     std::shared_ptr<StateStoreBase> store;
-    std::shared_ptr<rt_timer> timer;
-    std::shared_ptr<rt_mutex> mutex;
     Observable<int> k;
     static const int kRoundDurMs = 500;
+    static const char* kTimer;
+    static const char* kMutex;
+    static Timer timer;
+    static rtthread::Mutex mutex;
+
 };
 
 #include <utilities/singleton.hxx>

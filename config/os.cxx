@@ -14,6 +14,7 @@
 #include <devices/load_detector.hxx>
 #include <components/multimeter.hxx>
 #include <components/state_store.hxx>
+#include <components/rgb_state_notifier.hxx>
 #include <applications/thing.hxx>
 #include <applications/things/decos/current_limiter.hxx>
 #include <applications/things/decos/counter.hxx>
@@ -27,6 +28,7 @@
 #include <utilities/shared_thread.hxx>
 #include <ui/ws_screen.hxx>
 #include <ui/loading_widget.hxx>
+#include <utilities/tween.hxx>
 
 using namespace Config;
 using namespace Things::Decos;
@@ -48,7 +50,11 @@ const char
     *FuseDetecter::kTimer = "fdtdec",
     *NoloadDetecter::kTimer = "nltdec",
     *PersistentStorage::kMutex = "persto",
-    *Packet::kMutex = "packet";
+    *Packet::kMutex = "packet",
+    *RgbStateNotifier::kTimer = "rgbntf",
+    *RgbStateNotifier::kMutex = "rgbntf",
+    *TweenBase::kTimer = "tween",
+    *TweenBase::kMutex = "tween";
 
 namespace Preset {
 const rt_tick_t CloudTimer::kTime = 60000;

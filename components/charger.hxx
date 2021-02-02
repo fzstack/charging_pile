@@ -60,7 +60,7 @@ template<int R>
 class Charger: public Singleton<Charger<R>>, public ::Charger {
     friend class Singleton<Charger<R>>;
     Charger(): ::Charger(
-        RgbStateNotifier<R>::get(),
+        RgbStateNotifier<R>::get(), //~2k
         Relay<R>::get(),
         MultiMeterChannel<R>::get(),
         VirtualLoadDetector<R>::get(),

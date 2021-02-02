@@ -33,8 +33,8 @@ private:
 public:
     Observer<std::optional<bool>> oState;
 private:
-    rtthread::Mutex mutex;
     Timer timer;
+    static rtthread::Mutex mutex;
 
 private:
     static constexpr int kDelayFactor = 2;
