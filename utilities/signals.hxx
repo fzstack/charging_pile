@@ -12,6 +12,7 @@
 
 #include <functional>
 #include <list>
+#include <vector>
 #include <utility>
 #include "post.hxx"
 #include "deliver.hxx"
@@ -41,6 +42,7 @@ struct Signals<R(P...)> {
     using signal_f = void(ret_sig_t, P...);
 
     void operator+=(std::function<signal_f> cb) {
+        cbs.reserve(cbs.size() + 1);
         cbs.push_back(cb);
     }
 
@@ -105,7 +107,7 @@ struct Signals<R(P...)> {
         return cbs.empty();
     }
 
-    std::list<std::function<signal_f>> cbs;
+    std::vector<std::function<signal_f>> cbs;
 };
 
 
@@ -121,6 +123,7 @@ struct Signals<void(P...)> {
     using signal_f = void(ret_sig_t, P...);
 
     void operator+=(std::function<signal_f> cb) {
+        cbs.reserve(cbs.size() + 1);
         cbs.push_back(cb);
     }
 
@@ -182,7 +185,7 @@ struct Signals<void(P...)> {
         return cbs.empty();
     }
 
-    std::list<std::function<signal_f>> cbs;
+    std::vector<std::function<signal_f>> cbs;
 };
 
 template<class L, class F>

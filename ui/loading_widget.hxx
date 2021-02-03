@@ -13,9 +13,10 @@
 #include <tuple>
 #include <components/timer.hxx>
 
-class LoadingWidget: public Widget {
+class LoadingWidget: public CSizeWidget<5, 2> {
+    using p_t = CSizeWidget<5, 2>;
 public:
-    LoadingWidget(int x, int y, int width, int height, int zIndex, std::shared_ptr<Timer> timer);
+    LoadingWidget(int x, int y, int zIndex, std::shared_ptr<Timer> timer);
 protected:
     virtual void onDraw(std::shared_ptr<Graphics> graphics) override;
 private:
@@ -24,7 +25,7 @@ private:
     static int particleNumFromSize(int width, int height);
 
     std::shared_ptr<Timer> timer;
-    const int particleNum = particleNumFromSize(width, height);
+    const int particleNum = particleNumFromSize(getWidth(), getHeight());
     const float phaseStep = 1.f / (particleNum);
     float curVal = 0;
     static constexpr int kDuration = 1700;
@@ -37,7 +38,7 @@ private:
 namespace Preset {
 class LoadingWidget: public Singleton<LoadingWidget>, public ::LoadingWidget {
     friend singleton_t;
-    LoadingWidget(): ::LoadingWidget(0, 0, WsScreen::kWidth, WsScreen::kHeight, zIndex, std::make_shared<Timer>(kDuration, kTimer)) {
+    LoadingWidget(): ::LoadingWidget(0, 0, zIndex, std::make_shared<Timer>(kDuration, kTimer)) {
         auto holder = std::shared_ptr<::LoadingWidget>(this, [](auto){});
         Core::get()->add(shared_from_this());
     }

@@ -9,73 +9,15 @@
  */
 
 #include "app.hxx"
+#include "app_preset.hxx"
 #include "thing.hxx"
 #include "proxy_cloud.hxx"
 
 using namespace std;
 
 void runApp() {
-    auto cloud = Preset::ProxyCloud::get();
-    auto thing = Preset::Thing::get();
-
-    cloud->onControl += [=](int port, int timerId, int minutes) {
-        try {
-            thing->control(port, timerId, minutes);
-            return Cloud::ServiceResult::Succeed;
-        } catch(const exception& e) {
-            return Cloud::ServiceResult::Failed;
-        }
-    };
-
-    cloud->onStop += [=](int port, int timerId) {
-        try {
-            thing->stop(port, timerId);
-            return Cloud::ServiceResult::Succeed;
-        } catch(const exception& e) {
-            return Cloud::ServiceResult::Failed;
-        }
-    };
-
-    cloud->onQuery += [=] {
-        thing->onCurrentData();
-    };
-
-    cloud->onConfig += [=](int currentLimit, int uploadThr, int fuzedThr, int noloadCurThr) {
-        thing->config(currentLimit, uploadThr, fuzedThr, noloadCurThr);
-    };
-
-    thing->onIcNumber += [=](int port, string icNumber) {
-        cloud->emitIcNumber(port, icNumber);
-    };
-
-    thing->onPortAccess += [=](int port) {
-        cloud->emitPortAccess(port);
-    };
-
-    thing->onPortUnplug += [=](int port) {
-       cloud->emitPortUnplug(port);
-    };
-
-    thing->onCurrentLimit += [=](int port) {
-        cloud->emitCurrentLimit(port);
-    };
-
-    thing->onCurrentData += [=] {
-        thing->getCurrentData([&](auto result){
-            auto data = get_if<std::array<CurrentData, Config::Bsp::kPortNum>>(&result);
-            if(!data) return;
-            cloud->setCurrentData(*data);
-        });
-    };
-
-    cloud->init();
-
-//    {
-//        "port": 0,
-//        "timer_id": 1,
-//        "minutes": 5
-//    }
-
-
+#ifdef RUN_APP
+    Preset::App::get()->run();
+#endif
 }
 

@@ -11,7 +11,7 @@
 #include "rgb_light_widget.hxx"
 #include <utilities/math.hxx>
 
-RgbLightWidget::RgbLightWidget(int x, int y, int zIndex): Widget(x, y, kSize, kSize, zIndex), RgbLight(), tween(Colors::Argb::kBlack, kDuration, kFreq) {
+RgbLightWidget::RgbLightWidget(int x, int y, int zIndex): widget_t(x, y, zIndex), RgbLight(), tween(Colors::Argb::kBlack, kDuration, kFreq) {
     tween.oCurrVal += [this](auto value) {
         invalid();
     };

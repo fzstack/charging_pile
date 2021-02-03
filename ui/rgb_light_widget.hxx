@@ -14,7 +14,8 @@
 #include <devices/rgb_light.hxx>
 #include <utilities/tween.hxx>
 
-class RgbLightWidget: public Widget, public RgbLight {
+class RgbLightWidget: public CSizeWidget<1, 1>, public RgbLight {
+    using widget_t = CSizeWidget<1, 1>;
 public:
     RgbLightWidget(int x, int y, int zIndex);
 

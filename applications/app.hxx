@@ -18,6 +18,15 @@ void runApp();
 }
 #endif
 
+#ifdef __cplusplus
+class App {
+public:
+    virtual void run() = 0;
+};
+
+
+#endif
+
 
 
 #endif /* APPLICATIONS_APP_HXX_ */

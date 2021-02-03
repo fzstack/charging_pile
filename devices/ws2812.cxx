@@ -14,11 +14,9 @@
 #include <stm32f1xx.h>
 #include "devices/pin_map.hxx"
 
-Ws2812::Ws2812(rt_base_t dinPin, int num): dinPin(dinPin), frame(num) {
+Ws2812::Ws2812(rt_base_t dinPin, int num): dinPin(dinPin), frame(num), bssr(&pins[dinPin].gpio->BSRR), pin(pins[dinPin].pin) {
     rt_pin_mode(dinPin, PIN_MODE_OUTPUT);
     rt_pin_write(dinPin, PIN_HIGH);
-    //bssr = &pins[dinPin].gpio->BSRR;
-    bssr = &GPIOC->BSRR;
 }
 
 std::shared_ptr<void> Ws2812::getSess() {
@@ -38,12 +36,7 @@ void Ws2812::flush() {
 }
 
 void Ws2812::reset() {
-    //rt_pin_write(dinPin, PIN_LOW);
-    *bssr = 1 << (4 + 16);
-    delay<kResetTimes>();
-    //rt_pin_write(dinPin, PIN_HIGH);
-    *bssr = 1 << (4);
-    *bssr = 1 << (4 + 16);
+    rt_hw_us_delay(80);
 }
 
 void Ws2812::test(Colors::Rgb c) {
@@ -77,35 +70,17 @@ void Ws2812::writeByte(rt_uint8_t b) {
 }
 
 void Ws2812::writeBit(int value) {
-    //*bssr = 1 << (1); //for test
     auto ctx = rt_hw_interrupt_disable();
+    *bssr = pin;
     if(value) {
-        //delay<42>();
-        *bssr = 1 << (4);
-        __asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");
-        __asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");
-        __asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");
-        __asm("nop");
-
-        //delay<7>(); //11
-        *bssr = 1 << (4 + 16);
-        __asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");
-
+        delay<31>();
+        *bssr = pin << 16;
+        delay<6>();
     } else {
-        //delay<7>();
-        //delay<4>();
-        //delay<3>();
-        *bssr = 1 << (4);
-        __asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");
-
-        //delay<43>();
-        *bssr = 1 << (4 + 16);
-        __asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");
-        __asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");__asm("nop");
-        __asm("nop");__asm("nop");__asm("nop");
-
+        delay<10>();
+        *bssr = pin << 16;
+        delay<23>();
     }
-    //*bssr = 1 << (1 + 16); //for test
     rt_hw_interrupt_enable(ctx);
 }
 

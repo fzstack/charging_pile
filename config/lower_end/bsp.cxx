@@ -5,9 +5,10 @@
  *
  * Change Logs:
  * Date           Author       Notes
- * 2020-12-12     imgcr       the first version
+ * 2021-02-03     imgcr       the first version
  */
 
+#ifdef LOWER_END
 #include <board.h>
 #include <devices/rc522.hxx>
 #include <devices/relay.hxx>
@@ -25,13 +26,6 @@
 #include <stm32f1xx.h>
 
 namespace Preset {
-template<> const rt_base_t RealRgbLight<0>::kRPin = GET_PIN(B, 13);
-template<> const rt_base_t RealRgbLight<0>::kGPin = GET_PIN(B, 14);
-template<> const rt_base_t RealRgbLight<0>::kBPin = GET_PIN(B, 15);
-template<> const rt_base_t RealRgbLight<1>::kRPin = GET_PIN(B, 10);
-template<> const rt_base_t RealRgbLight<1>::kGPin = GET_PIN(B, 11);
-template<> const rt_base_t RealRgbLight<1>::kBPin = GET_PIN(B, 12);
-
 const char
     *Rc522::kSpiBus = "spi1",
     *Rc522::kSpiDev = "spi10";
@@ -104,4 +98,4 @@ const rt_base_t Ws2812::kDinPin = GET_PIN(C, 4);
 const int Ws2812::kNum = 10;
 
 }
-
+#endif

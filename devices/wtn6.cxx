@@ -12,6 +12,7 @@
 #include <rtthread.h>
 #include <rtdevice.h>
 #include <rthw.h>
+#include <utilities/shared_thread.hxx>
 
 #define LOG_TAG "dev.wtn6"
 #define LOG_LVL LOG_LVL_DBG
@@ -28,14 +29,16 @@ bool Wtn6::isBusy() {
 }
 
 void Wtn6::write(rt_uint8_t data) {
-    //TODO: 加锁
-    rt_pin_write(dataPin, PIN_LOW);
-    rt_thread_mdelay(5);
-    rt_pin_write(dataPin, PIN_HIGH);
-    for(auto i = 0; i < 8; i++) {
-        writeBit((data & (1 << i)) != 0);
-    }
-    rt_pin_write(dataPin, PIN_HIGH);
+    auto high = Preset::SharedThread<Priority::High>::get();
+    high->exec([this, data]{
+        rt_pin_write(dataPin, PIN_LOW);
+        rt_thread_mdelay(5);
+        rt_pin_write(dataPin, PIN_HIGH);
+        for(auto i = 0; i < 8; i++) {
+            writeBit((data & (1 << i)) != 0);
+        }
+        rt_pin_write(dataPin, PIN_HIGH);
+    });
 }
 
 void Wtn6::writeBit(bool bit) {

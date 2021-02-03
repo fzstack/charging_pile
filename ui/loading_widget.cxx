@@ -12,7 +12,7 @@
 #include <cmath>
 #include <utilities/math.hxx>
 
-LoadingWidget::LoadingWidget(int x, int y, int width, int height, int zIndex, std::shared_ptr<Timer> timer): Widget(x, y, width, height, zIndex), timer(timer) {
+LoadingWidget::LoadingWidget(int x, int y, int zIndex, std::shared_ptr<Timer> timer): p_t(x, y, zIndex), timer(timer) {
     timer->onRun += [this]{
         invalid();
         curVal += (float)this->timer->getDuration() / kDuration;
@@ -22,7 +22,7 @@ LoadingWidget::LoadingWidget(int x, int y, int width, int height, int zIndex, st
 }
 
 void LoadingWidget::onDraw(std::shared_ptr<Graphics> graphics) {
-    graphics->fillRect(kBackground, 0, 0, width, height); //80%透明度的黑色背景
+    graphics->fillRect(kBackground, 0, 0, getWidth(), getHeight()); //80%透明度的黑色背景
     for(auto i = 0; i < particleNum; i++) {
         auto [dx, dy] = getPosFromIdx(i);
         auto tarVal = fmod(curVal - phaseStep * i + 1, 1);
@@ -44,14 +44,14 @@ float LoadingWidget::timing(float t) {
 }
 
 std::tuple<int, int> LoadingWidget::getPosFromIdx(int idx) {
-    if(idx < width) {
+    if(idx < getWidth()) {
         return {idx, 0};
-    } else if(idx < width + height - 1) {
-        return {width - 1, idx - width + 1};
-    } else if(idx < 2 * width + height - 1) {
-        return {width + 2 * height - idx, height - 1};
+    } else if(idx < getWidth() + getHeight() - 1) {
+        return {getWidth() - 1, idx - getWidth() + 1};
+    } else if(idx < 2 * getWidth() + getHeight() - 1) {
+        return {getWidth() + 2 * getHeight() - idx, getHeight() - 1};
     } else {
-        return {0, 2 * width + 2 * height - idx};
+        return {0, 2 * getWidth() + 2 * getHeight() - idx};
     }
 }
 

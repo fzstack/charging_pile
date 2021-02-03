@@ -5,17 +5,13 @@
  *
  * Change Logs:
  * Date           Author       Notes
- * 2020-12-10     RT-Thread    first version
+ * 2021-02-03     imgcr       the first version
  */
 
+#include "upper_app.hxx"
 #include <rtthread.h>
 
-#define DBG_TAG "main"
-#define DBG_LVL DBG_LOG
-#include <rtdbg.h>
-#include "app.hxx"
-
-int main(void) {
-    runApp();
-    return RT_EOK;
+void UpperApp::run() {
+    rt_kprintf("upper app runned\n");
 }
+

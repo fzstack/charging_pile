@@ -68,6 +68,8 @@ static int init_test_rgb_state_notifier() {
     return RT_EOK;
 }
 
+
+
 MSH_CMD_EXPORT(test_rgb_state_notifier, );
 INIT_APP_EXPORT(init_test_rgb_state_notifier);
 #endif

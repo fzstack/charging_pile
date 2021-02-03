@@ -37,8 +37,8 @@ private:
 
     void writeBit(int value);
 
-    template<int N>
-    inline void delay() {
+    template<int N = 0>
+    __attribute__((always_inline)) void delay() {
         __asm("MOV R0, R0");
         delay<N-1>();
     }
@@ -47,6 +47,7 @@ private:
     rt_base_t dinPin;
     std::vector<Colors::Rgb> frame;
     volatile uint32_t* bssr;
+    const volatile uint32_t pin;
 
     static constexpr int
         kTMajor1000ns = 48, //47 48 50
