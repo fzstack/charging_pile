@@ -78,6 +78,7 @@ void Thing::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurr
 #include <things/decos/fuse_detecter.hxx>
 #include <things/decos/noload_detecter.hxx>
 
+#ifdef LOWER_END
 using namespace Things::Decos;
 namespace Preset {
 Thing::Thing(): ::Thing(getChargers(), User::get(), LastCharger::get()) {
@@ -102,3 +103,4 @@ std::array<std::shared_ptr<::Charger>, Config::Bsp::kPortNum> Thing::getChargers
     return result;
 }
 }
+#endif

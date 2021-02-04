@@ -12,6 +12,7 @@
 #include <config/bsp.hxx>
 #include <components/rgb_state_notifier.hxx>
 #include <array>
+#include <devices/wtn6_preset.hxx>
 
 class App;
 class UpperApp: public App {
@@ -20,6 +21,7 @@ public:
     virtual void run() override;
 private:
     std::array<std::shared_ptr<RgbStateNotifier>, Config::Bsp::kPortNum> rgbNotifiers;
+    std::shared_ptr<Wtn6Base> wtn6 = Preset::Wtn6::get();
 };
 
 

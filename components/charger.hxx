@@ -51,9 +51,13 @@ private:
     Observable<int> inited = {false};
 };
 
+struct charger_error: public std::runtime_error {
+    using std::runtime_error::runtime_error;
+};
+
+#ifdef LOWER_END
 #include <utilities/singleton.hxx>
 #include "state_store_preset.hxx"
-
 namespace Preset {
 template<int R>
 class Charger: public Singleton<Charger<R>>, public ::Charger {
@@ -66,7 +70,7 @@ class Charger: public Singleton<Charger<R>>, public ::Charger {
     ) {
         MultiMeterChannel<R>::Owner::get()->init();
         VirtualLoadDetector<R>::get()->init();
-        //VoiceNotifier::get()->watch(StateStore<R>::get(), getPSV());
+        VoiceNotifier::get()->watch(StateStore<R>::get(), getPSV());
     }
 
     static constexpr PortSpecifiedVoice getPSV() {
@@ -97,9 +101,6 @@ class Charger: public Singleton<Charger<R>>, public ::Charger {
     }
 };
 }
-
-struct charger_error: public std::runtime_error {
-    using std::runtime_error::runtime_error;
-};
+#endif
 
 #endif /* COMPONENTS_CHARGER_HXX_ */

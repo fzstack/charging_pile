@@ -10,7 +10,7 @@
 #ifndef APPLICATIONS2_VOICE_NOTIFIER_HXX_
 #define APPLICATIONS2_VOICE_NOTIFIER_HXX_
 
-#include <devices/wtn6.hxx>
+#include <devices/wtn6_base.hxx>
 #include <memory>
 #include "state_store_base.hxx"
 #include <utilities/nested.hxx>
@@ -60,24 +60,25 @@ struct PortSpecifiedVoice {
 class VoiceNotifier: public std::enable_shared_from_this<VoiceNotifier> {
     friend void test_voice_notifier(int argc, char** argv);
 public:
-    VoiceNotifier(std::shared_ptr<Wtn6> wtn6);
+    VoiceNotifier(std::shared_ptr<Wtn6Base> wtn6);
 
     void watch(std::shared_ptr<StateStoreBase> store, PortSpecifiedVoice psv);
     void watch(std::shared_ptr<User> user);
     void watch(std::shared_ptr<LastCharger> last);
 
 private:
-    std::shared_ptr<Wtn6> wtn6;
+    std::shared_ptr<Wtn6Base> wtn6;
     std::shared_ptr<LastCharger> last;
     //std::shared_ptr<Charger> lastInsertedcharger;
 };
 
 #include <utilities/singleton.hxx>
+#include <devices/wtn6_preset.hxx>
 namespace Preset {
 class VoiceNotifier: public Singleton<VoiceNotifier>, public ::VoiceNotifier {
     friend class Singleton<VoiceNotifier>;
     VoiceNotifier(): ::VoiceNotifier(Wtn6::get()) {
-        watch(User::get());
+        //watch(User::get());
         watch(LastCharger::get());
     }
 };

@@ -63,10 +63,6 @@ template<> const rt_base_t Relay<7>::kPin = GET_PIN(C, 10);
 template<> const rt_base_t Relay<8>::kPin = GET_PIN(C, 2);
 template<> const rt_base_t Relay<9>::kPin = GET_PIN(C, 1);
 
-const rt_base_t
-    Wtn6::kDataPin = GET_PIN(C, 8),
-    Wtn6::kBusyPin = GET_PIN(C, 7);
-
 template<> const rt_base_t LoadDetector<0>::kPin = GET_PIN(B, 0);
 template<> const rt_base_t LoadDetector<1>::kPin = GET_PIN(B, 1);
 template<> const rt_base_t LoadDetector<2>::kPin = GET_PIN(B, 2);

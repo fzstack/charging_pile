@@ -17,7 +17,7 @@
 
 using namespace std;
 
-VoiceNotifier::VoiceNotifier(shared_ptr<Wtn6> wtn6): wtn6(wtn6) {
+VoiceNotifier::VoiceNotifier(shared_ptr<Wtn6Base> wtn6): wtn6(wtn6) {
 
 }
 

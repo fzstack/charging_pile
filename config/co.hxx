@@ -29,6 +29,12 @@ struct State {
     ::State::Value value;
 };
 
+namespace Devices {
+struct Wtn6Write {
+    rt_uint8_t value;
+};
+}
+
 namespace Props {
 struct CurrentData {
     ::CurrentData value[::Config::Bsp::kPortNum];
