@@ -9,11 +9,17 @@
  */
 #pragma once
 #include "app.hxx"
+#include <config/bsp.hxx>
+#include <components/rgb_state_notifier.hxx>
+#include <array>
 
 class App;
 class UpperApp: public App {
 public:
+    UpperApp();
     virtual void run() override;
+private:
+    std::array<std::shared_ptr<RgbStateNotifier>, Config::Bsp::kPortNum> rgbNotifiers;
 };
 
 

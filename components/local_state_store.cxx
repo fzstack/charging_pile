@@ -21,6 +21,5 @@ LocalStateStore::LocalStateStore(int idx) {
         magic_switch<Config::Bsp::kPortNum>{}([&](auto v) {
             packet->emit<Packets::State<decltype(v)::value>>({*value});
         }, idx);
-
     };
 }

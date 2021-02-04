@@ -183,16 +183,16 @@
 									<listOptionValue builtIn="false" value="_TEST_STATIC_CTOR"/>
 									<listOptionValue builtIn="false" value="_TEST_TWEEN"/>
 									<listOptionValue builtIn="false" value="_TEST_RGB_LIGHT_WIDGET"/>
-									<listOptionValue builtIn="false" value="TEST_RGB_STATE_NOTIFIER"/>
+									<listOptionValue builtIn="false" value="_TEST_RGB_STATE_NOTIFIER"/>
 									<listOptionValue builtIn="false" value="_TEST_LOADING_WIDGET"/>
 									<listOptionValue builtIn="false" value="_TEST_RELAY"/>
 									<listOptionValue builtIn="false" value="_TEST_LOAD_DETECTOR"/>
 									<listOptionValue builtIn="false" value="_TEST_SPI_HLW8112"/>
 									<listOptionValue builtIn="false" value="_TEST_MULTIMETER"/>
-									<listOptionValue builtIn="false" value="_TEST_CHARGER"/>
+									<listOptionValue builtIn="false" value="TEST_CHARGER"/>
 									<listOptionValue builtIn="false" value="_TEST_STL"/>
-									<listOptionValue builtIn="false" value="_LOWER_END"/>
-									<listOptionValue builtIn="false" value="UPPER_END"/>
+									<listOptionValue builtIn="false" value="LOWER_END"/>
+									<listOptionValue builtIn="false" value="_UPPER_END"/>
 									<listOptionValue builtIn="false" value="_TEST_LOCAL_STATE_STORE"/>
 									<listOptionValue builtIn="false" value="_TEST_REMOTE_STATE_STORE"/>
 									<listOptionValue builtIn="false" value="_TEST_WTN6"/>

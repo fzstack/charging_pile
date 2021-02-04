@@ -35,8 +35,7 @@ RgbStateNotifier::RgbStateNotifier(std::shared_ptr<RgbLight> light): light(light
 
 void RgbStateNotifier::watch(std::shared_ptr<StateStoreBase> store) {
     this->store = store;
-    auto self(shared_from_this());
-    store->oState += [this, self](auto next) {
+    store->oState += [this](auto next) {
         render();
     };
 }

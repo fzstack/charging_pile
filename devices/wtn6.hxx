@@ -16,7 +16,7 @@ class Wtn6 {
 public:
     Wtn6(rt_base_t dataPin, rt_base_t busyPin);
 
-    bool isBusy();
+//    bool isBusy();
     void write(rt_uint8_t data);
 
     template<class T>

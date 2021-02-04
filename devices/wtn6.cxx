@@ -24,9 +24,9 @@ Wtn6::Wtn6(rt_base_t dataPin, rt_base_t busyPin): dataPin(dataPin), busyPin(busy
     rt_pin_write(dataPin, PIN_HIGH);
 }
 
-bool Wtn6::isBusy() {
-    return rt_pin_read(busyPin) == PIN_LOW;
-}
+//bool Wtn6::isBusy() {
+//    return rt_pin_read(busyPin) == PIN_LOW;
+//}
 
 void Wtn6::write(rt_uint8_t data) {
     auto high = Preset::SharedThread<Priority::High>::get();

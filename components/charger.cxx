@@ -13,15 +13,13 @@
 using namespace std;
 
 Charger::Charger(
-    std::shared_ptr<RgbStateNotifier> rgbNotifier,
     std::shared_ptr<Relay> relay,
     std::shared_ptr<Multimeter::Channel> multimeterChannel,
     std::shared_ptr<VirtualLoadDetector> vlodet,
     std::shared_ptr<StateStore> stateStore
-): rgbNotifier(rgbNotifier), relay(relay), multimeterChannel(multimeterChannel), vlodet(vlodet), stateStore(stateStore) {
+): relay(relay), multimeterChannel(multimeterChannel), vlodet(vlodet), stateStore(stateStore) {
     inited.onChanged += [this](auto value) {
         if(!value) return;
-        this->rgbNotifier->watch(this->stateStore);
         this->stateStore->watch(this->relay);
         this->stateStore->watch(this->multimeterChannel);
         this->stateStore->watch(this->vlodet);

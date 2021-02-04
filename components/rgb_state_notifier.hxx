@@ -41,11 +41,14 @@ private:
 
 #include <utilities/singleton.hxx>
 #include <ui/rgb_light_widget.hxx>
+#include "state_store_preset.hxx"
 namespace Preset {
 template<int R>
 class RgbStateNotifier: public Singleton<RgbStateNotifier<R>>, public ::RgbStateNotifier {
     friend class Singleton<RgbStateNotifier<R>>;
-    RgbStateNotifier(): ::RgbStateNotifier(RgbLightWidget<R>::get()) {}
+    RgbStateNotifier(): ::RgbStateNotifier(RgbLightWidget<R>::get()) {
+        watch(StateStore<R>::get());
+    }
 };
 }
 

@@ -20,11 +20,10 @@ namespace Preset {
 const rt_base_t Ws2812::kDinPin = GET_PIN(B, 1);
 const int Ws2812::kNum = 10;
 
-const char *Packet::kUart = "uart3";
-
 const rt_base_t
     Wtn6::kDataPin = GET_PIN(C, 8),
     Wtn6::kBusyPin = GET_PIN(C, 7);
+
+const char *Packet::kUart = "uart3";
 }
 #endif
-

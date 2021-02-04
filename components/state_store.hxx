@@ -37,15 +37,4 @@ private:
 
 };
 
-#include <utilities/singleton.hxx>
-namespace Preset {
-template<int R>
-class StateStore: public Singleton<StateStore<R>>, public ::StateStore {
-    friend class Singleton<StateStore<R>>;
-    StateStore(): ::StateStore() {}
-};
-}
-
-
-
 #endif /* COMPONENTS_STATE_STORE_HXX_ */

@@ -31,7 +31,7 @@ public:
 };
 
 #include <utilities/singleton.hxx>
-#include "state_store.hxx"
+#include "state_store_preset.hxx"
 #include <utilities/mp.hxx>
 namespace Preset {
 class LastCharger: public Singleton<LastCharger>, public ::LastCharger {
