@@ -68,7 +68,7 @@ const int
 
 const char* Ttp229::kThread = "ttp229";
 const int
-    Ttp229::kThreadStack = 512,
+    Ttp229::kThreadStack = 1024,
     Ttp229::kThreadPrio = 3,
     Ttp229::kThreadTick = 10;
 

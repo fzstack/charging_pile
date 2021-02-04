@@ -14,6 +14,7 @@
 #include <board.h>
 #include <devices/ws2812.hxx>
 #include <devices/local_wtn6.hxx>
+#include <devices/ttp229.hxx>
 #include <components/packet.hxx>
 
 namespace Preset {
@@ -23,6 +24,10 @@ const int Ws2812::kNum = 10;
 const rt_base_t
     LocalWtn6::kDataPin = GET_PIN(C, 8),
     LocalWtn6::kBusyPin = GET_PIN(C, 7);
+
+const rt_base_t
+    Ttp229::kSclPin = GET_PIN(C, 2),
+    Ttp229::kSdoPin = GET_PIN(C, 3);
 
 const char *Packet::kUart = "uart3";
 }

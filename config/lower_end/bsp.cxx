@@ -20,7 +20,6 @@
 #include <components/persistent_storage.hxx>
 #include <components/packet.hxx>
 #include <devices/real_rgb_light.hxx>
-#include <devices/ttp229.hxx>
 #include <devices/ws2812.hxx>
 #include <rtdevice.h>
 #include <stm32f1xx.h>
@@ -84,10 +83,6 @@ const int PersistentStorage::kAddr = 0;
 const int PersistentStorage::kSize = 2048;
 
 const char *Packet::kUart = "uart3";
-
-const rt_base_t
-    Ttp229::kSclPin = GET_PIN(C, 2),
-    Ttp229::kSdoPin = GET_PIN(C, 3);
 
 const rt_base_t Ws2812::kDinPin = GET_PIN(C, 4);
 //C4
