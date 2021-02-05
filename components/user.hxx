@@ -10,7 +10,7 @@
 #ifndef COMPONENTS_USER_HXX_
 #define COMPONENTS_USER_HXX_
 
-#include <devices/rc522.hxx>
+#include <devices/rc522_preset.hxx>
 #include <utilities/signals.hxx>
 #include <string>
 
@@ -27,7 +27,6 @@ class User: public Singleton<User>, public ::User {
     friend singleton_t;
     User(): ::User() {
         watch(Rc522::get());
-        Rc522::get()->init();
     }
 };
 }

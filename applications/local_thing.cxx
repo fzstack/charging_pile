@@ -75,7 +75,7 @@ LocalThing::LocalThing(
 #include <things/decos/noload_detecter.hxx>
 using namespace Things::Decos;
 namespace Preset {
-LocalThing::LocalThing(): ::LocalThing(Chargers::get(), /*User::get()*/nullptr, LastCharger::get(), Packet::get(), Rpc::get()) {
+LocalThing::LocalThing(): ::LocalThing(Chargers::get(), User::get(), LastCharger::get(), Packet::get(), Rpc::get()) {
     addDeco<EventEmitter>();
     addDeco<Counter>();
     //addDeco<CurrentLimiter>();

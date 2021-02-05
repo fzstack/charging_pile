@@ -17,27 +17,21 @@
 #include <string>
 #include <variant>
 #include <board.h>
-#include <utilities/observer.hxx>
 #include <optional>
 #include <memory>
+#include "rc522_base.hxx"
 
 extern "C" {
 #include <drv_spi.h>
 }
 
-class Rc522 {
+class Rc522: public Rc522Base {
 public:
     Rc522(const char* spiBus, const char* spiDev, rt_base_t ssPin);
     void init();
 
 private:
     static const int kDetectDurMs = 250;
-
-    using card_id_t = std::optional<std::string>;
-private:
-    Observable<card_id_t> cardId;
-public:
-    Observer<card_id_t> oCardId;
 
 private:
     Observable<bool> inited = {false};
@@ -178,16 +172,6 @@ private:
     rt_spi_device* spi_dev;
     std::shared_ptr<rt_timer> timer;
 };
-
-#include <utilities/singleton.hxx>
-namespace Preset {
-class Rc522: public Singleton<Rc522>, public ::Rc522 {
-    friend class Singleton<Rc522>;
-    Rc522(): ::Rc522(kSpiBus, kSpiDev, kSsPin) {}
-    static const char *kSpiBus, *kSpiDev;
-    static const rt_base_t kSsPin;
-};
-}
 
 
 #endif /* DEVICES_RC522_HXX_ */

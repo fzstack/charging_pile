@@ -21,10 +21,6 @@
 #endif
 
 namespace Packets {
-struct Init {
-
-};
-
 template<int N>
 struct State {
     ::State::Value value;
@@ -33,6 +29,13 @@ struct State {
 namespace Devices {
 struct Wtn6Write {
     rt_uint8_t value;
+};
+
+struct Rc522 {
+    struct Value {
+        char value[9];
+    };
+    std::optional<Value> cardId;
 };
 }
 

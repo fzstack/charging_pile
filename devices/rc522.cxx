@@ -22,7 +22,7 @@
 
 using namespace std;
 
-Rc522::Rc522(const char* spiBus, const char* spiDev, rt_base_t ssPin): oCardId(cardId) {
+Rc522::Rc522(const char* spiBus, const char* spiDev, rt_base_t ssPin) {
     rt_hw_spi_device_attach(spiBus, spiDev, pins[ssPin].gpio, pins[ssPin].pin);
 
     spi_dev = (rt_spi_device*)rt_device_find(spiDev);

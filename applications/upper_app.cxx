@@ -23,7 +23,6 @@ UpperApp::UpperApp() {
 }
 
 void UpperApp::run() {
-    rt_kprintf("upper app runned\n");
     cloud->onControl += [=](auto port, auto timerId, auto minutes) {
         try {
             thing->control(port, timerId, minutes);
@@ -31,9 +30,7 @@ void UpperApp::run() {
         } catch(const exception& e) {
             return Cloud::ServiceResult::Failed;
         }
-
     };
-
     cloud->onStop += [=](auto port, auto timerId) {
         try {
             thing->stop(port, timerId);
@@ -42,23 +39,17 @@ void UpperApp::run() {
             return Cloud::ServiceResult::Failed;
         }
     };
-
     //TODO: query
     //TODO: icNumber
-
     thing->onPortAccess += [=](int port) {
         cloud->emitPortAccess(port);
     };
-
     thing->onPortUnplug += [=](int port) {
         //cloud->emitPortUnplug(port);
     };
-
     thing->onCurrentLimit += [=](int port) {
         cloud->emitCurrentLimit(port);
     };
-
     cloud->init();
-
 }
 

@@ -11,7 +11,6 @@
 #include "app.hxx"
 #include "app_preset.hxx"
 #include "thing.hxx"
-#include "proxy_cloud.hxx"
 
 using namespace std;
 

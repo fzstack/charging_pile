@@ -8,14 +8,18 @@
  * 2021-02-05     imgcr       the first version
  */
 #pragma once
-#include <utilities/observer.hxx>
 
-class Rc522Base {
-    using card_id_t = std::optional<std::string>;
-protected:
-    Observable<card_id_t> cardId;
-public:
-    Observer<card_id_t> oCardId = cardId;
-};
+#include "local_rc522.hxx"
+#include "remote_rc522.hxx"
+
+namespace Preset {
+#ifdef UPPER_END
+using Rc522 = LocalRc522;
+#endif
+
+#ifdef LOWER_END
+using Rc522 = RemoteRc522;
+#endif
+}
 
 

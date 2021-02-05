@@ -34,17 +34,17 @@ EventEmitter::EventEmitter(outer_t* outer): Base(outer) {
             };
         }
 
-//        getUser()->onCardSwipe += [this](auto cardId) {
-//            auto guard = getLock();
-//            rt_kprintf("processed card id is %s\n", cardId.c_str());
-//            auto waitingToStart = *getLast()->oWaitingToStart;
-//            if(!waitingToStart) return;
-//            for(auto i = 0u; i < Config::Bsp::kPortNum; i++) {
-//                if(getInfo(i).charger->stateStore == waitingToStart) {
-//                    this->outer->onIcNumber(i, cardId);
-//                }
-//            }
-//        };
+        getUser()->onCardSwipe += [this](auto cardId) {
+            auto guard = getLock();
+            rt_kprintf("processed card id is %s\n", cardId.c_str());
+            auto waitingToStart = *getLast()->oWaitingToStart;
+            if(!waitingToStart) return;
+            for(auto i = 0u; i < Config::Bsp::kPortNum; i++) {
+                if(getInfo(i).charger->stateStore == waitingToStart) {
+                    this->outer->onIcNumber(i, cardId);
+                }
+            }
+        };
     };
 }
 
