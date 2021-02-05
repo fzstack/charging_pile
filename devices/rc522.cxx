@@ -15,15 +15,15 @@
 #include <functional>
 #include <memory>
 #include <optional>
-
+#include "pin_map.hxx"
 #include "rc522.hxx"
 
 #define LOG_TAG "dev.rc522"
 
 using namespace std;
 
-Rc522::Rc522(const char* spiBus, const char* spiDev, const GPIO_TypeDef* ssGpioX, const rt_uint16_t ssGpioPin): oCardId(cardId) {
-    rt_hw_spi_device_attach(spiBus, spiDev, (GPIO_TypeDef*)ssGpioX, ssGpioPin);
+Rc522::Rc522(const char* spiBus, const char* spiDev, rt_base_t ssPin): oCardId(cardId) {
+    rt_hw_spi_device_attach(spiBus, spiDev, pins[ssPin].gpio, pins[ssPin].pin);
 
     spi_dev = (rt_spi_device*)rt_device_find(spiDev);
     rt_spi_configuration conf;

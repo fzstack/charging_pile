@@ -29,6 +29,7 @@
 #include <ui/ws_screen.hxx>
 #include <ui/loading_widget.hxx>
 #include <utilities/tween.hxx>
+#include <components/rpc.hxx>
 
 using namespace Config;
 using namespace Things::Decos;
@@ -54,7 +55,8 @@ const char
     *RgbStateNotifier::kTimer = "rgbntf",
     *RgbStateNotifier::kMutex = "rgbntf",
     *TweenBase::kTimer = "tween",
-    *TweenBase::kMutex = "tween";
+    *TweenBase::kMutex = "tween",
+    *Rpc::kMutex = "rpc";
 
 namespace Preset {
 const rt_tick_t CloudTimer::kTime = 60000;

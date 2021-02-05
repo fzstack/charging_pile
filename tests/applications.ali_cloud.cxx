@@ -38,31 +38,10 @@ static void test_ali_cloud_init() {
     cloud->init();
 }
 
-static void test_ali_cloud_cur_data() {
-    auto cloud = Preset::AliCloud::get();
-    cloud->setCurrentData({
-        Cloud::CurrentData {
-           port: 1,
-           timerId: 1,
-           leftMinutes: 1,
-           state: Cloud::CurrentData::State::LoadNotReady,
-           current: 0,
-           voltage: 0,
-           consumption: 0,
-           fuse: Cloud::CurrentData::Fuse::Normal,
-       },
-       Cloud::CurrentData {
-          port: 2,
-          timerId: 2,
-          leftMinutes: 1,
-          state: Cloud::CurrentData::State::LoadNotReady,
-          current: 0,
-          voltage: 0,
-          consumption: 0,
-          fuse: Cloud::CurrentData::Fuse::Normal,
-      },
-    });
-}
+//static void test_ali_cloud_cur_data() {
+//    auto cloud = Preset::AliCloud::get();
+//    cloud->setCurrentData({});
+//}
 
 static void test_ali_cloud_emit_port_access(int argc, char** argv) {
     ASSERT_MIN_NARGS(2);
@@ -72,6 +51,6 @@ static void test_ali_cloud_emit_port_access(int argc, char** argv) {
 }
 
 MSH_CMD_EXPORT(test_ali_cloud_init, );
-MSH_CMD_EXPORT(test_ali_cloud_cur_data, );
+//MSH_CMD_EXPORT(test_ali_cloud_cur_data, );
 MSH_CMD_EXPORT(test_ali_cloud_emit_port_access, );
 #endif

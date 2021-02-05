@@ -60,9 +60,31 @@ void test_stl_rtti_enum() {
     rt_kprintf("name: %s, hash: %08x\n", t.name(), t.hash_code());
 }
 
+
+template<class T, class U>
+struct Response {
+    int id;
+    U data;
+};
+
+void test_stl_rtti_unused_temp() {
+    struct Req1 {
+
+    };
+
+    struct Req2 {
+
+    };
+
+    using Res1 = Response<Req1, int>;
+    using Res2 = Response<Req2, int>;
+    rt_kprintf("[Res1] type name: %s, hash code: %08x\n", typeid(Res1).name(), typeid(Res1).hash_code());
+    rt_kprintf("[Res2] type name: %s, hash code: %08x\n", typeid(Res2).name(), typeid(Res2).hash_code());
+}
+
 MSH_CMD_EXPORT(test_stl_vector, );
 MSH_CMD_EXPORT(test_stl_array, );
 MSH_CMD_EXPORT(test_stl_rtti_enum, );
-
+MSH_CMD_EXPORT(test_stl_rtti_unused_temp, );
 #endif
 

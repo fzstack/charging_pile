@@ -22,6 +22,7 @@
 #include <components/timer.hxx>
 #include "things/decos/base.hxx"
 #include <Mutex.h>
+#include "thing_base.hxx"
 
 namespace Things::Decos {
 class Base;
@@ -34,7 +35,7 @@ struct ChargerInfo {
     float consumption = 0; //AxV
 };
 
-class Thing {
+class Thing: public ThingBase {
 public:
     friend class Things::Decos::Base;
     Thing(std::array<std::shared_ptr<Charger>, Config::Bsp::kPortNum> chargers, std::shared_ptr<User> user, std::shared_ptr<LastCharger> last);
@@ -45,17 +46,10 @@ public:
         auto deco = std::shared_ptr<T>(new T(this));
         decos.push_back(deco);
     }
-    void control(int port, int timerId, int minutes);
-    void stop(int port, int timerId);
-    void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr);
+    virtual void control(int port, int timerId, int minutes) override;
+    virtual void stop(int port, int timerId) override;
+    virtual void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) override;
 
-    Signals<void(int port)> onPortAccess;
-    Signals<void(int port)> onPortUnplug;
-    Signals<void(int port, std::string icNumber)> onIcNumber;
-    Signals<void(int port)> onCurrentLimit;
-    Signals<void()> onCurrentData;
-
-    Signals<std::array<CurrentData, Config::Bsp::kPortNum>()> getCurrentData;
 
 private:
     std::array<ChargerInfo, Config::Bsp::kPortNum> infos;

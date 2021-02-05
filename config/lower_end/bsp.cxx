@@ -10,13 +10,11 @@
 
 #ifdef LOWER_END
 #include <board.h>
-#include <devices/rc522.hxx>
 #include <devices/relay.hxx>
 #include <devices/wtn6.hxx>
 #include <devices/load_detector.hxx>
 #include <devices/uart_hlw8112.hxx>
 #include <devices/spi_hlw8112.hxx>
-#include <devices/air724.hxx>
 #include <components/persistent_storage.hxx>
 #include <components/packet.hxx>
 #include <devices/real_rgb_light.hxx>
@@ -25,12 +23,6 @@
 #include <stm32f1xx.h>
 
 namespace Preset {
-const char
-    *Rc522::kSpiBus = "spi1",
-    *Rc522::kSpiDev = "spi10";
-const GPIO_TypeDef* Rc522::kSsGpioX = GPIOA;
-const rt_uint16_t Rc522::kSsGpioPin = GPIO_PIN_4;
-
 template<> const char *SpiHlw8112<0>::kSpiBus = "spi1";
 template<> const char *SpiHlw8112<0>::kSpiDev = "spi11";
 template<> const rt_base_t SpiHlw8112<0>::kSsPin = GET_PIN(A, 0);
@@ -74,9 +66,6 @@ template<> const rt_base_t LoadDetector<8>::kPin = GET_PIN(B, 8);
 template<> const rt_base_t LoadDetector<9>::kPin = GET_PIN(B, 9);
 
 const char *UartHlw8112::kUart = "uart5";
-
-const char *Air724::kUart = "uart2";
-const rt_base_t Air724::kResetPin = GET_PIN(A, 1);
 
 const char* PersistentStorage::kI2c = "i2c1";
 const int PersistentStorage::kAddr = 0;

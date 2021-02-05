@@ -27,7 +27,7 @@ extern "C" {
 
 class Rc522 {
 public:
-    Rc522(const char* spiBus, const char* spiDev, const GPIO_TypeDef* ssGpioX, const rt_uint16_t ssGpioPin);
+    Rc522(const char* spiBus, const char* spiDev, rt_base_t ssPin);
     void init();
 
 private:
@@ -183,10 +183,9 @@ private:
 namespace Preset {
 class Rc522: public Singleton<Rc522>, public ::Rc522 {
     friend class Singleton<Rc522>;
-    Rc522(): ::Rc522(kSpiBus, kSpiDev, kSsGpioX, kSsGpioPin) {}
+    Rc522(): ::Rc522(kSpiBus, kSpiDev, kSsPin) {}
     static const char *kSpiBus, *kSpiDev;
-    static const GPIO_TypeDef* kSsGpioX;
-    static const rt_uint16_t kSsGpioPin;
+    static const rt_base_t kSsPin;
 };
 }
 

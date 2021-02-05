@@ -18,8 +18,7 @@ using namespace std;
 using namespace json_literals;
 
 
-static void test_ali_iot_device() {
-
+static int init_test_ali_iot_device() {
     auto air724 = Preset::Air724::get();
     air724->init();
 
@@ -47,23 +46,12 @@ static void test_ali_iot_device() {
             rt_kprintf("\033[34mversion new value: %s\n\033[0m", to_string(value).c_str());
         };
 
-        aliIot->login("863701042917152", "a1tltf2GJUn", "e96d5f79301c20994cb2e984e3cad47b");
+        aliIot->login("prototype", "a1SvHKhmFbS", "ecc2b3bcfa8311585bc8818acf7239ce");
     } catch(exception& e) {
         LOG_E("%s", e.what());
     }
-}
-
-static int init_test_ali_iot_device() {
-//    auto air724 = Instances::air724;
-//    try {
-//        air724->init();
-//        LOG_D("inited");
-//    } catch(exception& e) {
-//        LOG_E("init failed, %s", e.what());
-//    }
     return RT_EOK;
 }
 
-MSH_CMD_EXPORT(test_ali_iot_device, );
 INIT_APP_EXPORT(init_test_ali_iot_device);
 #endif
