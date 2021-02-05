@@ -9,7 +9,7 @@
  */
 
 #ifdef TEST_THING
-#include <applications/thing.hxx>
+#include <applications/thing_preset.hxx>
 #include <map>
 #include <string>
 #include <functional>
@@ -47,7 +47,6 @@ void test_thing(int argc, char** argv) {
     } catch(const exception& e) {
         LOG_E("{%s} %s", typeid(e).name(), e.what());
     }
-
 }
 
 int init_test_thing() {

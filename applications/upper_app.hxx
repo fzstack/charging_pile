@@ -13,6 +13,8 @@
 #include <components/rgb_state_notifier.hxx>
 #include <array>
 #include <devices/wtn6_preset.hxx>
+#include "ali_cloud.hxx"
+#include "thing_preset.hxx"
 
 class App;
 class UpperApp: public App {
@@ -22,6 +24,8 @@ public:
 private:
     std::array<std::shared_ptr<RgbStateNotifier>, Config::Bsp::kPortNum> rgbNotifiers;
     std::shared_ptr<Wtn6Base> wtn6 = Preset::Wtn6::get();
+    std::shared_ptr<ThingBase> thing = Preset::Thing::get();
+    std::shared_ptr<Cloud> cloud = Preset::AliCloud::get();
 };
 
 

@@ -12,23 +12,24 @@
 #include <config/co.hxx>
 
 using namespace Packets;
+using namespace Rpcs;
 
 ProxyCloud::ProxyCloud(std::shared_ptr<Packet> packet): Cloud(nullptr), packet(packet) {
-    packet->on<Services::Query>([this](auto p){
-        onQuery();
-    });
-
-    packet->on<Services::Control>([this](auto p){
-        onControl(p->port, p->timerId, p->minutes);
-    });
-
-    packet->on<Services::Stop>([this](auto p) {
-        onStop(p->port, p->timerId);
-    });
-
-    packet->on<Services::Config>([this](auto p) {
-        onConfig(p->currentLimit, p->uploadThr, p->fuzedThr, p->noloadCurrThr);
-    });
+//    packet->on<Services::Query>([this](auto p){
+//        onQuery();
+//    });
+//
+//    packet->on<Services::Control>([this](auto p){
+//        onControl(p->port, p->timerId, p->minutes);
+//    });
+//
+//    packet->on<Services::Stop>([this](auto p) {
+//        onStop(p->port, p->timerId);
+//    });
+//
+//    packet->on<Services::Config>([this](auto p) {
+//        onConfig(p->currentLimit, p->uploadThr, p->fuzedThr, p->noloadCurrThr);
+//    });
 }
 
 void ProxyCloud::init() {

@@ -24,7 +24,9 @@ VirtualLoadDetector::VirtualLoadDetector(
   oState(state) {
     inited.onChanged += [this](auto value) {
         if(!value) return;
-        this->physical->oState += [this](auto value){ update(); };
+        this->physical->oState += [this](auto value){
+            update();
+        };
         this->relay->value.onChanged += [this](auto value) {
             if(value == Relay::Off) {
                 if(timer == nullptr)

@@ -111,7 +111,10 @@ void AliCloud::setCurrentData(std::array<CurrentData, Config::Bsp::kPortNum>& da
             {"fuse", item.fuse},
         });
     }
-    device->set("current_data", value);
+    runOn(device->thread->post([this, value]{
+        device->set("current_data", value);
+    }));
+
 }
 
 void AliCloud::setIccid(std::string_view iccid) {
@@ -123,28 +126,39 @@ void AliCloud::setSignal(int signal) {
 }
 
 void AliCloud::emitPortAccess(int port) {
-    device->emit("port_access", {
-        {"port", port},
-    });
+    runOn(device->thread->post([=]{
+        device->emit("port_access", {
+            {"port", port},
+        });
+    }));
 }
 
 void AliCloud::emitPortUnplug(int port) {
-    device->emit("port_unplug", {
-        {"port", port},
-    });
+    runOn(device->thread->post([=]{
+        device->emit("port_unplug", {
+            {"port", port},
+        });
+    }));
 }
 
 void AliCloud::emitIcNumber(int port, std::string_view icNumber) {
-    device->emit("ic_number", {
-       {"port", port},
-       {"ic_number", icNumber},
-    });
+    auto icNumberS = string{icNumber.begin(), icNumber.end()};
+    runOn(device->thread->post([=]{
+        device->emit("ic_number", {
+           {"port", port},
+           {"ic_number", icNumberS},
+        });
+    }));
+
 }
 
 void AliCloud::emitCurrentLimit(int port) {
-    device->emit("current_limit", {
-       {"port", port},
-    });
+    runOn(device->thread->post([=]{
+        device->emit("current_limit", {
+           {"port", port},
+        });
+    }));
+
 }
 
 void AliCloud::setSignalInterval() {

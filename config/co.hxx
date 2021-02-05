@@ -13,6 +13,7 @@
 #include "bsp.hxx"
 #include "app.hxx"
 #include <components/packet.hxx>
+#include <components/rpc.hxx>
 #include <applications/cloud.hxx>
 
 #if (defined(LOWER_END) && defined(UPPER_END)) || (!defined(LOWER_END) && !defined(UPPER_END))
@@ -67,7 +68,9 @@ struct CurrentLimit {
     int port;
 };
 }
+}
 
+namespace Rpcs {
 namespace Services {
 struct Query {
 
@@ -94,13 +97,13 @@ struct Config {
 }
 
 template<>
-struct PacketTrait<Packets::Services::Control> {
-    using result_t = ::Cloud::ServiceResult::Value;
+struct RpcTrait<Rpcs::Services::Control> {
+    using result_t = bool;
 };
 
 template<>
-struct PacketTrait<Packets::Services::Stop> {
-    using result_t = ::Cloud::ServiceResult::Value;
+struct RpcTrait<Rpcs::Services::Stop> {
+    using result_t = bool;
 };
 
 

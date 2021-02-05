@@ -58,6 +58,7 @@ struct charger_error: public std::runtime_error {
 #ifdef LOWER_END
 #include <utilities/singleton.hxx>
 #include "state_store_preset.hxx"
+#include <utilities/mp.hxx>
 namespace Preset {
 template<int R>
 class Charger: public Singleton<Charger<R>>, public ::Charger {
@@ -100,6 +101,21 @@ class Charger: public Singleton<Charger<R>>, public ::Charger {
         }
     }
 };
+
+class Chargers {
+public:
+    static std::array<std::shared_ptr<::Charger>, Config::Bsp::kPortNum> get() {
+        auto r = decltype(get()){};
+        for(auto i = 0; i < Config::Bsp::kPortNum; i++) {
+            magic_switch<Config::Bsp::kPortNum>{}([&](auto v) {
+                r[i] = Charger<decltype(v)::value>::get();
+                r[i]->init();
+            }, i);
+        }
+        return r;
+    }
+};
+
 }
 #endif
 

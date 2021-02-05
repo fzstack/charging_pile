@@ -10,14 +10,10 @@
 #ifndef APPLICATIONS_THING_HXX_
 #define APPLICATIONS_THING_HXX_
 
-#include <array>
 #include <components/charger.hxx>
 #include <components/last_charger.hxx>
 #include <components/user.hxx>
-#include <config/bsp.hxx>
-#include <config/app.hxx>
 #include <memory>
-#include <utilities/signals.hxx>
 #include <stdexcept>
 #include <components/timer.hxx>
 #include "things/decos/base.hxx"
@@ -66,15 +62,5 @@ private:
 struct thing_error: public std::runtime_error {
     using std::runtime_error::runtime_error;
 };
-
-#include <utilities/singleton.hxx>
-namespace Preset {
-class Thing: public Singleton<Thing>, public ::Thing {
-    friend class Singleton<Thing>;
-    Thing();
-
-    static std::array<std::shared_ptr<::Charger>, Config::Bsp::kPortNum> getChargers();
-};
-}
 
 #endif /* APPLICATIONS_THING_HXX_ */

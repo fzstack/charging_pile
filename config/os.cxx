@@ -64,7 +64,7 @@ const char *CloudTimer::kName = "cloud";
 
 const char* Packet::kThread = "packet";
 const int
-    Packet::kThreadStack = 1024,
+    Packet::kThreadStack = 2048,
     Packet::kThreadPrio = 20,
     Packet::kThreadTick = 2;
 
