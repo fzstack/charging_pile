@@ -31,15 +31,9 @@
 
 //包头    类型         值          CRC
 //0xa5 4字节 结构体的值  xxx
-template <class T>
-struct PacketTrait {
-    using result_t = void;
-};
 
 //需要一个packet线程来获得数据
 class Packet {
-private:
-
 public:
     Packet(std::shared_ptr<QueuedUart> uart, std::shared_ptr<Thread> thread);
 
@@ -141,11 +135,7 @@ public:
     }
 
 private:
-
-
-
     void handleFrame();
-
 
 private:
     class invalid_escape_error: public std::runtime_error {
@@ -182,7 +172,6 @@ class Packet: public Singleton<Packet>, public ::Packet {
 
     static const char *kUart, *kThread;
     static const int kThreadStack, kThreadPrio, kThreadTick;
-
 };
 }
 

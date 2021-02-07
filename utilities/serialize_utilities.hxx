@@ -15,7 +15,7 @@
 #include <map>
 #include <array>
 
-namespace SerializeUtilities {
+namespace SerUtilities {
 using prefix_len_t = rt_uint16_t;
 
 template<class T> struct is_cont: public std::false_type {};

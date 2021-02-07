@@ -32,15 +32,15 @@ public:
     }
 
     template<class T>
-    auto build(T&& t) -> std::enable_if_t<SerializeUtilities::is_cont_v<std::decay_t<T>>> {
-        build<SerializeUtilities::prefix_len_t>(t.size());
+    auto build(T&& t) -> std::enable_if_t<SerUtilities::is_cont_v<std::decay_t<T>>> {
+        build<SerUtilities::prefix_len_t>(t.size());
         for(auto& c: t) {
             build(c);
         }
     }
 
     template<class T>
-    auto build(T&& t) -> std::enable_if_t<SerializeUtilities::is_optional_v<std::decay_t<T>>>  {
+    auto build(T&& t) -> std::enable_if_t<SerUtilities::is_optional_v<std::decay_t<T>>>  {
         build(t.has_value());
         if(t.has_value()) {
             build(*t);
@@ -48,8 +48,8 @@ public:
     }
 
     template<class T>
-    auto build(T&& t) -> std::enable_if_t<SerializeUtilities::is_map_v<std::decay_t<T>>>  {
-        build<SerializeUtilities::prefix_len_t>(t.size());
+    auto build(T&& t) -> std::enable_if_t<SerUtilities::is_map_v<std::decay_t<T>>>  {
+        build<SerUtilities::prefix_len_t>(t.size());
         for(auto& [k, v]: t) {
             build(k);
             build(v);
@@ -57,7 +57,7 @@ public:
     }
 
     template<class T>
-    auto build(T&& t) -> std::enable_if_t<SerializeUtilities::is_array_v<std::decay_t<T>>>  {
+    auto build(T&& t) -> std::enable_if_t<SerUtilities::is_array_v<std::decay_t<T>>>  {
         for(auto& c: t) {
             build(c);
         }
