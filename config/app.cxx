@@ -16,11 +16,9 @@ using namespace Config;
 using namespace std;
 //867435054397377
 const char
-    //*App::cloudDeviceName = "863701042917152",
-    *App::cloudDeviceName = "867435054397377", //联调设备
+    *App::cloudDeviceName = "862167057563607",
     *App::cloudProductKey = "a1mKT2XMEnq",
-    //*App::cloudDeviceSecret = "4ede507e2250b4eb2bed1efb6f079c51";
-    *App::cloudDeviceSecret = "70bb22c4ff10eb464b4954917a573824"; //联调设备
+    *App::cloudDeviceSecret = "df6581d7fc78c58bdb06cbd7f3c1afd0";
 
 string getStateStr(State::Value state) {
     switch(state) {
