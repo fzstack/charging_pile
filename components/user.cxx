@@ -10,7 +10,7 @@
 
 #include "user.hxx"
 
-void User::watch(std::shared_ptr<Rc522> rc522) {
+void User::watch(std::shared_ptr<Rc522Base> rc522) {
     rc522->oCardId += [this](auto value) {
         if(!value) return;
         onCardSwipe(*value);

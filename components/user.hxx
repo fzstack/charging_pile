@@ -17,7 +17,7 @@
 class User {
 public:
     User() = default;
-    void watch(std::shared_ptr<Rc522> rc522);
+    void watch(std::shared_ptr<Rc522Base> rc522);
     Signals<void(std::string)> onCardSwipe = {};
 };
 
