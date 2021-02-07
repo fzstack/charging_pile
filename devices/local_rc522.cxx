@@ -16,13 +16,7 @@ using namespace Packets;
 
 LocalRc522::LocalRc522(const char* spiBus, const char* spiDev, rt_base_t ssPin, shared_ptr<Packet> packet): Rc522(spiBus, spiDev, ssPin), packet(packet) {
     oCardId += [packet](auto cardId) {
-        auto p = Devices::Rc522{nullopt};
-        if(cardId) {
-            auto tmp = Devices::Rc522::Value{};
-            strncpy(tmp.value, cardId->c_str(), sizeof(tmp.value));
-            p = {tmp};
-        }
-        packet->emit(p);
+        packet->emit<Devices::Rc522>({cardId});
     };
 }
 

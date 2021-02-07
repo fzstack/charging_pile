@@ -17,11 +17,7 @@ using namespace Packets;
 
 RemoteRc522::RemoteRc522(std::shared_ptr<Packet> packet): packet(packet) {
     packet->on<Devices::Rc522>([this](auto p) {
-        if(!p->cardId) {
-            cardId = nullptr;
-        } else {
-            cardId = string{p->cardId.value().value};
-        }
+        cardId = p->cardId;
     });
 }
 

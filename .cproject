@@ -172,9 +172,9 @@
 									<listOptionValue builtIn="false" value="HAVE_SIGVAL"/>
 									<listOptionValue builtIn="false" value="HAVE_SIGEVENT"/>
 									<listOptionValue builtIn="false" value="HAVE_SIGINFO"/>
-									<listOptionValue builtIn="false" value="RUN_APP"/>
+									<listOptionValue builtIn="false" value="_RUN_APP"/>
 									<listOptionValue builtIn="false" value="_TEST_PERSISTENT_STORAGE"/>
-									<listOptionValue builtIn="false" value="_TEST_PACKET"/>
+									<listOptionValue builtIn="false" value="TEST_PACKET"/>
 									<listOptionValue builtIn="false" value="_TEST_TTP229"/>
 									<listOptionValue builtIn="false" value="_TEST_SHARED_THREAD"/>
 									<listOptionValue builtIn="false" value="_TEST_WS2812"/>
@@ -190,7 +190,7 @@
 									<listOptionValue builtIn="false" value="_TEST_SPI_HLW8112"/>
 									<listOptionValue builtIn="false" value="_TEST_MULTIMETER"/>
 									<listOptionValue builtIn="false" value="_TEST_CHARGER"/>
-									<listOptionValue builtIn="false" value="_TEST_STL"/>
+									<listOptionValue builtIn="false" value="TEST_STL"/>
 									<listOptionValue builtIn="false" value="_LOWER_END"/>
 									<listOptionValue builtIn="false" value="UPPER_END"/>
 									<listOptionValue builtIn="false" value="_TEST_LOCAL_STATE_STORE"/>
@@ -236,7 +236,7 @@
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.2060543283" name="Language standard" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std" useByScannerDiscovery="true" value="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.cpp17" valueType="enumerated"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nothreadsafestatics.137027354" name="Do not use thread-safe statics (-fno-threadsafe-statics)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nothreadsafestatics" useByScannerDiscovery="true" value="true" valueType="boolean"/>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.other.1882116886" name="Other compiler flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.other" useByScannerDiscovery="true" value="" valueType="string"/>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.other.1882116886" name="Other compiler flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.other" useByScannerDiscovery="true" value="-ftemplate-backtrace-limit=0" valueType="string"/>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.45918001" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
 							</tool>
 						</toolChain>

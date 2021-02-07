@@ -30,6 +30,10 @@ struct RpcTrait<Add> {
     using result_t = int;
 };
 
+struct Delay {
+    int ms;
+};
+
 
 void test_rpc_add(int argc, char** argv) {
     ASSERT_MIN_NARGS(3);
@@ -42,8 +46,8 @@ void test_rpc_add(int argc, char** argv) {
 
 int init_test_rpc() {
     auto rpc = Preset::Rpc::get();
-    rpc->def<Add>([](auto p, auto r){
-        r(p->a + p->b);
+    rpc->def<Add>([](auto p){
+        return p->a + p->b;
     });
     return RT_EOK;
 }

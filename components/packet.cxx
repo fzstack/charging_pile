@@ -28,53 +28,72 @@ Packet::Packet(std::shared_ptr<QueuedUart> uart, std::shared_ptr<Thread> thread)
 }
 
 void Packet::handleFrame() {
-    auto head = (ControlChar*){};
-    while(true) {
-        recvCrc.reset();
-        auto b = readByte();
-        head = get_if<ControlChar>(&b);
-        if(head != nullptr && *head == ControlChar::Head) break; //改成do while这里会莫名其妙有个warning
-    }
-
-    auto hashCode = read<size_t>();
-    auto found = typeInfos.find(hashCode);
+    auto absorber = make_shared<Absorber>(this);
+    auto hash = absorber->getHash();
+    auto found = typeInfos.find(hash);
     if(found == typeInfos.end()) throw type_info_not_found_error{""};
     auto& info = found->second;
-    auto buff = shared_ptr<rt_uint8_t[]>(new rt_uint8_t[info.size]);
-    readData(buff.get(), info.size);
-
-    auto crcExpect = recvCrc.get();
-    auto crcActual = read<rt_uint16_t>();
-
-    if(crcExpect != crcActual) throw invalid_frame_error{""};
-    info.callback->invoke(buff);
+    auto p = info.parser->parse(absorber);
+    if(!absorber->check()) throw invalid_frame_error{""};
+    info.callback->invoke(p);
 }
 
-void Packet::emitInternal(std::size_t hashCode, rt_uint8_t* data, int len) {
-    auto guard = rtthread::Lock{mutex};
+Packet::Emitter::Emitter(outer_t* outer, size_t hashCode): nested_t(outer) {
+    outer->mutex.lock();
     rt_kprintf("emit: ");
-    sendCrc.reset();
     writeByte(ControlChar::Head);
     write(hashCode);
-    writeData(data, len);
-    auto crcActual = sendCrc.get();
+}
+
+Packet::Emitter::~Emitter() {
+    auto crcActual = crc.get();
     write(crcActual);
     rt_kprintf("\n");
+    outer->mutex.unlock();
 }
 
-void Packet::readData(rt_uint8_t* data, int len) {
-    for(auto i = 0; i < len; i++) {
-        data[i] = get<rt_uint8_t>(readByte());
-    }
-}
-
-void Packet::writeData(rt_uint8_t* data, int len) {
+void Packet::Emitter::writeData(rt_uint8_t* data, int len) {
     for(auto i = 0; i < len; i++) {
         writeByte(data[i]);
     }
 }
 
-std::variant<rt_uint8_t, Packet::ControlChar> Packet::readByte() {
+void Packet::Emitter::writeByte(std::variant<rt_uint8_t, ControlChar> b) {
+    if(auto cc = get_if<ControlChar>(&b)) {
+        //不需要转义
+        writeAtom(rt_uint8_t(*cc));
+    } else if(auto dat = get_if<rt_uint8_t>(&b)) {
+        if(*dat == rt_uint8_t(ControlChar::Head) || *dat == rt_uint8_t(ControlChar::Escape))
+            writeAtom(rt_uint8_t(ControlChar::Escape));
+        writeAtom(*dat);
+    }
+}
+
+void Packet::Emitter::writeAtom(rt_uint8_t b) {
+    outer->uart->send(&b, sizeof(b));
+    rt_kprintf("%02x ", b);
+    crc.update(b);
+}
+
+Packet::Absorber::Absorber(outer_t* outer): nested_t(outer) {
+    auto b = readByte();
+    auto head = get_if<ControlChar>(&b);
+    if(head == nullptr || *head != ControlChar::Head)
+        throw invalid_frame_error{""};
+    hash = read<size_t>();
+}
+
+std::size_t Packet::Absorber::getHash() {
+    return hash;
+}
+
+void Packet::Absorber::readData(rt_uint8_t* data, int len) {
+    for(auto i = 0; i < len; i++) {
+        data[i] = get<rt_uint8_t>(readByte());
+    }
+}
+
+std::variant<rt_uint8_t, Packet::ControlChar> Packet::Absorber::readByte() {
     auto b = readAtom();
     if(b == rt_uint8_t(ControlChar::Head))
         return ControlChar::Head;
@@ -87,30 +106,16 @@ std::variant<rt_uint8_t, Packet::ControlChar> Packet::readByte() {
     return b;
 };
 
-void Packet::writeByte(std::variant<rt_uint8_t, ControlChar> b) {
-    if(auto cc = get_if<ControlChar>(&b)) {
-        //不需要转义
-        writeAtom(rt_uint8_t(*cc));
-    } else if(auto dat = get_if<rt_uint8_t>(&b)) {
-        if(*dat == rt_uint8_t(ControlChar::Head) || *dat == rt_uint8_t(ControlChar::Escape))
-            writeAtom(rt_uint8_t(ControlChar::Escape));
-        writeAtom(*dat);
-    }
-}
-
-
-
-rt_uint8_t Packet::readAtom() {
+rt_uint8_t Packet::Absorber::readAtom() {
     auto b = rt_uint8_t{};
-    uart->recv(&b, sizeof(b), RT_WAITING_FOREVER);
-    recvCrc.update(b);
+    outer->uart->recv(&b, sizeof(b), RT_WAITING_FOREVER);
+    crc.update(b);
     return b;
 }
 
-void Packet::writeAtom(rt_uint8_t b) {
-    uart->send(&b, sizeof(b));
-    rt_kprintf("%02x ", b);
-    sendCrc.update(b);
+bool Packet::Absorber::check() {
+    auto crcExpect = crc.get();
+    auto crcActual = read<rt_uint16_t>();
+    return crcExpect == crcActual;
 }
-
 

@@ -19,6 +19,15 @@
 #include <map>
 #include <utilities/crc16.hxx>
 #include <Mutex.h>
+#include <utilities/nested.hxx>
+#include <boost/pfr.hpp>
+#include <type_traits>
+#include <vector>
+#include <utilities/mp.hxx>
+#include <utilities/istream.hxx>
+#include <utilities/ostream.hxx>
+#include <utilities/serializer.hxx>
+#include <utilities/deserializer.hxx>
 
 //包头    类型         值          CRC
 //0xa5 4字节 结构体的值  xxx
@@ -29,84 +38,113 @@ struct PacketTrait {
 
 //需要一个packet线程来获得数据
 class Packet {
+private:
+
 public:
     Packet(std::shared_ptr<QueuedUart> uart, std::shared_ptr<Thread> thread);
 
 private:
     class Callback {
     public:
-        virtual void invoke(std::shared_ptr<rt_uint8_t[]> data) = 0;
+        virtual void invoke(std::shared_ptr<void> data) = 0;
     };
 
     template<class T>
     class CallbackImpl: public Callback {
     public:
         CallbackImpl(std::function<void(std::shared_ptr<T>)> cb): cb(cb) { }
-        virtual void invoke(std::shared_ptr<rt_uint8_t[]> data) override {
+        virtual void invoke(std::shared_ptr<void> data) override {
             cb(std::reinterpret_pointer_cast<T>(data));
         }
     private:
         std::function<void(std::shared_ptr<T>)> cb;
     };
 
-    class TypeInfo {
-    public:
-        TypeInfo(std::shared_ptr<Callback> callback, std::size_t size): callback(callback), size(size) { }
-        std::shared_ptr<Callback> callback = nullptr;
-        std::size_t size = 0;
-    };
-
-public:
-    template<class T>
-    void on(std::function<void(std::shared_ptr<T>)> cb) {
-        typeInfos.insert({typeid(T).hash_code(), {std::make_shared<CallbackImpl<T>>(cb), size: sizeof(T)}});
-    }
-
-    template<class T>
-    void emit(T& t) {
-        emitInternal(typeid(T).hash_code(), (rt_uint8_t*)(void*)&t, sizeof(T));
-    }
-
-    template<class T>
-    void emit(T&& t) {
-        emitInternal(typeid(T).hash_code(), (rt_uint8_t*)(void*)&t, sizeof(T));
-    }
-
-    template<class T, class... A>
-    void emit(A&&... a) {
-        auto t = T(std::forward<A>(a)...);
-        emitInternal(typeid(T).hash_code(), (rt_uint8_t*)(void*)&t, sizeof(T));
-    }
-
-    void emitInternal(std::size_t hashCode, rt_uint8_t* data, int len);
-
-private:
-
-    void handleFrame();
-
-    template<class T>
-    T read() {
-        T t;
-        readData((rt_uint8_t*)&t, sizeof(T));
-        return t;
-    }
-
-    template<class T>
-    void write(T&& t) {
-        writeData((rt_uint8_t*)(void*)&t, sizeof(T));
-    }
-
     enum class ControlChar: rt_uint8_t {
         Head = 0xa5,
         Escape = 0xff,
     };
 
-    void readData(rt_uint8_t* data, int len);
-    void writeData(rt_uint8_t* data, int len);
-    std::variant<rt_uint8_t, ControlChar> readByte();
-    void writeByte(std::variant<rt_uint8_t, ControlChar> b);
-    rt_uint8_t readAtom();
-    void writeAtom(rt_uint8_t b);
+    class Emitter: public Nested<Packet>, public OStream {
+    public:
+        Emitter(outer_t* outer, std::size_t hashCode);
+        ~Emitter();
+
+        virtual void writeData(rt_uint8_t* data, int len) override;
+        void writeByte(std::variant<rt_uint8_t, ControlChar> b);
+        void writeAtom(rt_uint8_t b);
+
+    private:
+        Crc16 crc;
+    };
+    friend class Emitter;
+
+    template<class T> class ParserImpl;
+
+    class Absorber: public Nested<Packet>, public IStream {
+        template<class T> friend class ParserImpl;
+    public:
+        Absorber(outer_t* outer);
+        std::size_t getHash();
+        bool check();
+
+        virtual void readData(rt_uint8_t* data, int len) override;
+        std::variant<rt_uint8_t, ControlChar> readByte();
+        rt_uint8_t readAtom();
+    private:
+        std::size_t hash;
+        Crc16 crc;
+    };
+    friend class Absorber;
+
+    class Parser {
+    public:
+        virtual std::shared_ptr<void> parse(std::shared_ptr<Absorber> absorber) = 0;
+    };
+
+    template<class T>
+    class ParserImpl: public Parser {
+    public:
+        virtual std::shared_ptr<void> parse(std::shared_ptr<Absorber> absorber) override {
+            return std::make_shared<T>(Deserializer{absorber}.parse<T>());
+        }
+    };
+
+    struct TypeInfo {
+        std::shared_ptr<Callback> callback = nullptr;
+        std::shared_ptr<Parser> parser = nullptr;
+    };
+
+public:
+    template<class T>
+    void on(std::function<void(std::shared_ptr<T>)> cb) {
+        typeInfos.insert({typeid(T).hash_code(), TypeInfo {
+            callback: std::make_shared<CallbackImpl<T>>(cb),
+            parser: std::make_shared<ParserImpl<T>>()
+        }});
+    }
+
+    template<class T>
+    void emit(T&& t) {
+        auto emitter = std::make_shared<Emitter>(this, typeid(T).hash_code());
+        Serializer{emitter}.build(t);
+    }
+
+    template<class T>
+    void emit(T& t) {
+        emit(std::move(t));
+    }
+
+    template<class T, class... A>
+    void emit(A&&... a) {
+        emit(T(std::forward<A>(a)...));
+    }
+
+private:
+
+
+
+    void handleFrame();
 
 
 private:
@@ -129,8 +167,8 @@ private:
     std::shared_ptr<QueuedUart> uart;
     std::shared_ptr<Thread> thread;
     std::map<std::size_t, TypeInfo> typeInfos = {};
-    Crc16 recvCrc, sendCrc;
     rtthread::Mutex mutex;
+    std::optional<rt_uint8_t> last = {};
     static const char* kMutex;
 };
 
@@ -147,6 +185,7 @@ class Packet: public Singleton<Packet>, public ::Packet {
 
 };
 }
+
 
 
 #endif /* COMPONENTS_PACKET_HXX_ */

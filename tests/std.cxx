@@ -60,6 +60,12 @@ void test_stl_rtti_enum() {
     rt_kprintf("name: %s, hash: %08x\n", t.name(), t.hash_code());
 }
 
+#include <optional>
+void test_optional() {
+    auto test = optional<int>{5};
+    rt_kprintf("sizeof: %d\n", sizeof(test));
+}
+
 
 template<class T, class U>
 struct Response {
@@ -85,6 +91,7 @@ void test_stl_rtti_unused_temp() {
 MSH_CMD_EXPORT(test_stl_vector, );
 MSH_CMD_EXPORT(test_stl_array, );
 MSH_CMD_EXPORT(test_stl_rtti_enum, );
+MSH_CMD_EXPORT(test_optional, );
 MSH_CMD_EXPORT(test_stl_rtti_unused_temp, );
 #endif
 

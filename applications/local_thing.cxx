@@ -40,9 +40,9 @@ LocalThing::LocalThing(
            r(false);
        }
     });
-    rpc->def<Services::Config>([this](auto p, auto r) {
+    rpc->def<Services::Config>([this](auto p){
         config(p->currentLimit, p->uploadThr, p->fuzedThr, p->noloadCurrThr);
-        r({});
+        return Void{};
     });
 
     onPortAccess += [this](auto port) {
@@ -52,10 +52,7 @@ LocalThing::LocalThing(
         this->packet->emit<Events::PortUnplug>({port});
     };
     onIcNumber += [this](auto port, auto icNumber) {
-        auto p = Events::IcNumber{};
-        p.port = port;
-        strncpy(p.icNumber, icNumber.c_str(), sizeof(p.icNumber));
-        this->packet->emit(p);
+        this->packet->emit<Events::IcNumber>({port, icNumber});
     };
     onCurrentLimit += [this](auto port) {
         this->packet->emit<Events::CurrentLimit>({port});

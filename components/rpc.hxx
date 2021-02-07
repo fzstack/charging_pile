@@ -109,6 +109,13 @@ public:
         });
     }
 
+    template<class T>
+    void def(std::function<typename RpcTrait<T>::result_t(std::shared_ptr<T>)> cb) {
+        def<T>([=](auto p, auto r){
+            r(cb(p));
+        });
+    }
+
 private:
     std::shared_ptr<Packet> packet;
     std::set<std::size_t> registeredType = {};

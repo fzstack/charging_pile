@@ -23,9 +23,9 @@ RemoteThing::RemoteThing(shared_ptr<Packet> packet, shared_ptr<Rpc> rpc): packet
     packet->on<Events::PortUnplug>([this](auto p) {
        onPortUnplug(p->port);
     });
-    packet->on<Events::IcNumber>([this](auto p) {
-        onIcNumber(p->port, p->icNumber);
-    });
+//    packet->on<Events::IcNumber>([this](auto p) {
+//        onIcNumber(p->port, p->icNumber);
+//    });
     packet->on<Events::CurrentLimit>([this](auto p) {
        onCurrentLimit(p->port);
     });
