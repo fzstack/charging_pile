@@ -13,34 +13,27 @@
 #include <string>
 #include <optional>
 #include <map>
+#include <array>
 
 namespace SerializeUtilities {
 using prefix_len_t = rt_uint16_t;
 
 template<class T> struct is_cont: public std::false_type {};
+template<class... Args> struct is_cont<std::vector<Args...>>: public std::true_type {};
+template<> struct is_cont<std::string>: public std::true_type {};
 template<class T> inline constexpr bool is_cont_v = is_cont<T>::value;
-template<class T> using is_cont_t = typename is_cont<T>::type;
-
-template<class T>
-struct is_cont<std::vector<T>>: public std::true_type {};
-
-template<>
-struct is_cont<std::string>: public std::true_type {};
 
 template<class T> struct is_optional: public std::false_type {};
+template<class... Args> struct is_optional<std::optional<Args...>>: public std::true_type {};
 template<class T> inline constexpr bool is_optional_v = is_optional<T>::value;
-template<class T> using is_optional_t = typename is_optional<T>::type;
-
-template<class T>
-struct is_optional<std::optional<T>>: public std::true_type {
-    using type = std::decay_t<T>;
-};
 
 template<class T> struct is_map: public std::false_type {};
+template<class... Args> struct is_map<std::map<Args...>>: public std::true_type {};
 template<class T> inline constexpr bool is_map_v = is_map<T>::value;
 
-template<class... Args>
-struct is_map<std::map<Args...>>: public std::true_type {};
+template<class T> struct is_array: public std::false_type {};
+template<class... Args> struct is_array<std::array<Args...>>: public std::true_type {};
+template<class T> inline constexpr bool is_array_v = is_array<T>::value;
 
 }
 

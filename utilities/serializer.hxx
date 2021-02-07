@@ -56,6 +56,13 @@ public:
         }
     }
 
+    template<class T>
+    auto build(T&& t) -> std::enable_if_t<SerializeUtilities::is_array_v<std::decay_t<T>>>  {
+        for(auto& c: t) {
+            build(c);
+        }
+    }
+
 private:
     std::shared_ptr<OStream> ostream;
 };

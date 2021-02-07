@@ -17,6 +17,7 @@
 #include <applications/cloud.hxx>
 #include <string>
 #include <optional>
+#include <array>
 
 #if (defined(LOWER_END) && defined(UPPER_END)) || (!defined(LOWER_END) && !defined(UPPER_END))
 #error "Only one of LOWER_END or UPPER_END can be defined"
@@ -40,7 +41,7 @@ struct Rc522 {
 
 namespace Props {
 struct CurrentData {
-    std::vector<::CurrentData> value;
+    std::array<::CurrentData, Config::Bsp::kPortNum> value;
 };
 }
 

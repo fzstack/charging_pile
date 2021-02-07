@@ -49,7 +49,7 @@ public:
         auto t = T{};
         auto hasValue = parse<bool>();
         if(hasValue) {
-            t = parse<SerializeUtilities::is_optional_t<std::decay_t<T>>>();
+            t = parse<typename T::value_type>();
         }
         return t;
     }
@@ -61,6 +61,15 @@ public:
         for(auto i = 0u; i < size; i++) {
             auto key = parse<typename T::key_type>();
             t[key] = parse<typename T::mapped_type>();
+        }
+        return t;
+    }
+
+    template<class T>
+    auto parse() -> std::enable_if_t<SerializeUtilities::is_array_v<std::decay_t<T>>, T> {
+        auto t = T();
+        for(auto& c: t) {
+            c = parse<typename T::value_type>();
         }
         return t;
     }

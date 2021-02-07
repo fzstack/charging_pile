@@ -44,6 +44,10 @@ struct TestMap {
     std::map<std::string, int> scores;
 };
 
+struct TestArray {
+    std::array<int, 2> values;
+};
+
 }
 
 static void test_packet_bool(int argc, char** argv) {
@@ -78,6 +82,12 @@ static void test_packet_map(int argc, char** argv) {
     }});
 }
 
+static void test_packet_array(int argc, char** argv) {
+    ASSERT_MIN_NARGS(3);
+    auto packet = Preset::Packet::get();
+    packet->emit<Packets::TestArray>({{atoi(argv[1]), atoi(argv[2])}});
+}
+
 static int init_test_packet() {
     auto packet = Preset::Packet::get();
 
@@ -109,6 +119,14 @@ static int init_test_packet() {
         rt_kprintf("\n");
     });
 
+    packet->on<Packets::TestArray>([](auto p) {
+        rt_kprintf("values: ");
+        for(const auto& e: p->values) {
+            rt_kprintf("%d, ", e);
+        }
+        rt_kprintf("\n");
+    });
+
     return RT_EOK;
 }
 
@@ -117,4 +135,5 @@ MSH_CMD_EXPORT(test_packet_bool, );
 MSH_CMD_EXPORT(test_packet_opt, );
 MSH_CMD_EXPORT(test_packet_scores, );
 MSH_CMD_EXPORT(test_packet_map, );
+MSH_CMD_EXPORT(test_packet_array, );
 #endif

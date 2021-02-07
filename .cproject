@@ -190,7 +190,7 @@
 									<listOptionValue builtIn="false" value="_TEST_SPI_HLW8112"/>
 									<listOptionValue builtIn="false" value="_TEST_MULTIMETER"/>
 									<listOptionValue builtIn="false" value="_TEST_CHARGER"/>
-									<listOptionValue builtIn="false" value="TEST_STL"/>
+									<listOptionValue builtIn="false" value="_TEST_STL"/>
 									<listOptionValue builtIn="false" value="_LOWER_END"/>
 									<listOptionValue builtIn="false" value="UPPER_END"/>
 									<listOptionValue builtIn="false" value="_TEST_LOCAL_STATE_STORE"/>
