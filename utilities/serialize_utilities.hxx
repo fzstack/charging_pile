@@ -22,14 +22,10 @@ template<class T> inline constexpr bool is_cont_v = is_cont<T>::value;
 template<class T> using is_cont_t = typename is_cont<T>::type;
 
 template<class T>
-struct is_cont<std::vector<T>>: public std::true_type {
-    using type = T;
-};
+struct is_cont<std::vector<T>>: public std::true_type {};
 
 template<>
-struct is_cont<std::string>: public std::true_type {
-    using type = char;
-};
+struct is_cont<std::string>: public std::true_type {};
 
 template<class T> struct is_optional: public std::false_type {};
 template<class T> inline constexpr bool is_optional_v = is_optional<T>::value;

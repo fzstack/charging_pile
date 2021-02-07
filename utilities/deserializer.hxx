@@ -37,7 +37,7 @@ public:
     template<class T>
     auto parse() -> std::enable_if_t<SerializeUtilities::is_cont_v<std::decay_t<T>>, T> {
         auto size = parse<SerializeUtilities::prefix_len_t>();
-        auto t = T(size, SerializeUtilities::is_cont_t<std::decay_t<T>>{});
+        auto t = T(size, typename T::value_type{});
         for(auto& c: t) {
             c = parse<std::decay_t<decltype(c)>>();
         }
