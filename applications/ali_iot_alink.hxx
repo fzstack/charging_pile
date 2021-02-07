@@ -14,6 +14,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <optional>
 
 class Alink {
 public:
@@ -30,6 +31,7 @@ public:
 
         std::vector<std::string> getMethod();
         Json getParams();
+        std::string getId();
 
     private:
         Json obj;
@@ -37,7 +39,7 @@ public:
 
     class Reply {
     public:
-        Reply(Json data = {}, int code = 200);
+        Reply(Json data = {}, int code = 200, std::optional<std::string> id = std::nullopt);
     private:
         class private_ctor{};
         Reply(private_ctor, Json obj);

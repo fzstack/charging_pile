@@ -51,12 +51,20 @@ Json Alink::Request::getParams() {
     return obj["params"];
 }
 
-Alink::Reply::Reply(Json data, int code): obj({
-    {"id", to_string(id)},
+std::string Alink::Request::getId() {
+    return obj["id"];
+}
+
+Alink::Reply::Reply(Json data, int code, std::optional<std::string> id): obj({
     {"code", code},
     {"data", data},
 }) {
-    Alink::id++;
+    if(id == nullopt) {
+        obj["id"] = Json(to_string(Alink::id));
+        Alink::id++;
+    } else {
+        obj["id"] = Json(*id);
+    }
 }
 
 Alink::Reply::Reply(private_ctor, Json obj): obj(obj) {

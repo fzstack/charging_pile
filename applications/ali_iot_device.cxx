@@ -64,7 +64,8 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
                         auto identifier = topics[TopicIdx::Thing::Service::Identifier];
                         auto service = services.find(identifier);
                         if(service == services.end()) return;
-                        service->second(thread->post([this, identifier, topic](variant<Json, exception_ptr> result){
+                        auto id = request.getId();
+                        service->second(thread->post([this, identifier, topic, id](variant<Json, exception_ptr> result){
                             auto json = get_if<Json>(&result);
                             try {
                                 if(auto err = get_if<exception_ptr>(&result)) std::rethrow_exception(*err);
@@ -72,7 +73,7 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
                                 rt_kprintf("\033[31mservice [%s] async invoke failed: {%s} %s\n\033[0m", identifier.c_str(), typeid(e).name(), e.what());
                                 return;
                             }
-                            auto reply = Alink::Reply(*json);
+                            auto reply = Alink::Reply(*json, 200, id);
                             this->mqtt->publish(topic + "_reply", (string)reply);
                         }), request.getParams());
                     }}
@@ -86,7 +87,8 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
                 rt_kprintf("\033[34mservice name: %s\nrequest id: %s\n\033[0m", serviceName.c_str(), requestId.c_str());
                 auto service = services.find(serviceName);
                 if(service == services.end()) return;
-                service->second(thread->post([this, requestId, serviceName](variant<Json, exception_ptr> result) {
+                auto id = request.getId();
+                service->second(thread->post([this, requestId, serviceName, id](variant<Json, exception_ptr> result) {
                     auto json = get_if<Json>(&result);
                     try {
                         if(auto err = get_if<exception_ptr>(&result)) std::rethrow_exception(*err);
@@ -94,7 +96,7 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
                         rt_kprintf("\033[31mservice [%s] sync invoke failed: {%s} %s\n\033[0m", serviceName.c_str(), typeid(e).name(), e.what());
                         return;
                     }
-                    auto reply = Alink::Reply(*json);
+                    auto reply = Alink::Reply(*json, 200, id);
                     auto topic = genTopic({"rrpc", "response", requestId});
                     this->mqtt->publish(topic, (string)reply);
                 }), request.getParams());
