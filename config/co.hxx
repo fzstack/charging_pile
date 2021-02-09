@@ -62,6 +62,10 @@ struct IcNumber {
 struct CurrentLimit {
     int port;
 };
+
+struct CurrentData {
+
+};
 }
 }
 
@@ -88,19 +92,16 @@ struct Config {
     int fuzedThr;
     int noloadCurrThr;
 };
+
+struct GetCurrentData {
+
+};
 }
 }
 
 template<>
-struct RpcTrait<Rpcs::Services::Control> {
-    using result_t = bool;
+struct RpcTrait<Rpcs::Services::GetCurrentData> {
+    using result_t = std::array<CurrentData, Config::Bsp::kPortNum>;
 };
-
-template<>
-struct RpcTrait<Rpcs::Services::Stop> {
-    using result_t = bool;
-};
-
-
 
 #endif /* CONFIG_CO_HXX_ */

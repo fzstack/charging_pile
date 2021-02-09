@@ -61,7 +61,7 @@ private:
 public:
     static constexpr int
         kAtBuffSize = 512,
-        kDefaultAtRespBuffSize = 128,
+        kDefaultAtRespBuffSize = 2048,
         kTimeoutMs = 1000;
 
 };

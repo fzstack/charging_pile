@@ -65,7 +65,7 @@ const char *CloudTimer::kName = "cloud";
 const char* Packet::kThread = "packet";
 const int
     Packet::kThreadStack = 2048,
-    Packet::kThreadPrio = 20,
+    Packet::kThreadPrio = 10,
     Packet::kThreadTick = 2;
 
 const char* Ttp229::kThread = "ttp229";
@@ -77,6 +77,10 @@ const int
 template<> const char* SharedThread<Priority::High>::kThread = "high";
 template<> const int SharedThread<Priority::High>::kThreadStack = 1024;
 template<> const int SharedThread<Priority::High>::kThreadTick = 10;
+
+template<> const char* SharedThread<Priority::Middle>::kThread = "middle";
+template<> const int SharedThread<Priority::Middle>::kThreadStack = 2048;
+template<> const int SharedThread<Priority::Middle>::kThreadTick = 10;
 
 const int WsScreen::kDuration = 20;
 const char* WsScreen::kTimer = "wscrn";

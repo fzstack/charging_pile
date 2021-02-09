@@ -78,7 +78,7 @@ namespace Preset {
 class VoiceNotifier: public Singleton<VoiceNotifier>, public ::VoiceNotifier {
     friend class Singleton<VoiceNotifier>;
     VoiceNotifier(): ::VoiceNotifier(Wtn6::get()) {
-        //watch(User::get());
+        watch(User::get());
         watch(LastCharger::get());
     }
 };

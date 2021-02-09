@@ -24,25 +24,17 @@ LocalThing::LocalThing(
     std::shared_ptr<Packet> packet,
     std::shared_ptr<Rpc> rpc
 ): Thing(chargers, user, last), packet(packet), rpc(rpc) {
-    rpc->def<Services::Control>([this](auto p, auto r) {
-        try {
-            control(p->port, p->timerId, p->minutes);
-            r(true);
-        } catch(const exception& e) {
-            r(false);
-        }
+    rpc->def<Services::Control>([this](auto p) {
+        control(p->port, p->timerId, p->minutes);
     });
-    rpc->def<Services::Stop>([this](auto p, auto r) {
-       try {
-           stop(p->port, p->timerId);
-           r(true);
-       } catch(const exception& e) {
-           r(false);
-       }
+    rpc->def<Services::Stop>([this](auto p) {
+        stop(p->port, p->timerId);
     });
     rpc->def<Services::Config>([this](auto p){
         config(p->currentLimit, p->uploadThr, p->fuzedThr, p->noloadCurrThr);
-        return Void{};
+    });
+    rpc->def<Services::GetCurrentData>([this](auto p) {
+        return getCurrentData();
     });
 
     onPortAccess += [this](auto port) {
@@ -52,13 +44,16 @@ LocalThing::LocalThing(
         this->packet->emit<Events::PortUnplug>({port});
     };
     onIcNumber += [this](auto port, auto icNumber) {
+        rt_kprintf("emit ic number: %s\n", icNumber.c_str());
         this->packet->emit<Events::IcNumber>({port, icNumber});
     };
     onCurrentLimit += [this](auto port) {
         this->packet->emit<Events::CurrentLimit>({port});
     };
 
-    //TODO: get Current Data
+    onCurrentData += [this]{
+        this->packet->emit<Events::CurrentData>();
+    };
 }
 
 #ifdef LOWER_END
@@ -75,12 +70,12 @@ namespace Preset {
 LocalThing::LocalThing(): ::LocalThing(Chargers::get(), User::get(), LastCharger::get(), Packet::get(), Rpc::get()) {
     addDeco<EventEmitter>();
     addDeco<Counter>();
-    //addDeco<CurrentLimiter>();
+    addDeco<CurrentLimiter>();
     //addDeco<Backuper>();
-    //addDeco<DataSetter>();
+    addDeco<DataSetter>();
     addDeco<ConsumptionMeasurer>();
     //addDeco<FuseDetecter>();
-    //addDeco<NoloadDetecter>();
+    addDeco<NoloadDetecter>();
     init();
 }
 }

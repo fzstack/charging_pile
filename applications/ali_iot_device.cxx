@@ -138,8 +138,8 @@ void AliIotDevice::login(string_view deviceName, string_view productKey, string_
 }
 
 void AliIotDevice::emit(std::string_view event, Json params) {
-    auto request = Alink::Request(params, "thing.event."s + event.data() + ".post");
-    mqtt->publish(genTopic({"thing", "event", event, "post"}), (string)request);
+    auto request = string(Alink::Request(params, "thing.event."s + event.data() + ".post"));
+    mqtt->publish(genTopic({"thing", "event", event, "post"}), request);
 }
 
 void AliIotDevice::set(std::string_view property, Json value) {

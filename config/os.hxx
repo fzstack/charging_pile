@@ -18,7 +18,7 @@ public:
     static constexpr int
         kThreadDefaultStackSize = 4096,
         kAliIotDeviceThreadPrio = 10,
-        kAliIotDeviceThreadStackSize = kThreadDefaultStackSize;
+        kAliIotDeviceThreadStackSize = 4096;
 
     static const char
         *kAliIotDeviceThreadName;
@@ -27,6 +27,7 @@ public:
 
 enum class Priority {
     High,
+    Middle,
 };
 
 template<Priority Proi>
@@ -37,6 +38,11 @@ struct PriorityTrait {
 template<>
 struct PriorityTrait<Priority::High> {
     static constexpr rt_uint8_t value = 2;
+};
+
+template<>
+struct PriorityTrait<Priority::Middle> {
+    static constexpr rt_uint8_t value = 15;
 };
 
 

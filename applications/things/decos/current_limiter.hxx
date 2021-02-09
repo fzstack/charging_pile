@@ -27,7 +27,7 @@ class CurrentLimiter: public Base {
     virtual void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) override;
 
     struct Params {
-        int maxCurrentMiA = 200; //电流变化阈值
+        int maxCurrentMiA = 150; //电流变化阈值
     };
 
     Observable<bool> inited = false;

@@ -24,6 +24,8 @@ class DataSetter: public Base {
     virtual void init() override;
     virtual void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) override;
 
+
+
 private:
     struct Params {
         int currDiffThrMiA = 10; //电流变化阈值
@@ -31,6 +33,7 @@ private:
 
     struct ChargerSpec {
         int prevCurrMiA = 0;
+        rt_tick_t prevTick = 0;
     };
 
 private:

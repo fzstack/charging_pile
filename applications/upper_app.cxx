@@ -39,16 +39,30 @@ void UpperApp::run() {
             return Cloud::ServiceResult::Failed;
         }
     };
-    //TODO: query
-    //TODO: icNumber
+
+    cloud->onQuery += [=]{
+        auto curData = thing->getCurrentData();
+        cloud->setCurrentData(std::move(curData));
+    };
+
+    thing->onIcNumber += [=](int port, string icNumber) {
+        cloud->emitIcNumber(port, icNumber);
+    };
     thing->onPortAccess += [=](int port) {
         cloud->emitPortAccess(port);
     };
     thing->onPortUnplug += [=](int port) {
-        //cloud->emitPortUnplug(port);
+        if(rt_tick_get() < 1000) return;
+        cloud->emitPortUnplug(port);
     };
     thing->onCurrentLimit += [=](int port) {
         cloud->emitCurrentLimit(port);
+    };
+    thing->onCurrentData += [=]{
+        runOn(Preset::AliIotDevice::get()->thread->post([=]{
+            auto curData = thing->getCurrentData();
+            cloud->setCurrentData(std::move(curData));
+        }));
     };
     cloud->init();
 }

@@ -14,8 +14,8 @@
 
 using namespace std;
 
-Packet::Packet(std::shared_ptr<QueuedUart> uart, std::shared_ptr<Thread> thread): uart(uart), thread(thread) {
-    thread->onRun += [this](){
+Packet::Packet(std::shared_ptr<QueuedUart> uart, std::shared_ptr<Thread> pktThread, std::shared_ptr<SharedThread> cbThread): uart(uart), pktThread(pktThread), cbThread(cbThread) {
+    pktThread->onRun += [this](){
         while(true) {
             try {
                 handleFrame();
@@ -24,23 +24,27 @@ Packet::Packet(std::shared_ptr<QueuedUart> uart, std::shared_ptr<Thread> thread)
             }
         }
     };
-    thread->start();
+    pktThread->start();
 }
 
 void Packet::handleFrame() {
     auto absorber = make_shared<Absorber>(this);
     auto hash = absorber->getHash();
+    //rt_kprintf("h:%08x\n", hash);
     auto found = typeInfos.find(hash);
     if(found == typeInfos.end()) throw type_info_not_found_error{""};
     auto& info = found->second;
     auto p = info.parser->parse(absorber);
-    if(!absorber->check()) throw invalid_frame_error{""};
-    info.callback->invoke(p);
+    if(!absorber->check()) throw invalid_frame_error{"crc check failed"};
+    rt_kprintf("\n");
+    cbThread->exec([cb = info.callback, p]{
+        cb->invoke(p);
+    });
 }
 
 Packet::Emitter::Emitter(outer_t* outer, size_t hashCode): nested_t(outer) {
     outer->mutex.lock();
-    rt_kprintf("emit: ");
+    //rt_kprintf("emit: ");
     writeByte(ControlChar::Head);
     write(hashCode);
 }
@@ -48,7 +52,7 @@ Packet::Emitter::Emitter(outer_t* outer, size_t hashCode): nested_t(outer) {
 Packet::Emitter::~Emitter() {
     auto crcActual = crc.get();
     write(crcActual);
-    rt_kprintf("\n");
+    //rt_kprintf("\n");
     outer->mutex.unlock();
 }
 
@@ -71,7 +75,7 @@ void Packet::Emitter::writeByte(std::variant<rt_uint8_t, ControlChar> b) {
 
 void Packet::Emitter::writeAtom(rt_uint8_t b) {
     outer->uart->send(&b, sizeof(b));
-    rt_kprintf("%02x ", b);
+    //rt_kprintf("%02x ", b);
     crc.update(b);
 }
 
@@ -109,6 +113,11 @@ std::variant<rt_uint8_t, Packet::ControlChar> Packet::Absorber::readByte() {
 rt_uint8_t Packet::Absorber::readAtom() {
     auto b = rt_uint8_t{};
     outer->uart->recv(&b, sizeof(b), RT_WAITING_FOREVER);
+    if(first) {
+        first = false;
+        rt_kprintf("absorb: ");
+    }
+    rt_kprintf("%02x ", b);
     crc.update(b);
     return b;
 }

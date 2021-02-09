@@ -262,14 +262,23 @@ private:
     rtthread::Mutex mutex;
 };
 
+//#include <utilities/singleton.hxx>
+//namespace Preset {
+//class PersistentStorage: public Singleton<PersistentStorage>, public ::PersistentStorage {
+//    friend class Singleton<PersistentStorage>;
+//    PersistentStorage(): ::PersistentStorage(at24cxx_init(kI2c, kAddr), kSize) {}
+//    static const char* kI2c;
+//    static const int kAddr;
+//    static const int kSize;
+//};
+//}
+
 #include <utilities/singleton.hxx>
+#include "persistent_storage_fake.hxx"
 namespace Preset {
-class PersistentStorage: public Singleton<PersistentStorage>, public ::PersistentStorage {
+class PersistentStorage: public Singleton<PersistentStorage>, public ::PersistentStorageFake {
     friend class Singleton<PersistentStorage>;
-    PersistentStorage(): ::PersistentStorage(at24cxx_init(kI2c, kAddr), kSize) {}
-    static const char* kI2c;
-    static const int kAddr;
-    static const int kSize;
+    PersistentStorage(): ::PersistentStorageFake() {}
 };
 }
 

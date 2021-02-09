@@ -26,7 +26,7 @@ public:
     Cloud(std::shared_ptr<CloudTimer> timer);
     virtual void init();
 
-    virtual void setCurrentData(std::array<CurrentData, Config::Bsp::kPortNum>& data) = 0;
+    virtual void setCurrentData(std::array<CurrentData, Config::Bsp::kPortNum>&& data) = 0;
     virtual void setIccid(std::string_view iccid) = 0;
     virtual void setSignal(int signal) = 0;
 

@@ -45,7 +45,7 @@ public:
     virtual void control(int port, int timerId, int minutes) override;
     virtual void stop(int port, int timerId) override;
     virtual void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) override;
-
+    virtual std::array<CurrentData, Config::Bsp::kPortNum> getCurrentData() override;
 
 private:
     std::array<ChargerInfo, Config::Bsp::kPortNum> infos;

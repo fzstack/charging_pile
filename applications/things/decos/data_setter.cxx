@@ -18,33 +18,20 @@ using namespace Things::Decos;
 DataSetter::DataSetter(outer_t* outer): Base(outer) {
     inited.onChanged += [this](auto value) {
         if(!value) return;
-        this->outer->getCurrentData += [this] {
-            auto arr = array<CurrentData, Config::Bsp::kPortNum>{};
-            for(auto i = 0u; i < Config::Bsp::kPortNum; i++) {
-                auto& info = getInfo(i);
-                auto charger = info.charger;
-                arr[i] = CurrentData {
-                    port: int(i),
-                    timerId: info.timerId,
-                    leftMinutes: info.leftSeconds / 60,
-                    state: **charger->stateStore->oState,
-                    current: (float)**charger->multimeterChannel->current / 1000.f,
-                    voltage: (float)**charger->multimeterChannel->voltage,
-                    consumption: info.consumption,
-                    fuse: CurrentData::Fuse::Normal,
-                };
-            }
-            return arr;
-        };
 
         for(auto i = 0u; i < Config::Bsp::kPortNum; i++) {
             auto charger = getInfo(i).charger;
-            charger->stateStore->oState += [this](auto state) {
+            charger->stateStore->oState += [this, i, charger](auto state) {
                 if(!state) return;
                 switch(*state) {
                 case State::Charging:
-                case State::LoadWaitRemove:
-                    this->outer->onCurrentData();
+                case State::LoadWaitRemove: {
+//                    auto& prevCurrMiA = specs[i].prevCurrMiA;
+//                    auto& prevTick = specs[i].prevTick;
+//                    prevTick = rt_tick_get();
+//                    prevCurrMiA = *charger->multimeterChannel->current.value();
+//                    this->outer->onCurrentData();
+                    }
                     break;
                 default:
                     break;
@@ -54,11 +41,17 @@ DataSetter::DataSetter(outer_t* outer): Base(outer) {
             charger->multimeterChannel->current += [this, i, charger](auto value) {
                 if(!value) return;
                 auto& prevCurrMiA = specs[i].prevCurrMiA;
+                auto& prevTick = specs[i].prevTick;
                 auto params = Preset::PersistentStorage::get()->make<Params>();
-                if(abs(*value - prevCurrMiA) >= params->currDiffThrMiA && *charger->stateStore->oState == State::Charging) {
-                    this->outer->onCurrentData();
+                if(*charger->stateStore->oState == State::Charging) {
+                    if(abs(*value - prevCurrMiA) >= params->currDiffThrMiA) {
+                        if(rt_tick_get() - prevTick > 10000) {
+                            prevTick = rt_tick_get();
+                            this->outer->onCurrentData();
+                            prevCurrMiA = *value;
+                        }
+                    }
                 }
-                prevCurrMiA = *value;
             };
         }
     };

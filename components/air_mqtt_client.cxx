@@ -12,6 +12,7 @@
 #include <utilities/err.hxx>
 #include <cctype>
 #include <utilities/string.hxx>
+#include <algorithm>
 
 #define LOG_TAG "com.air_mqtt"
 #define LOG_LVL LOG_LVL_DBG
@@ -51,11 +52,11 @@ void AirMqttClient::subscribe(std::string_view topic) {
 }
 
 void AirMqttClient::publish(std::string_view topic, std::string_view data) {
-    rt_kprintf("***[%d] topic: ", rt_tick_get());
-    rt_kputs(topic.data());
-    rt_kputs(", data: ");
-    rt_kputs(data.data());
-    rt_kputs("***\n");
+//    rt_kprintf("***[%d] topic: ", rt_tick_get());
+//    rt_kputs(topic.data());
+//    rt_kputs(", data: ");
+//    rt_kputs(data.data());
+//    rt_kputs("***\n");
     auto resp = createResp();
     if(at_obj_exec_cmd(getAtClient(), resp.get(), "AT+MPUB=\"%s\",0,0,\"%s\"", escape(topic).c_str(), escape(data).c_str()) != RT_EOK)
         throw runtime_error{"timeout when config mqtt"};
@@ -111,12 +112,19 @@ std::vector<at_urc> AirMqttClient::onUrcTableInit() {
 }
 
 string AirMqttClient::escape(string_view raw) {
-    auto frags = split(raw.data(), '"');
-    auto result = ""s;
-    for(auto i = 0u; i < frags.size() - 1; i++) {
-        result += frags[i] + "\\22";
+    auto quoCount = count(raw.begin(), raw.end(), '"');
+    auto result = string(raw.size() + quoCount * 2, '\0');
+    auto offset = 0;
+    for(auto i = 0u; i < raw.size(); i++) {
+        if(raw[i] != '"') {
+            result[i + offset] = raw[i];
+        } else {
+            result[i + offset] = '\\';
+            result[i + offset + 1] = '2';
+            result[i + offset + 2] = '2';
+            offset += 2;
+        }
     }
-    result += frags[frags.size() - 1];
     return result;
 }
 

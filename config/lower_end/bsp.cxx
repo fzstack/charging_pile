@@ -65,17 +65,17 @@ template<> const rt_base_t LoadDetector<7>::kPin = GET_PIN(B, 7);
 template<> const rt_base_t LoadDetector<8>::kPin = GET_PIN(B, 8);
 template<> const rt_base_t LoadDetector<9>::kPin = GET_PIN(B, 9);
 
-const char *UartHlw8112::kUart = "uart5";
+//const char *UartHlw8112::kUart = "uart5";
 
-const char* PersistentStorage::kI2c = "i2c1";
-const int PersistentStorage::kAddr = 0;
-const int PersistentStorage::kSize = 2048;
+//const char* PersistentStorage::kI2c = "i2c1";
+//const int PersistentStorage::kAddr = 0;
+//const int PersistentStorage::kSize = 2048;
 
 const char *Packet::kUart = "uart3";
 
-const rt_base_t Ws2812::kDinPin = GET_PIN(C, 4);
+//const rt_base_t Ws2812::kDinPin = GET_PIN(C, 4);
 //C4
-const int Ws2812::kNum = 10;
+//const int Ws2812::kNum = 10;
 
 }
 #endif

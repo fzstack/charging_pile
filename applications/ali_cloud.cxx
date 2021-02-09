@@ -97,7 +97,10 @@ void AliCloud::init() {
     inited = true;
 }
 
-void AliCloud::setCurrentData(std::array<CurrentData, Config::Bsp::kPortNum>& data) {
+void AliCloud::setCurrentData(std::array<CurrentData, Config::Bsp::kPortNum>&& data) {
+    if(rt_tick_get() - lastSetTick < 2000)
+        return;
+    lastSetTick = rt_tick_get();
     auto value = Json::array({});
     for(const auto& item: data) {
         value.push_back({
@@ -112,9 +115,13 @@ void AliCloud::setCurrentData(std::array<CurrentData, Config::Bsp::kPortNum>& da
         });
     }
     runOn(device->thread->post([this, value]{
+        rt_kprintf("try set data\n");
         device->set("current_data", value);
-    }));
+        rt_uint32_t used;
+        rt_memory_info(nullptr, &used, nullptr);
+        rt_kprintf("data set succeed, used: %d\n", used);
 
+    }));
 }
 
 void AliCloud::setIccid(std::string_view iccid) {

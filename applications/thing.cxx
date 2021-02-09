@@ -67,3 +67,21 @@ void Thing::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurr
     }
 }
 
+std::array<CurrentData, Config::Bsp::kPortNum> Thing::getCurrentData() {
+    auto arr = array<CurrentData, Config::Bsp::kPortNum>{};
+    for(auto i = 0u; i < Config::Bsp::kPortNum; i++) {
+        auto& info = infos[i];
+        auto charger = info.charger;
+        arr[i] = CurrentData {
+            port: int(i),
+            timerId: info.timerId,
+            leftMinutes: info.leftSeconds / 60,
+            state: **charger->stateStore->oState,
+            current: (float)**charger->multimeterChannel->current / 1000.f,
+            voltage: (float)**charger->multimeterChannel->voltage,
+            consumption: info.consumption,
+            fuse: CurrentData::Fuse::Normal,
+        };
+    }
+    return arr;
+}

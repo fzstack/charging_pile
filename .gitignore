@@ -35,3 +35,5 @@ DebugConfig/
 RTE/
 settings/
 *.uvguix*
+/Upper/
+/Lower/

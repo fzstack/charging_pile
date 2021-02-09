@@ -20,14 +20,12 @@
 #include <utilities/crc16.hxx>
 #include <Mutex.h>
 #include <utilities/nested.hxx>
-#include <boost/pfr.hpp>
-#include <type_traits>
 #include <vector>
-#include <utilities/mp.hxx>
 #include <utilities/istream.hxx>
 #include <utilities/ostream.hxx>
 #include <utilities/serializer.hxx>
 #include <utilities/deserializer.hxx>
+#include <utilities/shared_thread.hxx>
 
 //包头    类型         值          CRC
 //0xa5 4字节 结构体的值  xxx
@@ -35,7 +33,7 @@
 //需要一个packet线程来获得数据
 class Packet {
 public:
-    Packet(std::shared_ptr<QueuedUart> uart, std::shared_ptr<Thread> thread);
+    Packet(std::shared_ptr<QueuedUart> uart, std::shared_ptr<Thread> pktThread, std::shared_ptr<SharedThread> cbThread);
 
 private:
     class Callback {
@@ -88,6 +86,7 @@ private:
     private:
         std::size_t hash;
         Crc16 crc;
+        bool first = true;
     };
     friend class Absorber;
 
@@ -155,7 +154,8 @@ private:
 
 private:
     std::shared_ptr<QueuedUart> uart;
-    std::shared_ptr<Thread> thread;
+    std::shared_ptr<Thread> pktThread;
+    std::shared_ptr<SharedThread> cbThread;
     std::map<std::size_t, TypeInfo> typeInfos = {};
     rtthread::Mutex mutex;
     std::optional<rt_uint8_t> last = {};
@@ -166,8 +166,16 @@ private:
 namespace Preset {
 class Packet: public Singleton<Packet>, public ::Packet {
     friend singleton_t;
-    Packet(): ::Packet(std::make_shared<QueuedUart>(kUart), std::make_shared<Thread>(kThreadStack, kThreadPrio, kThreadTick, kThread)) {
+    Packet(): ::Packet(std::make_shared<QueuedUart>(kUart), std::make_shared<Thread>(kThreadStack, kThreadPrio, kThreadTick, kThread), Preset::SharedThread<Priority::Middle>::get()) {
 
+    }
+
+    static serial_configure* getConf() {
+        static serial_configure conf = RT_SERIAL_CONFIG_DEFAULT;
+        conf.baud_rate = BAUD_RATE_230400;
+        conf.parity = PARITY_ODD;
+        conf.bufsz = 1024;
+        return &conf;
     }
 
     static const char *kUart, *kThread;
