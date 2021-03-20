@@ -32,14 +32,6 @@ extern "C" {
 
 #define SPI_CS_PIN         GET_PIN(B, 12)
 
-extern "C" {
-fdb_kvdb _global_kvdb;
-}
-
-static fdb_default_kv_node default_kv_table[] = {
-    {(char*)"username", (void*)"armink", 0},
-};
-
 static void lock(fdb_db_t db) {
     __disable_irq();
 }
@@ -47,6 +39,8 @@ static void lock(fdb_db_t db) {
 static void unlock(fdb_db_t db) {
     __enable_irq();
 }
+
+extern fdb_kvdb _global_kvdb;
 
 static void write_test_key(int argc, char** argv) {
     fdb_kv_set(&_global_kvdb, "test", argv[1]);
@@ -64,11 +58,8 @@ static int rt_hw_spi_flash_with_sfud_init(void) {
     fdb_kvdb_control(&_global_kvdb, FDB_KVDB_CTRL_SET_LOCK, (void*)lock);
     fdb_kvdb_control(&_global_kvdb, FDB_KVDB_CTRL_SET_UNLOCK, (void*)unlock);
 
-    fdb_default_kv default_kv;
-    default_kv.kvs = default_kv_table;
-    default_kv.num = sizeof(default_kv_table) / sizeof(default_kv_table[0]);
-
-    fdb_kvdb_init(&_global_kvdb, "env", "fdb_kvdb", &default_kv, NULL);
+    auto def_kv = fdb_default_kv{num: 0};
+    fdb_kvdb_init(&_global_kvdb, "env", "fdb_kvdb", &def_kv, NULL);
     return RT_EOK;
 }
 INIT_COMPONENT_EXPORT(rt_hw_spi_flash_with_sfud_init);

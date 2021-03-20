@@ -9,6 +9,7 @@
  */
 #pragma once
 #include <rtdevice.h>
+#include <board.h>
 
 struct pin_index
 {

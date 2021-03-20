@@ -18,6 +18,7 @@
 #include <devices/local_rc522.hxx>
 #include <devices/air724.hxx>
 #include <components/packet.hxx>
+#include <components/fal_persistent_storage.hxx>
 
 namespace Preset {
 const rt_base_t Ws2812::kDinPin = GET_PIN(B, 1);
@@ -40,5 +41,14 @@ const char *Air724::kUart = "uart2";
 const rt_base_t Air724::kResetPin = GET_PIN(A, 1);
 
 const char *Packet::kUart = "uart3";
+
+const char
+    *FalPersistentStorage::kSpiBus = "spi2",
+    *FalPersistentStorage::kSpiDev = "spi20";
+const rt_base_t FalPersistentStorage::kSsPin = GET_PIN(B, 12);
 }
+
+
+
+
 #endif
