@@ -20,7 +20,6 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
 
         rt_kprintf("initing ali cloud\n");
         this->air->init();
-
         this->device->services["query"] += [this](auto r, const auto params) {
           onQuery([r](auto e) mutable {
               if(e) {

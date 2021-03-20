@@ -39,6 +39,9 @@ void UpperApp::run() {
             return Cloud::ServiceResult::Failed;
         }
     };
+    cloud->onConfig += [=](int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
+        thing->config(currentLimit, uploadThr, fuzedThr, noloadCurrThr);
+    };
 
     cloud->onQuery += [=]{
         auto curData = thing->getCurrentData();

@@ -20,3 +20,7 @@ void runApp() {
 #endif
 }
 
+namespace __cxxabiv1 {
+    std::terminate_handler __terminate_handler = []{ while(true); };
+}
+

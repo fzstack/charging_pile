@@ -99,7 +99,6 @@ void PersistentStorage::free(rt_uint16_t addr) {
 }
 
 std::shared_ptr<void> PersistentStorage::getCtxGuard() {
-
     if(!owner) {
         owner = make_shared<IdxOwner>(shared_from_this());
     }

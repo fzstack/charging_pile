@@ -65,6 +65,18 @@
 
 /* Command shell */
 
+#define RT_USING_FINSH
+#define FINSH_THREAD_NAME "tshell"
+#define FINSH_USING_HISTORY
+#define FINSH_HISTORY_LINES 5
+#define FINSH_USING_SYMTAB
+#define FINSH_USING_DESCRIPTION
+#define FINSH_THREAD_PRIORITY 20
+#define FINSH_THREAD_STACK_SIZE 2048
+#define FINSH_CMD_SIZE 80
+#define FINSH_USING_MSH
+#define FINSH_USING_MSH_DEFAULT
+#define FINSH_ARG_MAX 10
 /* end of Command shell */
 
 /* Device virtual file system */
@@ -82,6 +94,10 @@
 #define RT_USING_I2C_BITOPS
 #define RT_USING_PIN
 #define RT_USING_SPI
+#define RT_USING_SFUD
+#define RT_SFUD_USING_SFDP
+#define RT_SFUD_USING_FLASH_INFO_TABLE
+#define RT_SFUD_SPI_MAX_HZ 2000
 
 /* Using USB */
 
@@ -112,6 +128,7 @@
 #define RT_USING_AT
 #define AT_USING_CLIENT
 #define AT_CLIENT_NUM_MAX 1
+#define AT_USING_CLI
 #define AT_CMD_MAX_LEN 2048
 #define AT_SW_VERSION_NUM 0x10300
 /* end of AT commands */
@@ -190,6 +207,22 @@
 
 /* system packages */
 
+#define PKG_USING_FAL
+#define FAL_DEBUG_CONFIG
+#define FAL_DEBUG 1
+#define FAL_PART_HAS_TABLE_CFG
+#define FAL_USING_SFUD_PORT
+#define FAL_USING_NOR_FLASH_DEV_NAME "norflash0"
+#define PKG_USING_FAL_V00500
+#define PKG_FAL_VER_NUM 0x00500
+#define PKG_USING_FLASHDB
+#define FDB_USING_KVDB
+#define FDB_USING_FAL_MODE
+#define FDB_WRITE_GRAN_1BIT
+#define FDB_WRITE_GRAN 1
+#define FDB_DEBUG_ENABLE
+#define PKG_USING_FLASHDB_V10000
+#define PKG_FLASHDB_VER_NUM 0x10000
 
 /* Micrium: Micrium software products porting for RT-Thread */
 

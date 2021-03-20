@@ -115,9 +115,9 @@ rt_uint8_t Packet::Absorber::readAtom() {
     outer->uart->recv(&b, sizeof(b), RT_WAITING_FOREVER);
     if(first) {
         first = false;
-        rt_kprintf("absorb: ");
+        //rt_kprintf("absorb: ");
     }
-    rt_kprintf("%02x ", b);
+    //rt_kprintf("%02x ", b);
     crc.update(b);
     return b;
 }

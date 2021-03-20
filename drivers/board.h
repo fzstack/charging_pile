@@ -133,7 +133,7 @@ extern "C"
  */
 
 #define BSP_USING_SPI1
-/*#define BSP_USING_SPI2*/
+#define BSP_USING_SPI2
 /*#define BSP_USING_SPI3*/
 
 /*-------------------------- SPI CONFIG END --------------------------*/
@@ -376,7 +376,7 @@ extern "C"
  *
  */
 
-/*#define BSP_USING_ON_CHIP_FLASH*/
+#define BSP_USING_ON_CHIP_FLASH
 
 /*-------------------------- ON_CHIP_FLASH CONFIG END --------------------------*/
 
