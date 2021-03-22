@@ -118,9 +118,10 @@ public:
     }
 
     template<class T>
-    void emit(T&& t) {
+    void emit(T&& t, std::function<void(std::shared_ptr<void>, rt_uint8_t index)> holder = nullptr) {
         auto emitter = std::make_shared<Emitter>(this, typeid(T).hash_code());
-        Serializer{emitter}.build(t);
+        //序列化器序列化到指针的时候，需要通知outter持有指针的引用
+        Serializer{emitter, holder}.build(t);
     }
 
     template<class T>

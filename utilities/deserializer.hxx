@@ -73,8 +73,26 @@ public:
         return t;
     }
 
+    template<class T>
+    auto parse() -> std::enable_if_t<SerUtilities::is_ptr_v<T> || SerUtilities::is_weak_v<T>, T> {
+        auto idx = parse<rt_uint8_t>();
+
+        if(idx == 0) {
+            return std::shared_ptr<typename T::element_type>(nullptr);
+        }
+        auto found = ptrs.find(idx);
+        if(found != ptrs.end()) {
+            return std::reinterpret_pointer_cast<typename T::element_type>(found->second);
+        }
+        auto t = std::make_shared<typename T::element_type>();
+        ptrs[idx] = t;
+        *t = parse<typename T::element_type>();
+        return t;
+    }
+
 private:
     std::shared_ptr<IStream> istream;
+    std::map<rt_uint8_t, std::shared_ptr<void>> ptrs;
 };
 
 

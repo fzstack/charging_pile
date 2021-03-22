@@ -20,6 +20,8 @@
 #include <string>
 #include <optional>
 #include <variant>
+#include <vector>
+#include <utilities/serialize_utilities.hxx>
 
 struct Void {
 
@@ -54,6 +56,12 @@ private:
     struct Failure {
         id_t id;
         std::string msg;
+    };
+
+    template<class T>
+    struct Release { //指针内的类型
+        id_t id;
+        T data;
     };
 
     struct Pending {
@@ -111,12 +119,27 @@ public:
         pendings.erase(id);
         if(pending->failureMsg)
             throw std::runtime_error{*pending->failureMsg};
-        return *pending->data;
+        return handleInvokeResult(*pending->data, id);
     }
 
     template<class T>
     auto invoke(T& t) -> result_t<T> {
         return invoke(std::move(t));
+    }
+
+    template<class R> //R是指针类型
+    auto handleInvokeResult(R&& r, id_t id) -> std::enable_if_t<SerUtilities::is_ptr_v<std::decay_t<R>>, std::decay_t<R>> {
+        using ele_t = typename std::decay_t<R>::element_type;
+        return std::shared_ptr<ele_t>(new ele_t{*r}, [=](auto p) { //在指针被销毁之后..
+            packet->emit<Release<ele_t>>({id, *p}); //指针被销毁事件
+            delete p;
+        });
+    }
+
+    template<class R> //R非指针类型
+    auto handleInvokeResult(R&& r, id_t id) -> std::enable_if_t<!SerUtilities::is_ptr_v<std::decay_t<R>>, std::decay_t<R>> {
+        //DO NOTHING
+        return r;
     }
 
     template<class T>
@@ -131,6 +154,7 @@ public:
                 try {
                     if(auto err = std::get_if<std::exception_ptr>(&result)) std::rethrow_exception(*err);
                     auto data = std::get_if<result_t<T>>(&result);
+                    handleRespResult(*data, id);
                     packet->emit<Response<T>>({id, *data});
                 } catch(const std::exception& e) {
                     packet->emit<Failure<T>>({id, e.what()});
@@ -138,6 +162,7 @@ public:
             };
             cb(p, f);
         });
+        handleDefResult<result_t<T>>();
     }
 
     template<class T>
@@ -163,10 +188,43 @@ public:
         });
     }
 
+    template<class R>
+    auto handleDefResult() -> std::enable_if_t<SerUtilities::is_ptr_v<std::decay_t<R>>> {
+        using ele_t = typename R::element_type;
+        packet->on<Release<ele_t>>([=](auto r){ //r是RelImpl的指针
+            //查找表，看看id为xx的记录是否存在
+            auto found = ptrHolds.find(r->id);
+            if(found != ptrHolds.end()) {
+                *std::reinterpret_pointer_cast<ele_t>(found->second) = r->data;
+                ptrHolds.erase(found);
+            }
+        });
+    }
+
+    template<class R>
+    auto handleDefResult() -> std::enable_if_t<!SerUtilities::is_ptr_v<std::decay_t<R>>> {
+        //DO NOTHING
+    }
+
+
+    template<class R>
+    auto handleRespResult(R&& r, id_t id) -> std::enable_if_t<SerUtilities::is_ptr_v<std::decay_t<R>>> {
+        ptrHolds[id] = r;
+    }
+
+    template<class R>
+    auto handleRespResult(R&& r, id_t id) -> std::enable_if_t<!SerUtilities::is_ptr_v<std::decay_t<R>>> {
+        //DO NOTHING
+    }
+
+private:
+
+
 private:
     std::shared_ptr<Packet> packet;
     std::set<std::size_t> registeredType = {};
     std::map<id_t, std::shared_ptr<Pending>> pendings;
+    std::map<id_t, std::shared_ptr<void>> ptrHolds;
     id_t curId = 0;
     rtthread::Mutex mutex = {kMutex};
     static const char* kMutex;

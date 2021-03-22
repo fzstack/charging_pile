@@ -55,4 +55,10 @@ string FalPersistentStorage::toBase64(size_t hash) {
     return result;
 }
 
+string FalPersistentStorage::toHex(size_t hash) {
+    auto result = string(10, '\0');
+    rt_sprintf((char*)result.c_str(), "%08x", hash);
+    return result;
+}
+
 

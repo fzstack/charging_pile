@@ -24,7 +24,6 @@
 
 using namespace std;
 
-
 struct Acc {
     vector<string> items;
     string splitter;
@@ -91,6 +90,48 @@ int init_test_rpc_throw() {
 MSH_CMD_EXPORT(test_rpc_throw, );
 INIT_APP_EXPORT(init_test_rpc_throw);
 
+struct SetReq {
+    int value;
+};
+
+struct SetRsp {
+    int value;
+};
+
+template<>
+struct RpcTrait<SetReq> {
+    using result_t = shared_ptr<SetRsp>;
+};
+
+void test_rpc_set(int argc, char** argv) {
+    ASSERT_MIN_NARGS(3);
+    auto val = atoi(argv[1]);
+    auto del = atoi(argv[2]);
+    auto rpc = Preset::Rpc::get();
+    auto r = rpc->invoke<SetReq>({233});
+    rt_thread_delay(del);
+    r->value = val;
+}
+
+//NOTE: 服务端溢出了
+int init_test_rpc_set() {
+    auto rpc = Preset::Rpc::get();
+    rpc->def<SetReq>([](auto p) {
+        rt_kprintf("invoked value: %d\n", p->value);
+        return shared_ptr<SetRsp>(new SetRsp{p->value}, [](auto p) {
+            rt_kprintf("result value is: %d\n", p->value);
+            delete p;
+        });
+    });
+    return RT_EOK;
+}
+
+MSH_CMD_EXPORT(test_rpc_set, );
+INIT_APP_EXPORT(init_test_rpc_set);
+
+#include <utilities/shared_thread.hxx>
+SharedThread testShared(1024, 15, 10, "test");
+
 struct Delay {
     int ms;
 };
@@ -103,9 +144,6 @@ void test_rpc_delay(int argc, char** argv) {
     rpc->invoke<Delay>({ms});
     rt_kprintf("elapsed: %dms\n", rt_tick_get() - before);
 }
-
-#include <utilities/shared_thread.hxx>
-SharedThread testShared(1024, 15, 10, "test");
 
 int init_test_rpc_delay() {
     auto rpc = Preset::Rpc::get();
@@ -121,6 +159,8 @@ int init_test_rpc_delay() {
 
 MSH_CMD_EXPORT(test_rpc_delay, );
 INIT_APP_EXPORT(init_test_rpc_delay);
+
+
 
 enum class Gender {
     Male,

@@ -10,6 +10,8 @@
 #ifndef UTILITIES_CMD_UTILITIES_HXX_
 #define UTILITIES_CMD_UTILITIES_HXX_
 
+#include <rtthread.h>
+
 #define ASSERT_MIN_NARGS(n) \
     do { \
         if(argc < n) { \
@@ -25,6 +27,5 @@
             return; \
         } \
     } while(0) \
-
 
 #endif /* APPLICATIONS2_CMD_UTILITIES_HXX_ */

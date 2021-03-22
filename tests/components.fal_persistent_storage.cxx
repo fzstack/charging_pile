@@ -12,6 +12,13 @@
 
 #include <components/fal_persistent_storage.hxx>
 #include <vector>
+#include <string>
+
+#include <utilities/cmd.hxx>
+
+#define LOG_TAG "test.falps"
+#define LOG_LVL LOG_LVL_DBG
+#include <ulog.h>
 
 using namespace std;
 
@@ -52,10 +59,23 @@ static void test_fal_ps_vec(int argc, char** argv) {
     }
 }
 
+struct TestStrConf {
+    string value = "init_value";
+};
+
+static void test_fal_ps_str(int argc, char** argv) {
+    ASSERT_MIN_NARGS(2);
+    auto fps = Preset::FalPersistentStorage::get();
+    auto test = fps->make<TestStrConf>();
+    rt_kprintf("prev value: %s\n", test->value.c_str());
+    test->value = argv[1];
+}
+
 
 
 MSH_CMD_EXPORT(test_fal_ps, );
 MSH_CMD_EXPORT(test_fal_ps_vec, );
+MSH_CMD_EXPORT(test_fal_ps_str, );
 
 #endif
 

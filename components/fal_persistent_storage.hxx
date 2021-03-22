@@ -25,8 +25,8 @@ public:
 
     template<class T>
     std::shared_ptr<T> make() {
-        //1.hash_code 转 base64
-        auto encoded = toBase64(typeid(T).hash_code());
+        //1.hash_code 转 hex
+        auto encoded = toHex(typeid(T).hash_code());
         rt_kprintf("code: %08x, encoded: %s\n", typeid(T).hash_code(), encoded.c_str());
 
         //2.判断配置是否存在，如果不存在，则使用默认配置
@@ -41,6 +41,7 @@ public:
             ser.build(*(T*)p);
             auto buf = ostream->getBuffer();
             fdb_kv_set_blob(db, encoded.c_str(), fdb_blob_make(&blob, &buf[0], buf.size()));
+            delete p;
         };
 
         if(result == nullptr) { //配置不存在
@@ -64,6 +65,7 @@ public:
 
 private:
     std::string toBase64(size_t hash);
+    std::string toHex(size_t hash);
     fdb_kvdb_t db;
 };
 
