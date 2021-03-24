@@ -14,10 +14,18 @@
 #include <type_traits>
 #include <boost/pfr.hpp>
 #include "serialize_utilities.hxx"
+#include "serializable.hxx"
 
 class Deserializer {
 public:
     Deserializer(std::shared_ptr<IStream> istream);
+
+    template<class T>
+    auto parse() -> std::enable_if_t<std::is_base_of_v<Serializable, std::decay_t<T>>, T> {
+        auto t = T();
+        t.deserialize(*this);
+        return t;
+    }
 
     template<class T>
     auto parse() -> std::enable_if_t<std::is_aggregate_v<T>, T> {

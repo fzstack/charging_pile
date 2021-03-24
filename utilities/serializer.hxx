@@ -17,10 +17,16 @@
 #include <map>
 #include <functional>
 #include "serialize_utilities.hxx"
+#include "serializable.hxx"
 
 class Serializer {
 public:
     Serializer(std::shared_ptr<OStream> ostream, std::function<void(std::shared_ptr<void>, rt_uint8_t index)> holder = nullptr);
+
+    template<class T>
+    auto build(T&& t) -> std::enable_if_t<std::is_base_of_v<Serializable, std::decay_t<T>>> {
+        t.serialize(*this);
+    }
 
     template<class T>
     auto build(T&& t) -> std::enable_if_t<std::is_aggregate_v<std::decay_t<T>>> {
