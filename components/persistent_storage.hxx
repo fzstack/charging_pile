@@ -273,15 +273,15 @@ private:
 //};
 //}
 
-#include <utilities/singleton.hxx>
-#include "persistent_storage_fake.hxx"
-namespace Preset {
-class PersistentStorage: public Singleton<PersistentStorage>, public ::PersistentStorageFake {
-    friend class Singleton<PersistentStorage>;
-    PersistentStorage(): ::PersistentStorageFake() {}
-};
-}
-
+//#include <utilities/singleton.hxx>
+//#include "persistent_storage_fake.hxx"
+//namespace Preset {
+//class PersistentStorage: public Singleton<PersistentStorage>, public ::PersistentStorageFake {
+//    friend class Singleton<PersistentStorage>;
+//    PersistentStorage(): ::PersistentStorageFake() {}
+//};
+//}
+//
 namespace std {
     template<class T>
     struct iterator_traits<typename PersistentStorage::ListIterator<T>> {

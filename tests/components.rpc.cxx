@@ -113,7 +113,6 @@ void test_rpc_set(int argc, char** argv) {
     r->value = val;
 }
 
-//NOTE: 服务端溢出了
 int init_test_rpc_set() {
     auto rpc = Preset::Rpc::get();
     rpc->def<SetReq>([](auto p) {

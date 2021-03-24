@@ -14,6 +14,7 @@
 #include <vector>
 #include <string>
 
+#include <utilities/f.hxx>
 #include <utilities/cmd.hxx>
 
 #define LOG_TAG "test.falps"
@@ -37,21 +38,10 @@ struct TestVecConf {
     vector<int> values = {};
 };
 
-static void printVec(vector<int>& v) {
-    rt_kprintf("{");
-    for(auto i = 0u; i < v.size(); i++) {
-        rt_kprintf("%d", v[i]);
-        if(i < v.size() - 1) {
-            rt_kprintf(", ");
-        }
-    }
-    rt_kprintf("}\n");
-}
-
 static void test_fal_ps_vec(int argc, char** argv) {
     auto fps = Preset::FalPersistentStorage::get();
     auto test = fps->make<TestVecConf>();
-    printVec(test->values);
+    F{} << "prev value: "_r << test->values << endln;
     if(test->values.size() == 0) {
         test->values.push_back(1);
     } else {
@@ -67,7 +57,7 @@ static void test_fal_ps_str(int argc, char** argv) {
     ASSERT_MIN_NARGS(2);
     auto fps = Preset::FalPersistentStorage::get();
     auto test = fps->make<TestStrConf>();
-    rt_kprintf("prev value: %s\n", test->value.c_str());
+    F{} << "prev value: "_r << test->value << endln;
     test->value = argv[1];
 }
 

@@ -167,14 +167,14 @@ private:
 namespace Preset {
 class Packet: public Singleton<Packet>, public ::Packet {
     friend singleton_t;
-    Packet(): ::Packet(std::make_shared<QueuedUart>(kUart), std::make_shared<Thread>(kThreadStack, kThreadPrio, kThreadTick, kThread), Preset::SharedThread<Priority::Middle>::get()) {
+    Packet(): ::Packet(std::make_shared<QueuedUart>(kUart, getConf()), std::make_shared<Thread>(kThreadStack, kThreadPrio, kThreadTick, kThread), Preset::SharedThread<Priority::Middle>::get()) {
 
     }
 
     static serial_configure* getConf() {
         static serial_configure conf = RT_SERIAL_CONFIG_DEFAULT;
         conf.baud_rate = BAUD_RATE_230400;
-        conf.parity = PARITY_ODD;
+        //conf.parity = PARITY_ODD;
         conf.bufsz = 1024;
         return &conf;
     }

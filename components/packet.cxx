@@ -36,7 +36,7 @@ void Packet::handleFrame() {
     auto& info = found->second;
     auto p = info.parser->parse(absorber);
     if(!absorber->check()) throw invalid_frame_error{"crc check failed"};
-    rt_kprintf("\n");
+    //rt_kprintf("\n");
     cbThread->exec([cb = info.callback, p]{
         cb->invoke(p);
     });

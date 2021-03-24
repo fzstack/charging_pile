@@ -25,6 +25,7 @@ class Backuper: public Base {
 
     Observable<bool> inited = false;
 
+public:
     template<int N>
     struct Backup {
         int leftSeconds = 0;

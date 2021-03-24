@@ -8,7 +8,7 @@
  * 2021-01-23     imgcr       the first version
  */
 
-#include <components/persistent_storage.hxx>
+#include <components/persistent_storage_preset.hxx>
 #include "fuse_detecter.hxx"
 #include <numeric>
 #include <cmath>

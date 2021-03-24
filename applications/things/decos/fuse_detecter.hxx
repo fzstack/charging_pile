@@ -26,10 +26,12 @@ class FuseDetecter: public Base {
     virtual void init() override;
     virtual void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) override;
 
+public:
     struct Params {
         int fuzedS2Thr = 10000000;
     };
 
+private:
     struct ChargerSpec {
         std::list<float> angleHist = {};
     };

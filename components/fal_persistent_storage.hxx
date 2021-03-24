@@ -17,6 +17,9 @@
 #include <utilities/memory_iostream.hxx>
 #include <utilities/serializer.hxx>
 #include <utilities/deserializer.hxx>
+#include <utilities/f.hxx>
+
+#include <Mutex.h>
 
 class FalPersistentStorage {
 public:
@@ -27,10 +30,9 @@ public:
     std::shared_ptr<T> make() {
         //1.hash_code 转 hex
         auto encoded = toHex(typeid(T).hash_code());
-        rt_kprintf("code: %08x, encoded: %s\n", typeid(T).hash_code(), encoded.c_str());
-
         //2.判断配置是否存在，如果不存在，则使用默认配置
         struct fdb_kv kv;
+        mutex.lock();
         auto result = fdb_kv_get_obj(db, encoded.c_str(), &kv);
 
         auto saver = [=](auto p){
@@ -41,6 +43,10 @@ public:
             ser.build(*(T*)p);
             auto buf = ostream->getBuffer();
             fdb_kv_set_blob(db, encoded.c_str(), fdb_blob_make(&blob, &buf[0], buf.size()));
+            mutex.unlock();
+#ifdef TEST_PERSISTENT_STORAGE
+            F{} << "config done"_r << endln;
+#endif
             delete p;
         };
 
@@ -63,10 +69,12 @@ public:
 
     std::shared_ptr<void> makeInternal(size_t id);
 
+
 private:
     std::string toBase64(size_t hash);
     std::string toHex(size_t hash);
     fdb_kvdb_t db;
+    rtthread::Mutex mutex;
 };
 
 #include <utilities/singleton.hxx>

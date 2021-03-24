@@ -9,7 +9,7 @@
  */
 
 #include <config/bsp.hxx>
-#include <components/persistent_storage.hxx>
+#include <components/persistent_storage_preset.hxx>
 #include "noload_detecter.hxx"
 
 using namespace Things::Decos;

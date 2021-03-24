@@ -9,7 +9,7 @@
  */
 
 #include <config/bsp.hxx>
-#include <components/persistent_storage.hxx>
+#include <components/persistent_storage_preset.hxx>
 #include "data_setter.hxx"
 
 using namespace std;

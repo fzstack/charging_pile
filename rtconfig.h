@@ -97,7 +97,7 @@
 #define RT_USING_SFUD
 #define RT_SFUD_USING_SFDP
 #define RT_SFUD_USING_FLASH_INFO_TABLE
-#define RT_SFUD_SPI_MAX_HZ 2000
+#define RT_SFUD_SPI_MAX_HZ 10000000
 
 /* Using USB */
 
@@ -234,6 +234,10 @@
 #define PKG_USING_AT24CXX
 #define PKG_USING_AT24CXX_LATEST_VERSION
 /* end of peripheral libraries and drivers */
+
+/* AI packages */
+
+/* end of AI packages */
 
 /* miscellaneous packages */
 

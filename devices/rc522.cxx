@@ -19,6 +19,8 @@
 #include "rc522.hxx"
 
 #define LOG_TAG "dev.rc522"
+#define LOG_LVL LOG_LVL_DBG
+#include <ulog.h>
 
 using namespace std;
 
@@ -39,9 +41,15 @@ Rc522::Rc522(const char* spiBus, const char* spiDev, rt_base_t ssPin) {
                 auto self = (Rc522*)p;
                 auto retVal = self->pcdRequest(Rc522::Piccs::ReqAll);
                 if(retVal != 0 && retVal != 8) { //值未知，发生错误，需要重新复位
+//#ifdef TEST_RC522
+//                    LOG_W("unknown value");
+//#endif
                     self->pcdReset();
                     return;
                 }
+//#ifdef TEST_RC522
+//                    LOG_D("pcd req: %d", retVal);
+//#endif
                 if(retVal != RT_EOK) {
                     self->contiReqFailedCnt++;
                     if(self->contiReqFailedCnt > 1)

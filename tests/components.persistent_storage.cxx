@@ -8,8 +8,13 @@
  * 2021-01-11     imgcr       the first version
  */
 #ifdef TEST_PERSISTENT_STORAGE
-#include <components/persistent_storage.hxx>
+#include <components/persistent_storage_preset.hxx>
 #include <stdexcept>
+#include <co/remote.hxx>
+#include <type_traits>
+#include <utilities/f.hxx>
+#include <string>
+#include <utilities/cmd.hxx>
 
 #define LOG_TAG "test.persto"
 #define LOG_LVL LOG_LVL_DBG
@@ -17,71 +22,61 @@
 
 using namespace std;
 
-static void test_persistent_storage_test() {
-    try {
-        rt_kprintf("size: %d\n", sizeof(std::string));
-        //auto storage = Preset::PersistentStorage::get();
-        //storage->test();
-    } catch (const exception& e) {
-        LOG_E(e.what());
-    }
-}
 
-static void test_persistent_storage_format() {
+struct TestConfigInt {
+    int value = 233;
+};
+
+static void test_persistent_storage_int() {
     try {
         auto storage = Preset::PersistentStorage::get();
-        storage->format();
-    } catch (const exception& e) {
-        LOG_E(e.what());
-    }
-}
-
-static void test_persistent_storage_type_a() {
-    struct Test {
-        int value = 233; //默认值
-    };
-    try {
-        auto storage = Preset::PersistentStorage::get();
-        auto test = storage->make<Test>();
+        auto test = storage->make<TestConfigInt>();
+        F{} << "prev value: "_r << test->value << endln;
         test->value++;
-        rt_kprintf("value: %d\n", test->value);
     } catch (const exception& e) {
         LOG_E(e.what());
     }
 }
 
-static void test_persistent_storage_type_b() {
-    struct Test {
-        int value = 789; //默认值
-    };
-    try {
-        auto storage = Preset::PersistentStorage::get();
-        auto test = storage->make<Test>();
-        test->value--;
-        rt_kprintf("value: %d\n", test->value);
-    } catch (const exception& e) {
-        LOG_E(e.what());
-    }
-}
-
-static void test_persistent_storage_type_c() {
-    struct Test {
-        char value = 'A'; //默认值
-    };
-    try {
-        auto storage = Preset::PersistentStorage::get();
-        auto test = storage->make<Test>();
-        test->value++;
-        rt_kprintf("value: %c\n", test->value);
-    } catch (const exception& e) {
-        LOG_E(e.what());
-    }
-}
-
-MSH_CMD_EXPORT(test_persistent_storage_test, );
-MSH_CMD_EXPORT(test_persistent_storage_format, );
-MSH_CMD_EXPORT(test_persistent_storage_type_a, );
-MSH_CMD_EXPORT(test_persistent_storage_type_b, );
-MSH_CMD_EXPORT(test_persistent_storage_type_c, );
+static int init_test_persistent_storage_int() {
+    auto storage = Preset::PersistentStorage::get();
+#ifdef UPPER_END
+    storage->def<TestConfigInt>();
 #endif
+    return RT_EOK;
+}
+
+INIT_APP_EXPORT(init_test_persistent_storage_int);
+MSH_CMD_EXPORT(test_persistent_storage_int, );
+
+struct TestConfigStr {
+    string value = "hello";
+};
+
+static void test_persistent_storage_str(int argc, char** argv) {
+    ASSERT_MIN_NARGS(2);
+    try {
+        auto storage = Preset::PersistentStorage::get();
+        auto test = storage->make<TestConfigStr>();
+        F{} << "prev value: "_r << test->value << endln;
+        test->value = argv[1];
+    } catch (const exception& e) {
+        LOG_E(e.what());
+    }
+}
+
+static int init_test_persistent_storage_str() {
+    auto storage = Preset::PersistentStorage::get();
+#ifdef UPPER_END
+    storage->def<TestConfigStr>();
+#endif
+    return RT_EOK;
+}
+
+INIT_APP_EXPORT(init_test_persistent_storage_str);
+MSH_CMD_EXPORT(test_persistent_storage_str, );
+
+
+#endif
+
 

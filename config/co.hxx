@@ -18,6 +18,7 @@
 #include <string>
 #include <optional>
 #include <array>
+#include <memory>
 
 #if (defined(LOWER_END) && defined(UPPER_END)) || (!defined(LOWER_END) && !defined(UPPER_END))
 #error "Only one of LOWER_END or UPPER_END can be defined"
@@ -97,11 +98,24 @@ struct GetCurrentData {
 
 };
 }
+
+namespace PersistentStorage {
+template<class T>
+struct Make {
+
+};
+}
+
 }
 
 template<>
 struct RpcTrait<Rpcs::Services::GetCurrentData> {
     using result_t = std::array<CurrentData, Config::Bsp::kPortNum>;
+};
+
+template<class T>
+struct RpcTrait<Rpcs::PersistentStorage::Make<T>> {
+    using result_t = std::shared_ptr<T>;
 };
 
 #endif /* CONFIG_CO_HXX_ */

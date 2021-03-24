@@ -20,15 +20,19 @@ extern "C" {
 
 #include <tinycrypt.h>
 
+#include <Mutex.h>
+#include <Lock.h>
+
 using namespace std;
 
+rtthread::Mutex mutex;
 
 static void lock(fdb_db_t db) {
-    __disable_irq();
+    mutex.lock();
 }
 
 static void unlock(fdb_db_t db) {
-    __enable_irq();
+    mutex.unlock();
 }
 
 FalPersistentStorage::FalPersistentStorage(const char *spiBus, const char *spiDev, rt_base_t ssPin, fdb_kvdb_t db, const char *dbName, const char *flashName, const char *partName): db(db) {
@@ -43,8 +47,6 @@ FalPersistentStorage::FalPersistentStorage(const char *spiBus, const char *spiDe
 }
 
 std::shared_ptr<void> FalPersistentStorage::makeInternal(size_t id) {
-    //1.size_t to base64 & print
-
     return make_shared<int>();
 }
 

@@ -26,10 +26,12 @@ class CurrentLimiter: public Base {
     virtual void init() override;
     virtual void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) override;
 
+public:
     struct Params {
         int maxCurrentMiA = 150; //电流变化阈值
     };
 
+private:
     Observable<bool> inited = false;
     std::array<std::shared_ptr<Timer>, Config::Bsp::kPortNum> timers;
 

@@ -25,10 +25,12 @@ class NoloadDetecter: public Base {
     virtual void init() override;
     virtual void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) override;
 
+public:
     struct Params {
         int noloadCurrThr = 10; //空载电流阈值
     };
 
+private:
     struct ChargerSpec {
         Timer timer = {kDuration, kTimer, RT_TIMER_FLAG_ONE_SHOT};
     };

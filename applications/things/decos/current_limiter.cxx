@@ -8,7 +8,7 @@
  * 2021-01-19     imgcr       the first version
  */
 
-#include <components/persistent_storage.hxx>
+#include <components/persistent_storage_preset.hxx>
 #include <config/app.hxx>
 #include <Lock.h>
 #include "current_limiter.hxx"

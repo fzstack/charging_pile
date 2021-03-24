@@ -8,7 +8,7 @@
  * 2020-12-13     imgcr       the first version
  */
 #ifdef TEST_RC522
-#include <devices/rc522.hxx>
+#include <devices/rc522_preset.hxx>
 #include <rtthread.h>
 
 #define LOG_TAG "test.rc522"

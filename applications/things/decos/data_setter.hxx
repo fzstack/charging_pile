@@ -26,11 +26,12 @@ class DataSetter: public Base {
 
 
 
-private:
+public:
     struct Params {
         int currDiffThrMiA = 10; //电流变化阈值
     };
 
+private:
     struct ChargerSpec {
         int prevCurrMiA = 0;
         rt_tick_t prevTick = 0;
