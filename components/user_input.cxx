@@ -1,17 +1,7 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2021-01-01     imgcr       the first version
- */
-
-#include "user.hxx"
+#include <components/user_input.hxx>
 #include <unordered_map>
 
-void User::watch(std::shared_ptr<Rc522Base> rc522) {
+void UserInput::watch(std::shared_ptr<Rc522Base> rc522) {
     rc522->oCardId += [this](auto value) {
         if(!value) return;
         //onCardSwipe(*value);
@@ -19,7 +9,7 @@ void User::watch(std::shared_ptr<Rc522Base> rc522) {
     };
 }
 
-void User::watch(std::shared_ptr<Keyboard> keyboard) {
+void UserInput::watch(std::shared_ptr<Keyboard> keyboard) {
     keyboard->oValue += [this](auto value) {
         if(!value) return;
         switch(*value) {
@@ -27,7 +17,7 @@ void User::watch(std::shared_ptr<Keyboard> keyboard) {
             currPort = 0;
             break;
         case Keyboard::Keys::Ok:
-            onConfirm(currPort, lastCard);
+            onConfirm(NatPort{(rt_uint8_t)currPort}, lastCard);
             currPort = 0;
             break;
         default:

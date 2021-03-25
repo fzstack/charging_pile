@@ -1,18 +1,10 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2021-12-30     imgcr       the first version
- */
-
 #include "ali_cloud.hxx"
 #include <components/air_components.hxx>
 #include <config/app.hxx>
+#include <utilities/json.hxx>
 
 using namespace std;
+using namespace json_literals;
 
 AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724> air, std::shared_ptr<CloudTimer> timer): Cloud(timer), device(device), air(air) {
     inited.onChanged += [this](auto value) {
@@ -40,7 +32,7 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
                     } else if(auto err = get_if<exception_ptr>(&result)) {
                         r(*err);
                     }
-                }, params["port"], params["timer_id"], params["minutes"]);
+                }, NatPort{rt_uint8_t(params["port"_i])}, params["timer_id"], params["minutes"]);
             } catch(const exception& e) {
                 r(std::current_exception());
             }
@@ -56,7 +48,7 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
                     } else if(auto err = get_if<exception_ptr>(&result)) {
                         r(*err);
                     }
-                }, params["port"], params["timer_id"]);
+                }, NatPort{rt_uint8_t(params["port"_i])}, params["timer_id"]);
             } catch(const exception& e) {
                 r(std::current_exception());
             }
@@ -81,12 +73,21 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
         runOn(this->device->thread->post([=]{
             auto ess = this->air->make<AirEssential>();
             setIccid(ess->getIccid());
+            auto imei = ess->getImei();
+            imei = imei.substr(imei.size() - 12);
+            heartbeat += this->device->thread->post([=](){
+                auto ess = this->air->make<AirEssential>();
+                auto hb = Heartbeat {
+                    signal: ess->getCsq(),
+                    imeiSuff: imei,
+                    temperature: 0,
+                    humidity: 0,
+                    smoke: 0,
+                    timestamp: 0,
+                };
+                emitHeartbeat(std::move(hb));
+            });
         }));
-
-        signal += this->device->thread->post([=](){
-            auto ess = this->air->make<AirEssential>();
-            setSignal(ess->getCsq());
-        });
 
         Cloud::init();
     };
@@ -96,78 +97,85 @@ void AliCloud::init() {
     inited = true;
 }
 
-void AliCloud::setCurrentData(std::array<CurrentData, Config::Bsp::kPortNum>&& data) {
+void AliCloud::emitCurrentData(CurrentData&& data) {
     if(rt_tick_get() - lastSetTick < 2000)
         return;
     lastSetTick = rt_tick_get();
-    auto value = Json::array({});
-    for(const auto& item: data) {
-        value.push_back({
-            {"port", item.port},
-            {"timer_id", item.timerId},
-            {"left_minutes", item.leftMinutes},
-            {"state", item.state},
-            {"current", item.current},
-            {"voltage", item.voltage},
-            {"consumption", item.consumption},
-            {"fuse", item.fuse},
-        });
-    }
+    auto value = Json {
+        {"port", data.port.get()},
+        {"timer_id", data.timerId},
+        {"left_minutes", data.leftMinutes},
+        {"state", data.state},
+        {"current", data.current},
+        {"voltage", data.voltage},
+        {"consumption", data.consumption},
+        {"fuse", data.fuse},
+    };
     runOn(device->thread->post([this, value]{
-        rt_kprintf("try set data\n");
-        device->set("current_data", value);
+        rt_kprintf("try emit data\n");
+        device->emit("current_data", value);
         rt_uint32_t used;
         rt_memory_info(nullptr, &used, nullptr);
-        rt_kprintf("data set succeed, used: %d\n", used);
+        rt_kprintf("data emit succeed, used: %d\n", used);
 
     }));
 }
 
 void AliCloud::setIccid(std::string_view iccid) {
-    device->set("iccid", iccid);
+    auto iccidStr = string{iccid};
+    runOn(device->thread->post([=]{
+        device->set("iccid", iccidStr);
+    }));
 }
 
-void AliCloud::setSignal(int signal) {
-    device->set("signal", signal);
+void AliCloud::emitHeartbeat(Heartbeat&& heartbeat) {
+    runOn(device->thread->post([=]{
+        device->emit("heartbeat", {
+            {"signal", heartbeat.signal},
+            {"imei_suff", heartbeat.imeiSuff},
+            {"temperature", heartbeat.temperature},
+            {"humidity", heartbeat.humidity},
+            {"smoke", heartbeat.smoke},
+            {"timestamp", heartbeat.timestamp},
+        });
+    }));
 }
 
-void AliCloud::emitPortAccess(int port) {
+void AliCloud::emitPortAccess(NatPort port) {
     runOn(device->thread->post([=]{
         device->emit("port_access", {
-            {"port", port},
+            {"port", port.get()},
         });
     }));
 }
 
-void AliCloud::emitPortUnplug(int port) {
+void AliCloud::emitPortUnplug(NatPort port) {
     runOn(device->thread->post([=]{
         device->emit("port_unplug", {
-            {"port", port},
+            {"port", port.get()},
         });
     }));
 }
 
-void AliCloud::emitIcNumber(int port, std::string_view icNumber) {
+void AliCloud::emitIcNumber(NatPort port, std::string_view icNumber) {
     auto icNumberS = string{icNumber.begin(), icNumber.end()};
     runOn(device->thread->post([=]{
         device->emit("ic_number", {
-           {"port", port},
+           {"port", port.get()},
            {"ic_number", icNumberS},
         });
     }));
-
 }
 
-void AliCloud::emitCurrentLimit(int port) {
+void AliCloud::emitCurrentLimit(NatPort port) {
     runOn(device->thread->post([=]{
         device->emit("current_limit", {
-           {"port", port},
+           {"port", port.get()},
         });
     }));
-
 }
 
 void AliCloud::setSignalInterval() {
-    signal();
+    heartbeat();
 }
 

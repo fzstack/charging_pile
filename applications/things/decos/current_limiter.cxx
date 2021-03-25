@@ -1,13 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2021-01-19     imgcr       the first version
- */
-
 #include <components/persistent_storage_preset.hxx>
 #include <config/app.hxx>
 #include <Lock.h>
@@ -26,8 +16,8 @@ CurrentLimiter::CurrentLimiter(outer_t* outer): Base(outer), mutex(kMutex) {
 
     inited.onChanged += [this](auto value) {
         if(!value) return;
-        for(auto i = 0u; i < Config::Bsp::kPortNum; i++) {
-            auto charger = getInfo(i).charger;
+        for(rt_uint8_t i = 0u; i < Config::Bsp::kPortNum; i++) {
+            auto charger = getInfo(InnerPort{i}).charger;
             auto timer = timers[i];
 
             charger->multimeterChannel->current += [this, charger, timer, i](auto value) {
@@ -48,7 +38,7 @@ CurrentLimiter::CurrentLimiter(outer_t* outer): Base(outer), mutex(kMutex) {
                 auto guard = Lock(mutex);
                 if(charger->stateStore->oState.value() == State::Charging) {
                     charger->stop();
-                    this->outer->onCurrentLimit(i);
+                    this->outer->onCurrentLimit(InnerPort{i});
                 }
             };
         }

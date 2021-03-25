@@ -1,12 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2021-01-04     imgcr       the first version
- */
 #ifndef COMPONENTS_PERSISTENT_STORAGE_HXX_
 #define COMPONENTS_PERSISTENT_STORAGE_HXX_
 

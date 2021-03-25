@@ -1,13 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2020-12-19     imgcr       the first version
- */
-
 #ifdef TEST_AIR_MQTT_CLIENT
 #include <devices/air724.hxx>
 #include <components/air_components.hxx>

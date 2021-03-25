@@ -1,13 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2021-01-21     imgcr       the first version
- */
-
 #include <config/bsp.hxx>
 #include <components/persistent_storage_preset.hxx>
 #include "data_setter.hxx"
@@ -19,8 +9,8 @@ DataSetter::DataSetter(outer_t* outer): Base(outer) {
     inited.onChanged += [this](auto value) {
         if(!value) return;
 
-        for(auto i = 0u; i < Config::Bsp::kPortNum; i++) {
-            auto charger = getInfo(i).charger;
+        for(rt_uint8_t i = 0u; i < Config::Bsp::kPortNum; i++) {
+            auto charger = getInfo(InnerPort{i}).charger;
             charger->stateStore->oState += [this, i, charger](auto state) {
                 if(!state) return;
                 switch(*state) {
@@ -47,7 +37,7 @@ DataSetter::DataSetter(outer_t* outer): Base(outer) {
                     if(abs(*value - prevCurrMiA) >= params->currDiffThrMiA) {
                         if(rt_tick_get() - prevTick > 10000) {
                             prevTick = rt_tick_get();
-                            this->outer->onCurrentData();
+                            //TODO: 上报这个端口的状态
                             prevCurrMiA = *value;
                         }
                     }

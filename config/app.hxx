@@ -1,15 +1,7 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2021-12-28     imgcr       the first version
- */
 #ifndef CONFIG_APP_HXX_
 #define CONFIG_APP_HXX_
 #include <string>
+#include <utilities/nat_port.hxx>
 
 namespace Config {
 class App {
@@ -33,7 +25,7 @@ struct State {
 };
 
 struct CurrentData {
-    int port;
+    NatPort port;
     int timerId;
     int leftMinutes;
     State::Value state;
@@ -48,6 +40,16 @@ struct CurrentData {
         };
     };
     Fuse::Value fuse;
+};
+
+struct Heartbeat {
+    int signal;
+    std::string imeiSuff;
+    int temperature;
+    int humidity;
+    int smoke;
+    int timestamp;
+
 };
 
 std::string getStateStr(State::Value state);

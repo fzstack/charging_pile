@@ -1,13 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2020-08-26     imgcr       the first version
- */
-
 #include "voice_notifier.hxx"
 #include <rtthread.h>
 
@@ -45,20 +35,12 @@ void VoiceNotifier::watch(shared_ptr<StateStoreBase> store, PortSpecifiedVoice p
     };
 }
 
-void VoiceNotifier::watch(shared_ptr<User> user) {
-    user->onCardSwipe += [this](auto cardId) {
+void VoiceNotifier::watch(shared_ptr<UserInput> user) {
+    user->onConfirm += [this](auto port, auto cardId) {
         //TODO: 判断是否刷卡
-        if(!last) return; //没有watch之前啥都不做
-        if(*last->oWaitingToStart == nullopt) {
-            wtn6->write(Voices::PlugNotReady);
-        } else {
-            wtn6->write(Voices::CardDetected);
-        }
+        //wtn6->write(Voices::PlugNotReady);
+        wtn6->write(Voices::CardDetected);
     };
-}
-
-void VoiceNotifier::watch(shared_ptr<LastCharger> last) {
-    this->last = last;
 }
 
 

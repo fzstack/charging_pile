@@ -1,14 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2021-01-31     imgcr       the first version
- */
-
-
 #ifdef TEST_STATIC_CTOR
 #include <utilities/static_ctor.hxx>
 #include <rtthread.h>

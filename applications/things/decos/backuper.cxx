@@ -13,8 +13,8 @@ Backuper::Backuper(outer_t* outer): Base(outer) {
             spec.timer = make_shared<Timer>(kDuration, kTimer);
         }
 
-        for(auto i = 0u; i < Config::Bsp::kPortNum; i++) {
-            auto& info = getInfo(i);
+        for(rt_uint8_t i = 0u; i < Config::Bsp::kPortNum; i++) {
+            auto& info = getInfo(InnerPort{rt_uint8_t(i)});
             auto& spec = specs[i];
             auto charger = info.charger;
             auto timer = spec.timer;
@@ -72,7 +72,7 @@ Backuper::Backuper(outer_t* outer): Base(outer) {
                 auto storage = Preset::PersistentStorage::get();
                 magic_switch<Config::Bsp::kPortNum>{}([&](auto x){
                     auto backup = storage->make<Backup<decltype(x)::value>>();
-                    auto& info = getInfo(i);
+                    auto& info = getInfo(InnerPort{i});
                     rt_kprintf("backup port%d due to timing, {left: %d}\n", i, info.leftSeconds);
                     backup->leftSeconds = info.leftSeconds;
                     backup->consumption = info.consumption;

@@ -1,12 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2021-03-22     imgcr       the first version
- */
 #pragma once
 
 #include <rtthread.h>
@@ -18,10 +9,22 @@
 //#include <cxxabi.h>
 #include <string.h>
 
+enum class RowColor {
+    Reset = 0,
+    Black = 30,
+    Red = 31,
+    Green = 32,
+    Yellow = 33,
+    Blue = 34,
+    Magenta = 35,
+    Cyan = 36,
+    White = 37,
+};
+
 template<class T>
 class Row {
 public:
-    Row(T t): t(t) {
+    Row(T t, RowColor color = RowColor::Reset): t(t) {
 
     }
 

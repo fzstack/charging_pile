@@ -1,13 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2021-02-03     imgcr       the first version
- */
-
 #include "upper_app.hxx"
 #include <rtthread.h>
 #include <utilities/mp.hxx>
@@ -15,11 +5,7 @@
 using namespace std;
 
 UpperApp::UpperApp() {
-    for(int i = 0; i < Config::Bsp::kPortNum; i++) {
-        magic_switch<Config::Bsp::kPortNum>{}([&](auto v) {
-            rgbNotifiers[i] = Preset::RgbStateNotifier<decltype(v)::value>::get();
-        }, i);
-    }
+
 }
 
 void UpperApp::run() {
@@ -44,28 +30,25 @@ void UpperApp::run() {
     };
 
     cloud->onQuery += [=]{
-        auto curData = thing->getCurrentData();
-        cloud->setCurrentData(std::move(curData));
+        thing->query();
     };
 
-    thing->onIcNumber += [=](int port, string icNumber) {
+    user->onInputConfirm += [=](auto port, auto icNumber) {
         cloud->emitIcNumber(port, icNumber);
     };
-    thing->onPortAccess += [=](int port) {
+
+    thing->onPortAccess += [=](auto port) {
         cloud->emitPortAccess(port);
     };
-    thing->onPortUnplug += [=](int port) {
+    thing->onPortUnplug += [=](auto port) {
         if(rt_tick_get() < 1000) return;
         cloud->emitPortUnplug(port);
     };
-    thing->onCurrentLimit += [=](int port) {
+    thing->onCurrentLimit += [=](auto port) {
         cloud->emitCurrentLimit(port);
     };
-    thing->onCurrentData += [=]{
-        runOn(Preset::AliIotDevice::get()->thread->post([=]{
-            auto curData = thing->getCurrentData();
-            cloud->setCurrentData(std::move(curData));
-        }));
+    thing->onCurrentData += [=](auto data){
+        cloud->emitCurrentData(std::move(data));
     };
     cloud->init();
 }

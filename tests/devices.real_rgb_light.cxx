@@ -1,12 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2020-12-13     imgcr       the first version
- */
 #ifdef TEST_REAL_RGB_LIGHT
 #include <rtthread.h>
 #include <devices/real_rgb_light.hxx>

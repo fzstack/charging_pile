@@ -1,12 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2020-08-25     imgcr       the first version
- */
 #ifndef CDRIVERS_QUEUED_UART_HXX_
 #define CDRIVERS_QUEUED_UART_HXX_
 

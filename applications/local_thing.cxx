@@ -1,15 +1,4 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2021-02-05     imgcr       the first version
- */
-
 #include "local_thing.hxx"
-#include <applications/cloud.hxx>
 #include <config/co.hxx>
 #include <stdexcept>
 
@@ -19,11 +8,9 @@ using namespace Packets;
 
 LocalThing::LocalThing(
     std::array<std::shared_ptr<Charger>, Config::Bsp::kPortNum> chargers,
-    std::shared_ptr<User> user,
-    std::shared_ptr<LastCharger> last,
     std::shared_ptr<Packet> packet,
     std::shared_ptr<Rpc> rpc
-): Thing(chargers, user, last), packet(packet), rpc(rpc) {
+): Thing(chargers), packet(packet), rpc(rpc) {
     rpc->def<Services::Control>([this](auto p) {
         control(p->port, p->timerId, p->minutes);
     });
@@ -33,8 +20,8 @@ LocalThing::LocalThing(
     rpc->def<Services::Config>([this](auto p){
         config(p->currentLimit, p->uploadThr, p->fuzedThr, p->noloadCurrThr);
     });
-    rpc->def<Services::GetCurrentData>([this](auto p) {
-        return getCurrentData();
+    rpc->def<Services::Query>([this](auto p) {
+        query();
     });
 
     onPortAccess += [this](auto port) {
@@ -43,16 +30,12 @@ LocalThing::LocalThing(
     onPortUnplug += [this](auto port) {
         this->packet->emit<Events::PortUnplug>({port});
     };
-    onIcNumber += [this](auto port, auto icNumber) {
-        rt_kprintf("emit ic number: %s\n", icNumber.c_str());
-        this->packet->emit<Events::IcNumber>({port, icNumber});
-    };
     onCurrentLimit += [this](auto port) {
         this->packet->emit<Events::CurrentLimit>({port});
     };
 
-    onCurrentData += [this]{
-        this->packet->emit<Events::CurrentData>();
+    onCurrentData += [this](auto data){
+        this->packet->emit<Events::CurrentData>({data});
     };
 }
 
@@ -67,7 +50,7 @@ LocalThing::LocalThing(
 #include <things/decos/noload_detecter.hxx>
 using namespace Things::Decos;
 namespace Preset {
-LocalThing::LocalThing(): ::LocalThing(Chargers::get(), User::get(), LastCharger::get(), Packet::get(), Rpc::get()) {
+LocalThing::LocalThing(): ::LocalThing(Chargers::get(), Packet::get(), Rpc::get()) {
     addDeco<EventEmitter>();
     addDeco<Counter>();
     addDeco<CurrentLimiter>();

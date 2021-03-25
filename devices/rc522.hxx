@@ -1,12 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2020-12-10     imgcr       the first version
- */
 #ifndef DEVICES_RC522_HXX_
 #define DEVICES_RC522_HXX_
 
@@ -172,6 +163,18 @@ private:
     rt_spi_device* spi_dev;
     std::shared_ptr<rt_timer> timer;
 };
+
+#include <utilities/singleton.hxx>
+namespace Preset {
+class Rc522: public Singleton<Rc522>, public ::Rc522 {
+    friend singleton_t;
+    Rc522(): ::Rc522(kSpiBus, kSpiDev, kSsPin) {
+        init();
+    }
+    static const char *kSpiBus, *kSpiDev;
+    static const rt_base_t kSsPin;
+};
+}
 
 
 #endif /* DEVICES_RC522_HXX_ */

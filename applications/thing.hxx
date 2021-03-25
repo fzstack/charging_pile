@@ -1,18 +1,7 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2021-01-01     imgcr       the first version
- */
 #ifndef APPLICATIONS_THING_HXX_
 #define APPLICATIONS_THING_HXX_
 
 #include <components/charger.hxx>
-#include <components/last_charger.hxx>
-#include <components/user.hxx>
 #include <memory>
 #include <stdexcept>
 #include <components/timer.hxx>
@@ -34,7 +23,7 @@ struct ChargerInfo {
 class Thing: public ThingBase {
 public:
     friend class Things::Decos::Base;
-    Thing(std::array<std::shared_ptr<Charger>, Config::Bsp::kPortNum> chargers, std::shared_ptr<User> user, std::shared_ptr<LastCharger> last);
+    Thing(std::array<std::shared_ptr<Charger>, Config::Bsp::kPortNum> chargers);
     void init();
 
     template<class T>
@@ -42,15 +31,14 @@ public:
         auto deco = std::shared_ptr<T>(new T(this));
         decos.push_back(deco);
     }
-    virtual void control(int port, int timerId, int minutes) override;
-    virtual void stop(int port, int timerId) override;
+    virtual void query() override;
+    virtual void control(InnerPort port, int timerId, int minutes) override;
+    virtual void stop(InnerPort port, int timerId) override;
     virtual void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) override;
-    virtual std::array<CurrentData, Config::Bsp::kPortNum> getCurrentData() override;
+
 
 private:
     std::array<ChargerInfo, Config::Bsp::kPortNum> infos;
-    std::shared_ptr<User> user;
-    std::shared_ptr<LastCharger> last;
     std::list<std::shared_ptr<Things::Decos::Base>> decos = {};
     rtthread::Mutex mutex = {kMutex};
 

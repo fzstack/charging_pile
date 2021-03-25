@@ -1,13 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2021-01-23     imgcr       the first version
- */
-
 #include <config/bsp.hxx>
 #include <components/persistent_storage_preset.hxx>
 #include "noload_detecter.hxx"
@@ -17,8 +7,8 @@ using namespace Things::Decos;
 NoloadDetecter::NoloadDetecter(outer_t* outer): Base(outer) {
     inited.onChanged += [this](auto value) {
         if(!value) return;
-        for(auto i = 0u; i < Config::Bsp::kPortNum; i++) {
-            auto& info = getInfo(i);
+        for(rt_uint8_t i = 0u; i < Config::Bsp::kPortNum; i++) {
+            auto& info = getInfo(InnerPort{i});
             auto& spec = specs[i];
             auto charger = info.charger;
             auto& timer = spec.timer;

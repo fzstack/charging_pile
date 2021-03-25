@@ -1,12 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2021-02-01     imgcr       the first version
- */
 #ifdef TEST_RGB_LIGHT_WIDGET
 #include <ui/rgb_light_widget.hxx>
 #include <utilities/cmd.hxx>

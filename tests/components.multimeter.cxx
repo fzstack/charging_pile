@@ -1,13 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2020-12-14     imgcr       the first version
- */
-
 #ifdef TEST_MULTIMETER
 #include <components/multimeter.hxx>
 #include <rtthread.h>

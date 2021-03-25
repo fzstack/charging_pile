@@ -1,13 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2021-01-23     imgcr       the first version
- */
-
 #include <components/persistent_storage_preset.hxx>
 #include "fuse_detecter.hxx"
 #include <numeric>
@@ -20,8 +10,8 @@ FuseDetecter::FuseDetecter(outer_t* outer): Base(outer) {
     inited.onChanged += [this](auto value) {
         if(!value) return;
         timer.onRun += [this] {
-            for(auto i = 0u; i < Config::Bsp::kPortNum; i++) {
-                auto& info = getInfo(i);
+            for(rt_uint8_t i = 0u; i < Config::Bsp::kPortNum; i++) {
+                auto& info = getInfo(InnerPort{i});
                 auto& spec = specs[i];
                 auto charger = info.charger;
                 if(*charger->stateStore->oState != State::LoadNotInsert) continue;

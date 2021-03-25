@@ -1,12 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2020-12-18     imgcr       the first version
- */
 #ifndef APPLICATIONS_ALI_IOT_DEVICE_HXX_
 
 #define APPLICATIONS_ALI_IOT_DEVICE_HXX_

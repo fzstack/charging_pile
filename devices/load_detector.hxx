@@ -1,12 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2020-08-24     imgcr       the first version
- */
 #ifndef DEVICES_LOAD_DETECTOR_HXX_
 #define DEVICES_LOAD_DETECTOR_HXX_
 

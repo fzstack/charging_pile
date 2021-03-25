@@ -1,12 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2020-12-09     imgcr       the first version
- */
 #ifndef APPLICATIONS2_STATE_STORE_BASE_HXX_
 #define APPLICATIONS2_STATE_STORE_BASE_HXX_
 

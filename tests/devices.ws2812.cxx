@@ -1,13 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2021-01-29     imgcr       the first version
- */
-
 #ifdef TEST_WS2812
 #include <devices/ws2812.hxx>
 #include <rtthread.h>

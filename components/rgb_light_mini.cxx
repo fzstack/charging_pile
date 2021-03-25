@@ -1,13 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2021-02-09     imgcr       the first version
- */
-
 #include "rgb_light_mini.hxx"
 
 RgbLightMini::RgbLightMini(int i, std::shared_ptr<Ws2812> ws2812): i(i), ws2812(ws2812) {

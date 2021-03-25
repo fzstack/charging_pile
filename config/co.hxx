@@ -1,12 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2021-01-27     imgcr       the first version
- */
 #ifndef CONFIG_CO_HXX_
 #define CONFIG_CO_HXX_
 
@@ -19,6 +10,7 @@
 #include <optional>
 #include <array>
 #include <memory>
+#include <utilities/inner_port.hxx>
 
 #if (defined(LOWER_END) && defined(UPPER_END)) || (!defined(LOWER_END) && !defined(UPPER_END))
 #error "Only one of LOWER_END or UPPER_END can be defined"
@@ -30,16 +22,6 @@ struct State {
     ::State::Value value;
 };
 
-namespace Devices {
-struct Wtn6Write {
-    rt_uint8_t value;
-};
-
-struct Rc522 {
-    std::optional<std::string> cardId;
-};
-}
-
 namespace Props {
 struct CurrentData {
     std::array<::CurrentData, Config::Bsp::kPortNum> value;
@@ -48,24 +30,24 @@ struct CurrentData {
 
 namespace Events {
 struct PortAccess {
-    int port;
+    InnerPort port;
 };
 
 struct PortUnplug {
-    int port;
+    InnerPort port;
 };
 
 struct IcNumber {
-    int port;
+    InnerPort port;
     std::string icNumber;
 };
 
 struct CurrentLimit {
-    int port;
+    InnerPort port;
 };
 
 struct CurrentData {
-
+    ::CurrentData value;
 };
 }
 }
@@ -77,13 +59,13 @@ struct Query {
 };
 
 struct Control {
-    int port;
+    InnerPort port;
     int timerId;
     int minutes;
 };
 
 struct Stop {
-    int port;
+    InnerPort port;
     int timerId;
 };
 
@@ -92,10 +74,6 @@ struct Config {
     int uploadThr;
     int fuzedThr;
     int noloadCurrThr;
-};
-
-struct GetCurrentData {
-
 };
 }
 
@@ -107,11 +85,6 @@ struct Make {
 }
 
 }
-
-template<>
-struct RpcTrait<Rpcs::Services::GetCurrentData> {
-    using result_t = std::array<CurrentData, Config::Bsp::kPortNum>;
-};
 
 template<class T>
 struct RpcTrait<Rpcs::PersistentStorage::Make<T>> {

@@ -1,12 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2020-12-19     imgcr       the first version
- */
 #include <cJSON_util.h>
 #include <string>
 #include <utilities/err.hxx>

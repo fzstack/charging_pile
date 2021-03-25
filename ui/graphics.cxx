@@ -1,13 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2021-01-30     imgcr       the first version
- */
-
 #include "graphics.hxx"
 
 Graphics::Graphics(std::shared_ptr<Buffer> buffer): buffer(buffer) {

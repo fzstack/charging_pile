@@ -1,13 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2020-08-26     imgcr       the first version
- */
-
 #include "rgb_state_notifier.hxx"
 #include <utilities/lock_guard.hxx>
 #include <map>

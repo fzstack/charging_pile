@@ -1,13 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2021-01-21     imgcr       the first version
- */
-
 #include "consumption_measurer.hxx"
 #include <Lock.h>
 
@@ -19,7 +9,7 @@ ConsumptionMeasurer::ConsumptionMeasurer(outer_t* outer): Base(outer), mutex(kMu
     inited.onChanged += [this](auto value) {
         if(!value) return;
         for(auto i = 0u; i < Config::Bsp::kPortNum; i++) {
-            auto& info = getInfo(i);
+            auto& info = getInfo(InnerPort{rt_uint8_t(i)});
             auto& spec = specs[i];
             auto charger = info.charger;
             spec.timer = make_shared<Timer>(kDuration, kTimer);

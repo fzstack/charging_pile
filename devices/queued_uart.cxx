@@ -1,13 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2020-08-25     imgcr       the first version
- */
-
 #include "queued_uart.hxx"
 #include <rthw.h>
 #include <utilities/err.hxx>

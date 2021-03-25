@@ -1,12 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2020-12-14     imgcr       the first version
- */
 #ifdef TEST_WTN6
 #include <rtthread.h>
 #include <devices/wtn6.hxx>
