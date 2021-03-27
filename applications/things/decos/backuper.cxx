@@ -1,9 +1,14 @@
 #include <utilities/mp.hxx>
 #include <components/persistent_storage_preset.hxx>
 #include "backuper.hxx"
+#include <utilities/shared_thread.hxx>
+#include <utilities/nat_port.hxx>
+#include <utilities/inner_port.hxx>
 
 using namespace std;
 using namespace Things::Decos;
+
+#define LOG_PKG_DEAD
 
 Backuper::Backuper(outer_t* outer): Base(outer) {
     inited.onChanged += [this](auto value) {
@@ -24,6 +29,9 @@ Backuper::Backuper(outer_t* outer): Base(outer) {
                 if(!spec.stateHasTransitioned) { //首次进行状态转移
                     spec.stateHasTransitioned = true;
                     magic_switch<Config::Bsp::kPortNum>{}([&](auto x){
+#ifdef LOG_PKG_DEAD
+                        rt_kprintf("curr thread: %s\n", rt_thread_self()->name);
+#endif
                         auto backup = storage->make<Backup<decltype(x)::value>>();
                         switch(*value) {
                         case State::LoadInserted:
@@ -47,7 +55,6 @@ Backuper::Backuper(outer_t* outer): Base(outer) {
                     }, i);
                 } else {
                     magic_switch<Config::Bsp::kPortNum>{}([&](auto x){
-                        auto backup = storage->make<Backup<decltype(x)::value>>();
                         switch(*value) {
                         case State::Charging:
                             timer->start();
@@ -59,7 +66,11 @@ Backuper::Backuper(outer_t* outer): Base(outer) {
                             break;
                         }
                         if(value == State::Charging || value == State::LoadWaitRemove) {
+#ifdef LOG_PKG_DEAD
+                            rt_kprintf("curr thread: %s\n", rt_thread_self()->name);
+#endif
                             rt_kprintf("backup port%d due to state transition, {left: %d}\n", i, info.leftSeconds);
+                            auto backup = storage->make<Backup<decltype(x)::value>>();
                             backup->leftSeconds = info.leftSeconds;
                             backup->timerId = info.timerId;
                             backup->consumption = info.consumption;
@@ -73,7 +84,7 @@ Backuper::Backuper(outer_t* outer): Base(outer) {
                 magic_switch<Config::Bsp::kPortNum>{}([&](auto x){
                     auto backup = storage->make<Backup<decltype(x)::value>>();
                     auto& info = getInfo(InnerPort{i});
-                    rt_kprintf("backup port%d due to timing, {left: %d}\n", i, info.leftSeconds);
+                    rt_kprintf("backup port%d due to timing, {left: %d}\n", NatPort{InnerPort{i}}, info.leftSeconds);
                     backup->leftSeconds = info.leftSeconds;
                     backup->consumption = info.consumption;
                 }, i);

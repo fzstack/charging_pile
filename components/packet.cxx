@@ -20,21 +20,36 @@ Packet::Packet(std::shared_ptr<QueuedUart> uart, std::shared_ptr<Thread> pktThre
 void Packet::handleFrame() {
     auto absorber = make_shared<Absorber>(this);
     auto hash = absorber->getHash();
+#ifdef LOG_PKG_ABSORB
     //rt_kprintf("h:%08x\n", hash);
+#endif
     auto found = typeInfos.find(hash);
     if(found == typeInfos.end()) throw type_info_not_found_error{""};
     auto& info = found->second;
     auto p = info.parser->parse(absorber);
     if(!absorber->check()) throw invalid_frame_error{"crc check failed"};
-    //rt_kprintf("\n");
+#ifdef LOG_PKG_ABSORB
+    rt_kprintf("\n");
+#endif
+#ifdef LOG_PKG_CB
+    rt_kprintf("try invoke pkg cb...\n");
+#endif
     cbThread->exec([cb = info.callback, p]{
+#ifdef LOG_PKG_CB
+        rt_kprintf("invoking pkg cb @%s...\n", rt_thread_self()->name);
+#endif
         cb->invoke(p);
+#ifdef LOG_PKG_CB
+        rt_kprintf("pkg cb invoked @%s\n", rt_thread_self()->name);
+#endif
     });
 }
 
 Packet::Emitter::Emitter(outer_t* outer, size_t hashCode): nested_t(outer) {
     outer->mutex.lock();
-    //rt_kprintf("emit: ");
+#ifdef LOG_PKG_EMIT
+    rt_kprintf("emit: ");
+#endif
     writeByte(ControlChar::Head);
     write(hashCode);
 }
@@ -42,7 +57,9 @@ Packet::Emitter::Emitter(outer_t* outer, size_t hashCode): nested_t(outer) {
 Packet::Emitter::~Emitter() {
     auto crcActual = crc.get();
     write(crcActual);
-    //rt_kprintf("\n");
+#ifdef LOG_PKG_EMIT
+    rt_kprintf("\n");
+#endif
     outer->mutex.unlock();
 }
 
@@ -65,7 +82,9 @@ void Packet::Emitter::writeByte(std::variant<rt_uint8_t, ControlChar> b) {
 
 void Packet::Emitter::writeAtom(rt_uint8_t b) {
     outer->uart->send(&b, sizeof(b));
-    //rt_kprintf("%02x ", b);
+#ifdef LOG_PKG_EMIT
+    rt_kprintf("%02x ", b);
+#endif
     crc.update(b);
 }
 
@@ -105,9 +124,13 @@ rt_uint8_t Packet::Absorber::readAtom() {
     outer->uart->recv(&b, sizeof(b), RT_WAITING_FOREVER);
     if(first) {
         first = false;
-        //rt_kprintf("absorb: ");
+#ifdef LOG_PKG_ABSORB
+        rt_kprintf("absorb: ");
+#endif
     }
-    //rt_kprintf("%02x ", b);
+#ifdef LOG_PKG_ABSORB
+    rt_kprintf("%02x ", b);
+#endif
     crc.update(b);
     return b;
 }

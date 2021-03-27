@@ -5,6 +5,8 @@
 #include <utilities/mp.hxx>
 #include <rtthread.h>
 #include <functional>
+#include <utilities/nat_port.hxx>
+#include <utilities/inner_port.hxx>
 
 #define LOG_TAG "test.load_det"
 #define LOG_LVL LOG_LVL_DBG
@@ -15,12 +17,13 @@ using namespace placeholders;
 
 static int init_test_load_detector() {
 
-    for(auto i = 0; i < Config::Bsp::kPortNum; i++) {
+    for(rt_uint8_t i = 0; i < Config::Bsp::kPortNum; i++) {
         magic_switch<Config::Bsp::kPortNum>{}([&](auto v) {
             auto lodDet = Preset::LoadDetector<decltype(v)::value>::get();
             lodDet->oState += [i](auto state){
                 if(state) {
-                    LOG_D("[%d] %s", i, *state ? "pluged" : "unpluged");
+                    auto port = NatPort{InnerPort{i}};
+                    LOG_D("[%d] %s", port.get(), *state ? "pluged" : "unpluged");
                 }
             };
 

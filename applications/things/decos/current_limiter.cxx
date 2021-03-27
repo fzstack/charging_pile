@@ -22,11 +22,11 @@ CurrentLimiter::CurrentLimiter(outer_t* outer): Base(outer), mutex(kMutex) {
 
             charger->multimeterChannel->current += [this, charger, timer, i](auto value) {
                 auto guard = Lock(mutex);
-                auto storage = Preset::PersistentStorage::get();
-                auto params = storage->make<Params>();
                 if(!value) return;
 
+                auto storage = Preset::PersistentStorage::get();
                 rt_kprintf("port%d current: %dmA\n", i, *value);
+                auto params = storage->make<Params>();
                 if(*value > params->maxCurrentMiA) {
                     if(!timer->isRunning() && charger->stateStore->oState.value() == State::Charging) timer->start();
                 } else {

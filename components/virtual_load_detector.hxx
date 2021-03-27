@@ -44,7 +44,9 @@ namespace Preset {
 template<int R>
 class VirtualLoadDetector: public Singleton<VirtualLoadDetector<R>>, public Config::Bsp::assert_t<::VirtualLoadDetector, R> {
     friend class Singleton<VirtualLoadDetector<R>>;
-    VirtualLoadDetector(): ::VirtualLoadDetector(LoadDetector<R>::get(), Relay<R>::get(), MultiMeterChannel<R>::get()) {}
+    VirtualLoadDetector(): ::VirtualLoadDetector(LoadDetector<R>::get(), Relay<R>::get(), MultiMeterChannel<R>::get()) {
+        ::VirtualLoadDetector::init();
+    }
 };
 }
 

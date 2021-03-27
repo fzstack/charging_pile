@@ -13,10 +13,13 @@
 #include <variant>
 #include <vector>
 #include <utilities/serialize_utilities.hxx>
+#include <utilities/shared_thread.hxx>
 
 struct Void {
 
 };
+
+#define LOG_RPC_CB
 
 template<class T>
 struct RpcTrait {
@@ -26,7 +29,7 @@ struct RpcTrait {
 class Rpc {
 
 public:
-    Rpc(std::shared_ptr<Packet> packet);
+    Rpc(std::shared_ptr<Packet> packet, std::shared_ptr<SharedThread> thread);
 
 private:
     using id_t = rt_uint8_t;
@@ -71,6 +74,18 @@ private:
     using result_t = typename RpcTrait<T>::result_t;
 
 public:
+
+    template<class T>
+    using cb_param_t = std::variant<result_t<T>, std::exception_ptr>;
+
+    template<class T>
+    auto invoke(T&& t, std::function<void(cb_param_t<T>)> r) { //调用远程过程, 请不要在packet线程调用
+        //TODO: 维护状态
+
+
+    }
+
+
     template<class T>
     auto invoke(T&& t) -> result_t<T> { //调用远程过程, 请不要在packet线程调用
         mutex.lock();
@@ -134,9 +149,6 @@ public:
     }
 
     template<class T>
-    using cb_param_t = std::variant<result_t<T>, std::exception_ptr>;
-
-    template<class T>
     void def(std::function<void(std::shared_ptr<T>, std::function<void(cb_param_t<T>)>)> cb) { //定义远程过程
         packet->on<Request<T>>([=](auto r) {
             auto p = std::make_shared<T>(r->data);
@@ -151,7 +163,18 @@ public:
                     packet->emit<Failure<T>>({id, e.what()});
                 }
             };
-            cb(p, f);
+#ifdef LOG_RPC_CB
+            rt_kprintf("try invoke rpc cb...\n");
+#endif
+            thread->exec([=](){
+#ifdef LOG_RPC_CB
+            rt_kprintf("invoking rpc cb @%s...\n", rt_thread_self()->name);
+#endif
+                cb(p, f); //可能会被packet堵塞，所以在不同于middle的回调线程执行
+#ifdef LOG_RPC_CB
+            rt_kprintf("rpc cb invoked @%s\n", rt_thread_self()->name);
+#endif
+            });
         });
         handleDefResult<result_t<T>>();
     }
@@ -213,6 +236,7 @@ private:
 
 private:
     std::shared_ptr<Packet> packet;
+    std::shared_ptr<SharedThread> thread;
     std::set<std::size_t> registeredType = {};
     std::map<id_t, std::shared_ptr<Pending>> pendings;
     std::map<id_t, std::shared_ptr<void>> ptrHolds;
@@ -225,7 +249,7 @@ private:
 namespace Preset {
 class Rpc: public Singleton<Rpc>, public ::Rpc {
     friend singleton_t;
-    Rpc(): ::Rpc(Packet::get()) { }
+    Rpc(): ::Rpc(Packet::get(), SharedThread<Priority::Rpc>::get()) { }
 };
 }
 

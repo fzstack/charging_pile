@@ -17,6 +17,12 @@
 #include <utilities/serializer.hxx>
 #include <utilities/deserializer.hxx>
 #include <utilities/shared_thread.hxx>
+#include <utilities/type.hxx>
+
+#define LOG_PKG_DEF
+#define LOG_PKG_ABSORB
+#define LOG_PKG_EMIT
+#define LOG_PKG_CB
 
 //包头    类型         值          CRC
 //0xa5 4字节 结构体的值  xxx
@@ -102,6 +108,9 @@ private:
 public:
     template<class T>
     void on(std::function<void(std::shared_ptr<T>)> cb) {
+#ifdef LOG_PKG_DEF
+        rt_kprintf("def %s => %08x\n", typeid(T).name(), typeid(T).hash_code());
+#endif
         typeInfos.insert({typeid(T).hash_code(), TypeInfo {
             callback: std::make_shared<CallbackImpl<T>>(cb),
             parser: std::make_shared<ParserImpl<T>>()
@@ -110,6 +119,9 @@ public:
 
     template<class T>
     void emit(T&& t, std::function<void(std::shared_ptr<void>, rt_uint8_t index)> holder = nullptr) {
+#ifdef LOG_PKG_EMIT
+        rt_kprintf("emit %s => %08x\n", typeid(T).name(), typeid(T).hash_code());
+#endif
         auto emitter = std::make_shared<Emitter>(this, typeid(T).hash_code());
         //序列化器序列化到指针的时候，需要通知outter持有指针的引用
         Serializer{emitter, holder}.build(t);
@@ -158,15 +170,15 @@ private:
 namespace Preset {
 class Packet: public Singleton<Packet>, public ::Packet {
     friend singleton_t;
-    Packet(): ::Packet(std::make_shared<QueuedUart>(kUart, getConf()), std::make_shared<Thread>(kThreadStack, kThreadPrio, kThreadTick, kThread), Preset::SharedThread<Priority::Middle>::get()) {
+    Packet(): ::Packet(std::make_shared<QueuedUart>(kUart, getConf()), std::make_shared<Thread>(kThreadStack, kThreadPrio, kThreadTick, kThread), Preset::SharedThread<Priority::PkgCb>::get()) {
 
     }
 
     static serial_configure* getConf() {
         static serial_configure conf = RT_SERIAL_CONFIG_DEFAULT;
-        conf.baud_rate = BAUD_RATE_230400;
+        conf.baud_rate = BAUD_RATE_115200;
         //conf.parity = PARITY_ODD;
-        conf.bufsz = 1024;
+        conf.bufsz = 2048;
         return &conf;
     }
 

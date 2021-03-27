@@ -51,4 +51,12 @@ struct thing_error: public std::runtime_error {
     using std::runtime_error::runtime_error;
 };
 
+#include <utilities/singleton.hxx>
+namespace Preset {
+class ThingPre: public Singleton<ThingPre>, public ::Thing {
+    friend class Singleton<ThingPre>;
+    ThingPre();
+};
+}
+
 #endif /* APPLICATIONS_THING_HXX_ */

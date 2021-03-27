@@ -6,61 +6,73 @@ using namespace std;
 using namespace Rpcs;
 using namespace Packets;
 
+#define LOG_LT_INVOKE
+
 LocalThing::LocalThing(
-    std::array<std::shared_ptr<Charger>, Config::Bsp::kPortNum> chargers,
+    std::shared_ptr<Thing> thing,
     std::shared_ptr<Packet> packet,
-    std::shared_ptr<Rpc> rpc
-): Thing(chargers), packet(packet), rpc(rpc) {
-    rpc->def<Services::Control>([this](auto p) {
+    std::shared_ptr<Rpc> rpc,
+    std::shared_ptr<SharedThread> thread
+): thing(thing), packet(packet), rpc(rpc), thread(thread) {
+    packet->on<Services::Control>([this](auto p) {
         control(p->port, p->timerId, p->minutes);
     });
-    rpc->def<Services::Stop>([this](auto p) {
+    packet->on<Services::Stop>([this](auto p) {
         stop(p->port, p->timerId);
     });
-    rpc->def<Services::Config>([this](auto p){
+    packet->on<Services::Config>([this](auto p){
         config(p->currentLimit, p->uploadThr, p->fuzedThr, p->noloadCurrThr);
     });
-    rpc->def<Services::Query>([this](auto p) {
+    packet->on<Services::Query>([this](auto p) {
+#ifdef LOG_LT_INVOKE
+        rt_kprintf("on remote query\n");
+#endif
         query();
     });
 
-    onPortAccess += [this](auto port) {
+    thing->onPortAccess += [this](auto port) {
+        onPortAccess(port);
         this->packet->emit<Events::PortAccess>({port});
     };
-    onPortUnplug += [this](auto port) {
+
+    thing->onPortUnplug += [this](auto port) {
+        onPortUnplug(port);
         this->packet->emit<Events::PortUnplug>({port});
     };
-    onCurrentLimit += [this](auto port) {
+
+    thing->onCurrentLimit += [this](auto port) {
+        onCurrentLimit(port);
         this->packet->emit<Events::CurrentLimit>({port});
     };
 
-    onCurrentData += [this](auto data){
+    thing->onCurrentData += [this](auto data){
+        onCurrentData(data);
         this->packet->emit<Events::CurrentData>({data});
     };
 }
 
-#ifdef LOWER_END
-#include <things/decos/counter.hxx>
-#include <things/decos/event_emitter.hxx>
-#include <things/decos/current_limiter.hxx>
-#include <things/decos/backuper.hxx>
-#include <things/decos/data_setter.hxx>
-#include <things/decos/consumption_measurer.hxx>
-#include <things/decos/fuse_detecter.hxx>
-#include <things/decos/noload_detecter.hxx>
-using namespace Things::Decos;
-namespace Preset {
-LocalThing::LocalThing(): ::LocalThing(Chargers::get(), Packet::get(), Rpc::get()) {
-    addDeco<EventEmitter>();
-    addDeco<Counter>();
-    addDeco<CurrentLimiter>();
-    //addDeco<Backuper>();
-    addDeco<DataSetter>();
-    addDeco<ConsumptionMeasurer>();
-    //addDeco<FuseDetecter>();
-    addDeco<NoloadDetecter>();
-    init();
+void LocalThing::query() {
+    thread->exec([=](){
+        thing->query();
+    });
 }
+
+void LocalThing::control(InnerPort port, int timerId, int minutes) {
+    thread->exec([=](){
+        thing->control(port, timerId, minutes);
+    });
 }
-#endif
+
+void LocalThing::stop(InnerPort port, int timerId) {
+    thread->exec([=](){
+        thing->stop(port, timerId);
+    });
+}
+
+void LocalThing::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
+    thread->exec([=](){
+        thing->config(currentLimit, uploadThr, fuzedThr, noloadCurrThr);
+    });
+}
+
 

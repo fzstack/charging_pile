@@ -54,23 +54,31 @@ const char *CloudTimer::kName = "cloud";
 
 const char* Packet::kThread = "packet";
 const int
-    Packet::kThreadStack = 2048,
-    Packet::kThreadPrio = 10,
+    Packet::kThreadStack = 1024,
+    Packet::kThreadPrio = 3,
     Packet::kThreadTick = 2;
 
 const char* Ttp229::kThread = "ttp229";
 const int
     Ttp229::kThreadStack = 1024,
-    Ttp229::kThreadPrio = 3,
+    Ttp229::kThreadPrio = 2,
     Ttp229::kThreadTick = 10;
 
 template<> const char* SharedThread<Priority::High>::kThread = "high";
-template<> const int SharedThread<Priority::High>::kThreadStack = 1024;
+template<> const int SharedThread<Priority::High>::kThreadStack = 2048;
 template<> const int SharedThread<Priority::High>::kThreadTick = 10;
 
 template<> const char* SharedThread<Priority::Middle>::kThread = "middle";
 template<> const int SharedThread<Priority::Middle>::kThreadStack = 2048;
 template<> const int SharedThread<Priority::Middle>::kThreadTick = 10;
+
+template<> const char* SharedThread<Priority::PkgCb>::kThread = "pkgcb";
+template<> const int SharedThread<Priority::PkgCb>::kThreadStack = 2048;
+template<> const int SharedThread<Priority::PkgCb>::kThreadTick = 10;
+
+template<> const char* SharedThread<Priority::Rpc>::kThread = "rpc";
+template<> const int SharedThread<Priority::Rpc>::kThreadStack = 2048;
+template<> const int SharedThread<Priority::Rpc>::kThreadTick = 10;
 
 const int WsScreen::kDuration = 20;
 const char* WsScreen::kTimer = "wscrn";

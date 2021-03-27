@@ -13,7 +13,11 @@
 
 void *operator new(size_t size)
 {
-    return rt_malloc(size);
+    auto ptr = rt_malloc(size);
+    if(ptr == nullptr) {
+        rt_kprintf("W: memory exhausted\n");
+    }
+    return ptr;
 }
 
 void *operator new[](size_t size)

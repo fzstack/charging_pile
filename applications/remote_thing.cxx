@@ -22,18 +22,18 @@ RemoteThing::RemoteThing(shared_ptr<Packet> packet, shared_ptr<Rpc> rpc): packet
 }
 
 void RemoteThing::query() {
-    rpc->invoke<Services::Query>({});
+    packet->emit<Services::Query>({});
 }
 
 void RemoteThing::control(InnerPort port, int timerId, int minutes) {
-    rpc->invoke<Services::Control>({port, timerId, minutes});
+    packet->emit<Services::Control>({port, timerId, minutes});
 }
 
 void RemoteThing::stop(InnerPort port, int timerId) {
-    rpc->invoke<Services::Stop>({port, timerId});
+    packet->emit<Services::Stop>({port, timerId});
 }
 
 void RemoteThing::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
-    rpc->invoke<Services::Config>({currentLimit, uploadThr, fuzedThr, noloadCurrThr});
+    packet->emit<Services::Config>({currentLimit, uploadThr, fuzedThr, noloadCurrThr});
 }
 

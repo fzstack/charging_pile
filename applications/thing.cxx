@@ -61,21 +61,27 @@ void Thing::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurr
     }
 }
 
-//std::array<CurrentData, Config::Bsp::kPortNum> Thing::getCurrentData() {
-//    auto arr = array<CurrentData, Config::Bsp::kPortNum>{};
-//    for(rt_uint8_t i = 0u; i < Config::Bsp::kPortNum; i++) {
-//        auto& info = infos[i];
-//        auto charger = info.charger;
-//        arr[i] = CurrentData {
-//            port: InnerPort{i},
-//            timerId: info.timerId,
-//            leftMinutes: info.leftSeconds / 60,
-//            state: **charger->stateStore->oState,
-//            current: (float)**charger->multimeterChannel->current / 1000.f,
-//            voltage: (float)**charger->multimeterChannel->voltage,
-//            consumption: info.consumption,
-//            fuse: CurrentData::Fuse::Normal,
-//        };
-//    }
-//    return arr;
-//}
+#ifdef LOWER_END
+#include <things/decos/counter.hxx>
+#include <things/decos/event_emitter.hxx>
+#include <things/decos/current_limiter.hxx>
+#include <things/decos/backuper.hxx>
+#include <things/decos/data_setter.hxx>
+#include <things/decos/consumption_measurer.hxx>
+#include <things/decos/fuse_detecter.hxx>
+#include <things/decos/noload_detecter.hxx>
+using namespace Things::Decos;
+namespace Preset {
+ThingPre::ThingPre(): ::Thing(Chargers::get()) {
+    addDeco<EventEmitter>();
+    //addDeco<Counter>();
+    addDeco<CurrentLimiter>();
+    addDeco<Backuper>();
+//    addDeco<DataSetter>();
+//    addDeco<ConsumptionMeasurer>();
+//    //addDeco<FuseDetecter>();
+//    addDeco<NoloadDetecter>();
+    init();
+}
+}
+#endif
