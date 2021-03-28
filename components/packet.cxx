@@ -4,7 +4,7 @@
 
 using namespace std;
 
-Packet::Packet(std::shared_ptr<QueuedUart> uart, std::shared_ptr<Thread> pktThread, std::shared_ptr<SharedThread> cbThread): uart(uart), pktThread(pktThread), cbThread(cbThread) {
+Packet::Packet(std::shared_ptr<QueuedUart> uart, std::shared_ptr<Thread> pktThread): uart(uart), pktThread(pktThread) {
     pktThread->onRun += [this](){
         while(true) {
             try {
@@ -34,15 +34,15 @@ void Packet::handleFrame() {
 #ifdef LOG_PKG_CB
     rt_kprintf("try invoke pkg cb...\n");
 #endif
-    cbThread->exec([cb = info.callback, p]{
+    //cbThread->exec([cb = info.callback, p]{
 #ifdef LOG_PKG_CB
         rt_kprintf("invoking pkg cb @%s...\n", rt_thread_self()->name);
 #endif
-        cb->invoke(p);
+        info.callback->invoke(p);
 #ifdef LOG_PKG_CB
         rt_kprintf("pkg cb invoked @%s\n", rt_thread_self()->name);
 #endif
-    });
+    //});
 }
 
 Packet::Emitter::Emitter(outer_t* outer, size_t hashCode): nested_t(outer) {

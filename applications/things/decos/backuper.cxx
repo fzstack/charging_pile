@@ -32,26 +32,27 @@ Backuper::Backuper(outer_t* outer): Base(outer) {
 #ifdef LOG_PKG_DEAD
                         rt_kprintf("curr thread: %s\n", rt_thread_self()->name);
 #endif
-                        auto backup = storage->make<Backup<decltype(x)::value>>();
-                        switch(*value) {
-                        case State::LoadInserted:
-                            if(backup->leftSeconds != 0) {
-                                auto backupCopy = *backup;
-                                rt_kprintf("port%d state resumed\n", i);
-                                auto guard = getLock();
-                                charger->start();
-                                info.leftSeconds = backupCopy.leftSeconds;
-                                info.timerId = backupCopy.timerId;
-                                info.consumption = backupCopy.consumption;
+                        storage->make<Backup<decltype(x)::value>>([=, &info](auto backup){
+                            switch(*value) {
+                            case State::LoadInserted:
+                                if(backup->leftSeconds != 0) {
+                                    auto backupCopy = *backup;
+                                    rt_kprintf("port%d state resumed\n", i);
+                                    auto guard = getLock();
+                                    charger->start();
+                                    info.leftSeconds = backupCopy.leftSeconds;
+                                    info.timerId = backupCopy.timerId;
+                                    info.consumption = backupCopy.consumption;
+                                }
+                                break;
+                            case State::LoadNotInsert:
+                                backup->leftSeconds = 0;
+                                backup->consumption = 0;
+                                break;
+                            default:
+                                break;
                             }
-                            break;
-                        case State::LoadNotInsert:
-                            backup->leftSeconds = 0;
-                            backup->consumption = 0;
-                            break;
-                        default:
-                            break;
-                        }
+                        });
                     }, i);
                 } else {
                     magic_switch<Config::Bsp::kPortNum>{}([&](auto x){
@@ -70,10 +71,12 @@ Backuper::Backuper(outer_t* outer): Base(outer) {
                             rt_kprintf("curr thread: %s\n", rt_thread_self()->name);
 #endif
                             rt_kprintf("backup port%d due to state transition, {left: %d}\n", i, info.leftSeconds);
-                            auto backup = storage->make<Backup<decltype(x)::value>>();
-                            backup->leftSeconds = info.leftSeconds;
-                            backup->timerId = info.timerId;
-                            backup->consumption = info.consumption;
+                            storage->make<Backup<decltype(x)::value>>([this, &info](auto backup){
+                                auto guard = getLock();
+                                backup->leftSeconds = info.leftSeconds;
+                                backup->timerId = info.timerId;
+                                backup->consumption = info.consumption;
+                            });
                         }
                     }, i);
                 }
@@ -82,11 +85,13 @@ Backuper::Backuper(outer_t* outer): Base(outer) {
             timer->onRun += [this, i]{ //每10秒保存一次端口的剩余时间
                 auto storage = Preset::PersistentStorage::get();
                 magic_switch<Config::Bsp::kPortNum>{}([&](auto x){
-                    auto backup = storage->make<Backup<decltype(x)::value>>();
-                    auto& info = getInfo(InnerPort{i});
-                    rt_kprintf("backup port%d due to timing, {left: %d}\n", NatPort{InnerPort{i}}, info.leftSeconds);
-                    backup->leftSeconds = info.leftSeconds;
-                    backup->consumption = info.consumption;
+                    storage->make<Backup<decltype(x)::value>>([=](auto backup){
+                        auto& info = getInfo(InnerPort{i});
+                        auto guard = getLock();
+                        rt_kprintf("backup port%d due to timing, {left: %d}\n", NatPort{InnerPort{i}}, info.leftSeconds);
+                        backup->leftSeconds = info.leftSeconds;
+                        backup->consumption = info.consumption;
+                    });
                 }, i);
             };
         }

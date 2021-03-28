@@ -9,7 +9,7 @@
 
 class LocalThing: public ThingBase {
 public:
-    LocalThing(std::shared_ptr<Thing> thing, std::shared_ptr<Packet> packet, std::shared_ptr<Rpc> rpc, std::shared_ptr<SharedThread> thread);
+    LocalThing(std::shared_ptr<Thing> thing, std::shared_ptr<Packet> packet, std::shared_ptr<Rpc> rpc);
     virtual void query() override;
     virtual void control(InnerPort port, int timerId, int minutes) override;
     virtual void stop(InnerPort port, int timerId) override;
@@ -18,7 +18,6 @@ private:
     std::shared_ptr<Thing> thing;
     std::shared_ptr<Packet> packet;
     std::shared_ptr<Rpc> rpc;
-    std::shared_ptr<SharedThread> thread;
 };
 
 #ifdef LOWER_END
@@ -26,7 +25,7 @@ private:
 namespace Preset {
 class LocalThing: public Singleton<LocalThing>, public ::LocalThing {
     friend class Singleton<LocalThing>;
-    LocalThing(): ::LocalThing(ThingPre::get(), Packet::get(), Rpc::get(), SharedThread<Priority::Middle>::get()) { }
+    LocalThing(): ::LocalThing(ThingPre::get(), Packet::get(), Rpc::get()) { }
 };
 }
 #endif

@@ -5,11 +5,18 @@
 #include <utilities/mp.hxx>
 
 RemoteStateStore::RemoteStateStore(int idx) {
-    auto packet = Preset::Packet::get();
-    magic_switch<Config::Bsp::kPortNum>{}([&](auto v) {
-        packet->on<Packets::State<decltype(v)::value>>([this](auto p){
-            this->state = p->value;
-        });
-    }, idx);
+
 }
 
+void RemoteStateStore::on(State::Value value) {
+    this->state = value;
+}
+
+void RemoteStateStore::staticCtor() {
+    auto packet = Preset::Packet::get();
+    packet->on<Packets::State>([](auto p) {
+        magic_switch<Config::Bsp::kPortNum>{}([&](auto v) {
+            Preset::RemoteStateStore<decltype(v)::value>::get()->on(p->value);
+        }, p->port.get());
+    });
+}

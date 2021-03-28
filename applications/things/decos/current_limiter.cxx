@@ -9,7 +9,7 @@ using namespace Things::Decos;
 
 CurrentLimiter::CurrentLimiter(outer_t* outer): Base(outer), mutex(kMutex) {
 
-    //每个端口一个定时器
+    //每个端口一个定时器, TODO: 可优化
     for(auto& timer: timers) {
         timer = make_shared<Timer>(kDuration, kTimer, RT_TIMER_FLAG_ONE_SHOT);
     }
@@ -24,14 +24,18 @@ CurrentLimiter::CurrentLimiter(outer_t* outer): Base(outer), mutex(kMutex) {
                 auto guard = Lock(mutex);
                 if(!value) return;
 
-                auto storage = Preset::PersistentStorage::get();
                 rt_kprintf("port%d current: %dmA\n", i, *value);
-                auto params = storage->make<Params>();
-                if(*value > params->maxCurrentMiA) {
-                    if(!timer->isRunning() && charger->stateStore->oState.value() == State::Charging) timer->start();
-                } else {
-                    if(timer->isRunning()) timer->stop();
-                }
+                if(charger->stateStore->oState.value() != State::Charging) return;
+
+                auto storage = Preset::PersistentStorage::get();
+                rt_kprintf("port%d charing limit detecting\n", i);
+                storage->make<Params>([=](auto params) {
+                    if(*value > params->maxCurrentMiA) {
+                        if(!timer->isRunning() && charger->stateStore->oState.value() == State::Charging) timer->start();
+                    } else {
+                        if(timer->isRunning()) timer->stop();
+                    }
+                });
             };
 
             timer->onRun += [charger, i, this]() {

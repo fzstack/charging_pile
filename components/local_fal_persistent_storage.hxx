@@ -18,6 +18,11 @@ public:
     }
 
     template<class T>
+    auto make(std::function<void(std::shared_ptr<T>)> cb) {
+        cb(storage->make<T>());
+    }
+
+    template<class T>
     void def() { //请在预设类中调用，定义可远程访问的配置
         rpc->def<Rpcs::PersistentStorage::Make<T>>([this](auto p) {
 #ifdef TEST_PERSISTENT_STORAGE

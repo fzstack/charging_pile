@@ -17,8 +17,8 @@
 #endif
 
 namespace Packets {
-template<int N>
 struct State {
+    InnerPort port;
     ::State::Value value;
 };
 

@@ -74,7 +74,7 @@ using namespace Things::Decos;
 namespace Preset {
 ThingPre::ThingPre(): ::Thing(Chargers::get()) {
     addDeco<EventEmitter>();
-    //addDeco<Counter>();
+    addDeco<Counter>();
     addDeco<CurrentLimiter>();
     addDeco<Backuper>();
 //    addDeco<DataSetter>();

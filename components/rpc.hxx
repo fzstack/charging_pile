@@ -20,6 +20,7 @@ struct Void {
 };
 
 #define LOG_RPC_CB
+#define LOG_RPC_PTR_RV
 
 template<class T>
 struct RpcTrait {
@@ -29,7 +30,7 @@ struct RpcTrait {
 class Rpc {
 
 public:
-    Rpc(std::shared_ptr<Packet> packet, std::shared_ptr<SharedThread> thread);
+    Rpc(std::shared_ptr<Packet> packet);
 
 private:
     using id_t = rt_uint8_t;
@@ -58,74 +59,97 @@ private:
         T data;
     };
 
-    struct Pending {
-        Event event;
-        std::optional<std::string> failureMsg = {};
-    protected:
-        virtual void v() {}
-    };
-
-    template<class U>
-    struct PendingImpl: public Pending {
-        std::shared_ptr<U> data;
-    };
-
     template<class T>
     using result_t = typename RpcTrait<T>::result_t;
 
 public:
+    template<class T>
+    using ivk_cb_param_t = std::variant<result_t<T>, std::exception_ptr>;
+
+private:
+    template<class T>
+    using def_cb_param_t = std::variant<result_t<T>, std::exception_ptr>;
+
+    struct Pending {
+    protected:
+        virtual void v() {}
+    };
 
     template<class T>
-    using cb_param_t = std::variant<result_t<T>, std::exception_ptr>;
+    struct PendingImpl: public Pending {
+        PendingImpl(std::function<void(ivk_cb_param_t<T>)> r): r(r) {}
+
+        std::function<void(ivk_cb_param_t<T>)> r;
+    };
+
+
+
+public:
+
+
 
     template<class T>
-    auto invoke(T&& t, std::function<void(cb_param_t<T>)> r) { //调用远程过程, 请不要在packet线程调用
-        //TODO: 维护状态
+    void invoke(T&& t, std::function<void(ivk_cb_param_t<T>)> r) { //调用远程过程, 请不要在packet线程调用
+        //TODO: 维护状态(用mutex)
+        auto guard = rtthread::Lock{mutex};
+        if(registeredType.count(typeid(T).hash_code()) == 0) {
+            registeredType.insert(typeid(T).hash_code());
+            packet->on<Response<T>>([this](auto p){
+                mutex.lock();
+                auto found = pendings.find(p->id);
+                if(found == pendings.end()) {
+                    rt_kprintf("W: wild resp\n");
+                    return;
+                }
 
-
+                auto pending = std::dynamic_pointer_cast<PendingImpl<T>>(found->second);
+                pendings.erase(p->id);
+                mutex.unlock();
+                p->data = handleInvokeResult(p->data, p->id);
+                pending->r(p->data);
+            });
+            packet->on<Failure<T>>([this](auto p){
+                mutex.lock();
+                auto found = pendings.find(p->id);
+                if(found == pendings.end()) {
+                    rt_kprintf("W: wild resp\n");
+                    return;
+                }
+                auto pending = std::dynamic_pointer_cast<PendingImpl<T>>(found->second);
+                pendings.erase(p->id);
+                mutex.unlock();
+                try {
+                    throw std::runtime_error{p->msg};
+                } catch(std::exception& e) {
+                    pending->r(std::current_exception());
+                }
+            });
+        }
+        auto pending = std::make_shared<PendingImpl<T>>(r);
+        auto id = curId;
+        curId++;
+        pendings.insert({id, pending});
+        packet->emit<Request<T>>({id, t});
     }
 
 
     template<class T>
     auto invoke(T&& t) -> result_t<T> { //调用远程过程, 请不要在packet线程调用
-        mutex.lock();
-        if(registeredType.count(typeid(T).hash_code()) == 0) {
-            registeredType.insert(typeid(T).hash_code());
-            packet->on<Response<T>>([this](auto p){
-                auto guard = rtthread::Lock(mutex);
-                auto found = pendings.find(p->id);
-                if(found == pendings.end()) {
-                    rt_kprintf("W: wild resp\n");
-                    return;
-                }
-                auto impl = std::dynamic_pointer_cast<PendingImpl<result_t<T>>>(found->second);
-                impl->data = std::make_shared<result_t<T>>(p->data);
-                impl->event.set();
-            });
-            packet->on<Failure<T>>([this](auto p){
-                auto guard = rtthread::Lock(mutex);
-                auto found = pendings.find(p->id);
-                if(found == pendings.end()) {
-                    rt_kprintf("W: wild resp\n");
-                    return;
-                }
-                auto pending = found->second;
-                pending->failureMsg = p->msg;
-                pending->event.set();
-            });
+        auto event = Event{};
+        auto data = std::make_shared<ivk_cb_param_t<T>>();
+        invoke(std::forward<T>(t), [=](auto result) mutable {
+            *data = result;
+            event.set();
+        });
+
+        event.wait();
+        auto pexcept = std::get_if<std::exception_ptr>(data.get());
+        if(pexcept != nullptr) {
+            std::rethrow_exception(*pexcept);
         }
-        auto pending = std::make_shared<PendingImpl<result_t<T>>>();
-        auto id = curId;
-        curId++;
-        pendings.insert({id, pending});
-        packet->emit<Request<T>>({id, t});
-        mutex.unlock();
-        pending->event.wait();
-        auto guard = rtthread::Lock{mutex};
-        pendings.erase(id);
-        if(pending->failureMsg)
-            throw std::runtime_error{*pending->failureMsg};
-        return handleInvokeResult(*pending->data, id);
+
+        auto pdata = std::get_if<result_t<T>>(data.get());
+        return *pdata;
     }
 
     template<class T>
@@ -136,7 +160,13 @@ public:
     template<class R> //R是指针类型
     auto handleInvokeResult(R&& r, id_t id) -> std::enable_if_t<SerUtilities::is_ptr_v<std::decay_t<R>>, std::decay_t<R>> {
         using ele_t = typename std::decay_t<R>::element_type;
+#ifdef LOG_RPC_PTR_RV
+        rt_kprintf("rpc managed ptr created\n");
+#endif
         return std::shared_ptr<ele_t>(new ele_t{*r}, [=](auto p) { //在指针被销毁之后..
+#ifdef LOG_RPC_PTR_RV
+            rt_kprintf("rpc managed ptr releasing\n");
+#endif
             packet->emit<Release<ele_t>>({id, *p}); //指针被销毁事件
             delete p;
         });
@@ -149,11 +179,11 @@ public:
     }
 
     template<class T>
-    void def(std::function<void(std::shared_ptr<T>, std::function<void(cb_param_t<T>)>)> cb) { //定义远程过程
+    void def(std::function<void(std::shared_ptr<T>, std::function<void(def_cb_param_t<T>)>)> cb) { //定义远程过程
         packet->on<Request<T>>([=](auto r) {
             auto p = std::make_shared<T>(r->data);
             auto id = r->id;
-            auto f = [this, id](cb_param_t<T> result){
+            auto f = [this, id](def_cb_param_t<T> result){
                 try {
                     if(auto err = std::get_if<std::exception_ptr>(&result)) std::rethrow_exception(*err);
                     auto data = std::get_if<result_t<T>>(&result);
@@ -166,15 +196,15 @@ public:
 #ifdef LOG_RPC_CB
             rt_kprintf("try invoke rpc cb...\n");
 #endif
-            thread->exec([=](){
+            //thread->exec([=](){
 #ifdef LOG_RPC_CB
             rt_kprintf("invoking rpc cb @%s...\n", rt_thread_self()->name);
 #endif
-                cb(p, f); //可能会被packet堵塞，所以在不同于middle的回调线程执行
+            cb(p, f); //可能会被packet堵塞，所以在不同于middle的回调线程执行
 #ifdef LOG_RPC_CB
             rt_kprintf("rpc cb invoked @%s\n", rt_thread_self()->name);
 #endif
-            });
+            //});
         });
         handleDefResult<result_t<T>>();
     }
@@ -236,7 +266,6 @@ private:
 
 private:
     std::shared_ptr<Packet> packet;
-    std::shared_ptr<SharedThread> thread;
     std::set<std::size_t> registeredType = {};
     std::map<id_t, std::shared_ptr<Pending>> pendings;
     std::map<id_t, std::shared_ptr<void>> ptrHolds;
@@ -249,7 +278,7 @@ private:
 namespace Preset {
 class Rpc: public Singleton<Rpc>, public ::Rpc {
     friend singleton_t;
-    Rpc(): ::Rpc(Packet::get(), SharedThread<Priority::Rpc>::get()) { }
+    Rpc(): ::Rpc(Packet::get()) { }
 };
 }
 

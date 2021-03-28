@@ -11,9 +11,8 @@ using namespace Packets;
 LocalThing::LocalThing(
     std::shared_ptr<Thing> thing,
     std::shared_ptr<Packet> packet,
-    std::shared_ptr<Rpc> rpc,
-    std::shared_ptr<SharedThread> thread
-): thing(thing), packet(packet), rpc(rpc), thread(thread) {
+    std::shared_ptr<Rpc> rpc
+): thing(thing), packet(packet), rpc(rpc) {
     packet->on<Services::Control>([this](auto p) {
         control(p->port, p->timerId, p->minutes);
     });
@@ -52,27 +51,19 @@ LocalThing::LocalThing(
 }
 
 void LocalThing::query() {
-    thread->exec([=](){
-        thing->query();
-    });
+    thing->query();
 }
 
 void LocalThing::control(InnerPort port, int timerId, int minutes) {
-    thread->exec([=](){
-        thing->control(port, timerId, minutes);
-    });
+    thing->control(port, timerId, minutes);
 }
 
 void LocalThing::stop(InnerPort port, int timerId) {
-    thread->exec([=](){
-        thing->stop(port, timerId);
-    });
+    thing->stop(port, timerId);
 }
 
 void LocalThing::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
-    thread->exec([=](){
-        thing->config(currentLimit, uploadThr, fuzedThr, noloadCurrThr);
-    });
+    thing->config(currentLimit, uploadThr, fuzedThr, noloadCurrThr);
 }
 
 
