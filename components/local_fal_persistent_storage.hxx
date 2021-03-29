@@ -32,6 +32,10 @@ public:
         });
     }
 
+    void reset() {
+        storage->reset();
+    }
+
 private:
     std::shared_ptr<FalPersistentStorage> storage;
     std::shared_ptr<Rpc> rpc;

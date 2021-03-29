@@ -18,7 +18,6 @@ class ConsumptionMeasurer: public Base {
     virtual void init() override;
 
     struct ChargerSpec {
-        std::shared_ptr<Timer> timer;
         rt_tick_t tick;
         int prevCurr = 0;
         int prevVol = 0;
@@ -26,13 +25,12 @@ class ConsumptionMeasurer: public Base {
 
     void update(ChargerInfo& info, ChargerSpec& spec);
 
+    Timer timer = {kDuration, kTimer};
     Observable<bool> inited = false;
     std::array<ChargerSpec, Config::Bsp::kPortNum> specs;
-    rtthread::Mutex mutex;
 
     static constexpr int kDuration = 1000;
     static const char* kTimer;
-    static const char* kMutex;
 };
 }
 

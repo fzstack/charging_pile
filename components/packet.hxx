@@ -19,10 +19,10 @@
 #include <utilities/shared_thread.hxx>
 #include <utilities/type.hxx>
 
-#define LOG_PKG_DEF
-#define LOG_PKG_ABSORB
-#define LOG_PKG_EMIT
-#define LOG_PKG_CB
+//#define LOG_PKG_DEF
+//#define LOG_PKG_ABSORB
+//#define LOG_PKG_EMIT
+//#define LOG_PKG_CB
 
 //包头    类型         值          CRC
 //0xa5 4字节 结构体的值  xxx
@@ -103,6 +103,7 @@ private:
     struct TypeInfo {
         std::shared_ptr<Callback> callback = nullptr;
         std::shared_ptr<Parser> parser = nullptr;
+        const char* name;
     };
 
 public:
@@ -113,7 +114,8 @@ public:
 #endif
         typeInfos.insert({typeid(T).hash_code(), TypeInfo {
             callback: std::make_shared<CallbackImpl<T>>(cb),
-            parser: std::make_shared<ParserImpl<T>>()
+            parser: std::make_shared<ParserImpl<T>>(),
+            name: typeid(T).name(),
         }});
     }
 
@@ -175,7 +177,7 @@ class Packet: public Singleton<Packet>, public ::Packet {
 
     static serial_configure* getConf() {
         static serial_configure conf = RT_SERIAL_CONFIG_DEFAULT;
-        conf.baud_rate = BAUD_RATE_115200;
+        conf.baud_rate = BAUD_RATE_9600;
         //conf.parity = PARITY_ODD;
         conf.bufsz = 2048;
         return &conf;

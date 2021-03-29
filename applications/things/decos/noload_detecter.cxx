@@ -11,40 +11,44 @@ NoloadDetecter::NoloadDetecter(outer_t* outer): Base(outer) {
             auto& info = getInfo(InnerPort{i});
             auto& spec = specs[i];
             auto charger = info.charger;
-            auto& timer = spec.timer;
 
-            charger->stateStore->oState += [&timer](auto state) {
+            charger->stateStore->oState += [&spec](auto state) {
                 if(!state) return;
-                switch(*state) {
-                case State::LoadWaitRemove:
-                    timer.stop();
-                    break;
-                default: break;
+                if(state != State::Charging) {
+                    spec.count.reset();
                 }
             };
 
-            charger->multimeterChannel->current += [charger, &timer](auto value) {
+            charger->multimeterChannel->current += [charger, &spec](auto value) {
                 if(!value) return;
                 if(*charger->stateStore->oState != State::Charging) return;
-                auto params = Preset::PersistentStorage::get()->make<Params>();
-                if(*value < params->noloadCurrThr) {
-                    if(!timer.isRunning()) {
-                        timer.start();
+                Preset::PersistentStorage::get()->make<Params>([value, &spec](auto params){
+                    if(*value < params->noloadCurrThr) {
+                        spec.count.trigger();
+                    } else {
+                        spec.count.reset();
                     }
-                } else {
-                    if(timer.isRunning()) {
-                        timer.stop();
-                    }
-                }
-            };
+                });
 
-            timer.onRun += [charger]{
-                if(*charger->stateStore->oState == State::Charging) {
-                    rt_kprintf("stop chargering due to no-load\n");
-                    charger->stop();
-                }
             };
         }
+
+        timer.onRun += [this]{
+            for(rt_uint8_t i = 0; i < Config::Bsp::kPortNum; i++) {
+                auto& info = getInfo(InnerPort{i});
+                auto& spec = specs[i];
+
+                if(spec.count.updateAndCheck()) {
+                    auto charger = info.charger;
+                    if(*charger->stateStore->oState == State::Charging) {
+                        rt_kprintf("stop chargering due to no-load\n");
+                        charger->stop();
+                    }
+                }
+            }
+        };
+
+        timer.start();
     };
 }
 
@@ -53,6 +57,7 @@ void NoloadDetecter::init() {
 }
 
 void NoloadDetecter::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
-    auto params = Preset::PersistentStorage::get()->make<Params>();
-    params->noloadCurrThr = noloadCurrThr;
+    Preset::PersistentStorage::get()->make<Params>([=](auto params) {
+        params->noloadCurrThr = noloadCurrThr;
+    });
 }

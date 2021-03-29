@@ -5,6 +5,7 @@
 #include <components/timer.hxx>
 #include <array>
 #include <config/bsp.hxx>
+#include <utilities/count_down.hxx>
 
 namespace Things::Decos {
 /**
@@ -23,13 +24,15 @@ public:
 
 private:
     struct ChargerSpec {
-        Timer timer = {kDuration, kTimer, RT_TIMER_FLAG_ONE_SHOT};
+        CountDown<> count = {kNoloadDurThr / kDuration};
     };
 
+    Timer timer = {kDuration, kTimer};
     Observable<bool> inited = false;
     std::array<ChargerSpec, Config::Bsp::kPortNum> specs;
     static const char* kTimer;
-    static constexpr int kDuration = 4000; //空载判断区间
+    static constexpr int kDuration = 1000;
+    static constexpr int kNoloadDurThr = 2 * 60 * 1000;  //空载时长阈值
 };
 }
 

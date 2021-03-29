@@ -21,12 +21,12 @@ void Charger::init() {
 }
 
 void Charger::start() {
-    assertState(State::LoadInserted, "start charging");
+    //assertState(State::LoadInserted, "start charging");
     relay->value = Relay::On;
 }
 
 void Charger::stop() {
-    assertState(State::Charging, "stop charging");
+    //assertState(State::Charging, "stop charging");
     relay->value = Relay::Off;
 }
 

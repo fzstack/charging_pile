@@ -42,6 +42,14 @@ void test_thing(int argc, char** argv) {
 MSH_CMD_EXPORT(test_thing, );
 #endif
 
+#if !defined(ENABLE_REMOTE) || (defined(ENABLE_REMOTE) && defined(UPPER_END))
+void reset_config(int argc, char** argv) {
+    auto storage = Preset::PersistentStorage::get();
+    storage->reset();
+}
+MSH_CMD_EXPORT(reset_config, );
+#endif
+
 int init_test_thing() {
     auto thing = Preset::Thing::get();
 

@@ -8,42 +8,42 @@ using namespace rtthread;
 using namespace Things::Decos;
 
 CurrentLimiter::CurrentLimiter(outer_t* outer): Base(outer), mutex(kMutex) {
-
-    //每个端口一个定时器, TODO: 可优化
-    for(auto& timer: timers) {
-        timer = make_shared<Timer>(kDuration, kTimer, RT_TIMER_FLAG_ONE_SHOT);
-    }
-
     inited.onChanged += [this](auto value) {
         if(!value) return;
-        for(rt_uint8_t i = 0u; i < Config::Bsp::kPortNum; i++) {
-            auto charger = getInfo(InnerPort{i}).charger;
-            auto timer = timers[i];
 
-            charger->multimeterChannel->current += [this, charger, timer, i](auto value) {
-                auto guard = Lock(mutex);
-                if(!value) return;
-
-                rt_kprintf("port%d current: %dmA\n", i, *value);
-                if(charger->stateStore->oState.value() != State::Charging) return;
-
-                auto storage = Preset::PersistentStorage::get();
-                rt_kprintf("port%d charing limit detecting\n", i);
-                storage->make<Params>([=](auto params) {
-                    if(*value > params->maxCurrentMiA) {
-                        if(!timer->isRunning() && charger->stateStore->oState.value() == State::Charging) timer->start();
-                    } else {
-                        if(timer->isRunning()) timer->stop();
-                    }
-                });
-            };
-
-            timer->onRun += [charger, i, this]() {
-                auto guard = Lock(mutex);
-                if(charger->stateStore->oState.value() == State::Charging) {
+        timer.onRun += [this]() {
+            auto guard = Lock(mutex);
+            for(rt_uint8_t i = 0u; i < Config::Bsp::kPortNum; i++) {
+                if(specs[i].updateAndCheck()) {
+                    auto charger = getInfo(InnerPort{i}).charger;
                     charger->stop();
                     this->outer->onCurrentLimit(InnerPort{i});
                 }
+            }
+        };
+        timer.start();
+
+        for(rt_uint8_t i = 0u; i < Config::Bsp::kPortNum; i++) {
+            auto charger = getInfo(InnerPort{i}).charger;
+
+            charger->multimeterChannel->current += [this, charger, i](auto value) {
+                auto guard = Lock(mutex);
+                if(!value) return;
+
+                if(charger->stateStore->oState.value() != State::Charging) {
+                    specs[i].reset();
+                    return;
+                }
+                rt_kprintf("port%d current: %dmA\n", i, *value);
+                auto storage = Preset::PersistentStorage::get();
+                storage->make<Params>([this, value, i](auto params) {
+                    auto guard = Lock(mutex);
+                    if(*value > params->maxCurrentMiA) {
+                        specs[i].trigger();
+                    } else {
+                        specs[i].reset();
+                    }
+                });
             };
         }
     };
@@ -54,7 +54,8 @@ void CurrentLimiter::init() {
 }
 
 void CurrentLimiter::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
-    auto params = Preset::PersistentStorage::get()->make<Params>();
-    params->maxCurrentMiA = currentLimit;
+    Preset::PersistentStorage::get()->make<Params>([=](auto params) {
+        params->maxCurrentMiA = currentLimit;
+    });
 }
 

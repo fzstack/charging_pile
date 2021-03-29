@@ -26,12 +26,13 @@ public:
 
 private:
     struct PortSpec {
-        std::shared_ptr<Timer> timer;
         bool stateHasTransitioned = false;
     };
 
+    Timer timer = {kDuration, kTimer};
+    rt_uint8_t currPort = 0;
     std::array<PortSpec, Config::Bsp::kPortNum> specs;
-    static constexpr int kDuration = 10000;
+    static constexpr int kDuration = 1000;
     static const char* kTimer;
 
 };

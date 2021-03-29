@@ -19,8 +19,6 @@ public:
 enum class Priority {
     High,
     Middle,
-    PkgCb,
-    Rpc,
 };
 
 template<Priority Proi>
@@ -37,19 +35,5 @@ template<>
 struct PriorityTrait<Priority::Middle> {
     static constexpr rt_uint8_t value = 15;
 };
-
-template<>
-struct PriorityTrait<Priority::PkgCb> {
-    static constexpr rt_uint8_t value = 15;
-};
-
-template<>
-struct PriorityTrait<Priority::Rpc> {
-    static constexpr rt_uint8_t value = 16;
-};
-
-
-
-
 
 #endif /* CONFIG_OS_HXX_ */

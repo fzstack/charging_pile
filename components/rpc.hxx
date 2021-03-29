@@ -19,8 +19,8 @@ struct Void {
 
 };
 
-#define LOG_RPC_CB
-#define LOG_RPC_PTR_RV
+//#define LOG_RPC_CB
+//#define LOG_RPC_PTR_RV
 
 template<class T>
 struct RpcTrait {

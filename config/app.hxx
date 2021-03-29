@@ -29,8 +29,8 @@ struct CurrentData {
     int timerId;
     int leftMinutes;
     State::Value state;
-    float current;
-    float voltage;
+    int current;
+    int voltage;
     float consumption;
     struct Fuse {
         enum Value {

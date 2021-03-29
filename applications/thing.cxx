@@ -32,7 +32,9 @@ void Thing::init() {
 }
 
 void Thing::query() {
-    //TODO
+    for(auto& deco: decos) {
+        deco->query();
+    }
 }
 
 void Thing::control(InnerPort port, int timerId, int minutes) {
@@ -77,10 +79,10 @@ ThingPre::ThingPre(): ::Thing(Chargers::get()) {
     addDeco<Counter>();
     addDeco<CurrentLimiter>();
     addDeco<Backuper>();
-//    addDeco<DataSetter>();
-//    addDeco<ConsumptionMeasurer>();
+    addDeco<DataSetter>(); //NOTE: 这里会死机
+    addDeco<ConsumptionMeasurer>(); //NOTE: 这里会发生死锁
 //    //addDeco<FuseDetecter>();
-//    addDeco<NoloadDetecter>();
+    addDeco<NoloadDetecter>();
     init();
 }
 }

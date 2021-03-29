@@ -58,6 +58,10 @@ public:
         }
     }
 
+    void reset() {
+        fdb_kv_set_default(db);
+    }
+
     std::shared_ptr<void> makeInternal(size_t id);
 
 

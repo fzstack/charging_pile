@@ -1,8 +1,10 @@
 #include "packet.hxx"
+#include <string>
 #include <stdexcept>
 #include <Lock.h>
 
 using namespace std;
+using namespace string_literals;
 
 Packet::Packet(std::shared_ptr<QueuedUart> uart, std::shared_ptr<Thread> pktThread): uart(uart), pktThread(pktThread) {
     pktThread->onRun += [this](){
@@ -24,10 +26,10 @@ void Packet::handleFrame() {
     //rt_kprintf("h:%08x\n", hash);
 #endif
     auto found = typeInfos.find(hash);
-    if(found == typeInfos.end()) throw type_info_not_found_error{""};
+    if(found == typeInfos.end()) throw type_info_not_found_error{"type info not found"};
     auto& info = found->second;
     auto p = info.parser->parse(absorber);
-    if(!absorber->check()) throw invalid_frame_error{"crc check failed"};
+    if(!absorber->check()) throw invalid_frame_error{info.name};
 #ifdef LOG_PKG_ABSORB
     rt_kprintf("\n");
 #endif

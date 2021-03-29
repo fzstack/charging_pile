@@ -6,6 +6,7 @@
 #include <components/timer.hxx>
 #include <config/bsp.hxx>
 #include <Mutex.h>
+#include <utilities/count_down.hxx>
 
 namespace Things::Decos {
 /**
@@ -22,14 +23,17 @@ public:
         int maxCurrentMiA = 150; //电流变化阈值
     };
 
+
 private:
     Observable<bool> inited = false;
-    std::array<std::shared_ptr<Timer>, Config::Bsp::kPortNum> timers;
+    Timer timer = {kDuration, kTimer};
+    std::array<CountDown<>, Config::Bsp::kPortNum> specs = {kInitCount,kInitCount,kInitCount,kInitCount,kInitCount,kInitCount,kInitCount,kInitCount,kInitCount,kInitCount};
 
     rtthread::Mutex mutex;
 
 private:
-    static constexpr int kDuration = 2000;
+    static constexpr int kDuration = 200;
+    static constexpr int kInitCount = 10;
     static const char* kTimer;
     static const char* kMutex;
 };
