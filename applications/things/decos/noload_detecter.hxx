@@ -6,6 +6,10 @@
 #include <array>
 #include <config/bsp.hxx>
 #include <utilities/count_down.hxx>
+#include <optional>
+#include <components/persistent_storage_preset.hxx>
+#include <things/decos/params/noload_detecter.hxx>
+//#include "conf_man.hxx"
 
 namespace Things::Decos {
 /**
@@ -18,20 +22,20 @@ class NoloadDetecter: public Base {
     virtual void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) override;
 
 public:
-    struct Params {
-        int noloadCurrThr = 10; //空载电流阈值
-    };
 
 private:
     struct ChargerSpec {
-        CountDown<> count = {kNoloadDurThr / kDuration};
+        CountDown<> count = {kNoloadDurThr / kDuration / Config::Bsp::kPortNum};
     };
 
+
+    //ConfMan<Params::NoloadDetecter> params = {getMutex()};
     Timer timer = {kDuration, kTimer};
     Observable<bool> inited = false;
     std::array<ChargerSpec, Config::Bsp::kPortNum> specs;
+    rt_uint8_t currPort = 0;
     static const char* kTimer;
-    static constexpr int kDuration = 1000;
+    static constexpr int kDuration = 100;
     static constexpr int kNoloadDurThr = 2 * 60 * 1000;  //空载时长阈值
 };
 }

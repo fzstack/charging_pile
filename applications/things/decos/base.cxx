@@ -1,6 +1,5 @@
 #include "base.hxx"
 
-using namespace rtthread;
 using namespace Things::Decos;
 
 ChargerInfo& Base::getInfo(InnerPort port) {
@@ -8,5 +7,9 @@ ChargerInfo& Base::getInfo(InnerPort port) {
 }
 
 rtthread::Lock Base::getLock() {
-    return Lock(outer->mutex);
+    return rtthread::Lock(outer->mutex);
+}
+
+rtthread::Mutex& Base::getMutex() {
+    return outer->mutex;
 }

@@ -21,6 +21,9 @@ struct Void {
 
 //#define LOG_RPC_CB
 //#define LOG_RPC_PTR_RV
+#define LOG_RPC_E_MAX_PARALLEL
+
+//TODO: 调用超时
 
 template<class T>
 struct RpcTrait {
@@ -89,9 +92,9 @@ public:
 
 
     template<class T>
-    void invoke(T&& t, std::function<void(ivk_cb_param_t<T>)> r) { //调用远程过程, 请不要在packet线程调用
+    void invoke(T&& t, std::function<void(ivk_cb_param_t<T>)> r, int timeout = kTimeout) { //调用远程过程, 请不要在packet线程调用
         //TODO: 维护状态(用mutex)
-        auto guard = rtthread::Lock{mutex};
+        mutex.lock();
         if(registeredType.count(typeid(T).hash_code()) == 0) {
             registeredType.insert(typeid(T).hash_code());
             packet->on<Response<T>>([this](auto p){
@@ -125,10 +128,24 @@ public:
                 }
             });
         }
+        if(pendings.size() > kMaxParallel) {
+            mutex.unlock();
+#ifdef LOG_RPC_E_MAX_PARALLEL
+            rt_kprintf("exceed max parallel when invoke %s\n", typeid(T).name());
+#endif
+            try {
+                throw timeout_error{typeid(T).name()};
+            } catch(std::exception& e) {
+                r(std::current_exception());
+            }
+            return;
+        }
+
         auto pending = std::make_shared<PendingImpl<T>>(r);
         auto id = curId;
         curId++;
         pendings.insert({id, pending});
+        mutex.unlock();
         packet->emit<Request<T>>({id, t});
     }
 
@@ -271,6 +288,8 @@ private:
     std::map<id_t, std::shared_ptr<void>> ptrHolds;
     id_t curId = 0;
     rtthread::Mutex mutex = {kMutex};
+    static constexpr int kMaxParallel = 2;
+    static constexpr int kTimeout = 1000;
     static const char* kMutex;
 };
 

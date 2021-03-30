@@ -14,7 +14,7 @@ Counter::Counter(outer_t* outer): Base(outer) {
                 if(--leftSeconds <= 0) {
                     charger->stop();
                 }
-                rt_kprintf("[%d] remains %ds\n", i, leftSeconds);
+                rt_kprintf("[%d] remains %ds\n", NatPort{InnerPort{i}}.get(), leftSeconds);
             }
         }
     };

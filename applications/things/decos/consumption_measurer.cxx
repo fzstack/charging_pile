@@ -2,7 +2,7 @@
 #include <Lock.h>
 
 using namespace std;
-using namespace rtthread;
+//using namespace rtthread;
 using namespace Things::Decos;
 
 ConsumptionMeasurer::ConsumptionMeasurer(outer_t* outer): Base(outer) {

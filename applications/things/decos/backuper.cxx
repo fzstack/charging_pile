@@ -55,13 +55,9 @@ Backuper::Backuper(outer_t* outer): Base(outer) {
 #ifdef LOG_PKG_DEAD
                             rt_kprintf("curr thread: %s\n", rt_thread_self()->name);
 #endif
-                            rt_kprintf("backup port%d due to state transition, {left: %d}\n", NatPort{InnerPort{i}}.get(), info.leftSeconds);
-                            storage->make<Backup<decltype(x)::value>>([this, &info](auto backup){
-                                auto guard = getLock();
-                                backup->leftSeconds = info.leftSeconds;
-                                backup->timerId = info.timerId;
-                                backup->consumption = info.consumption;
-                            });
+                            rt_kprintf("backup port%d (state transition)\n", NatPort{InnerPort{i}}.get());
+                            auto guard = getLock();
+                            spec.count.forceTrigger();
                         }
                     }, i);
                 }
@@ -74,17 +70,23 @@ Backuper::Backuper(outer_t* outer): Base(outer) {
             currPort %= Config::Bsp::kPortNum;
             auto storage = Preset::PersistentStorage::get();
             auto charger = getInfo(InnerPort{rt_uint8_t(i)}).charger;
-            if(charger->stateStore->oState.value() != State::Charging) return;
-            magic_switch<Config::Bsp::kPortNum>{}([&](auto x){
-                storage->make<Backup<decltype(x)::value>>([this, i, charger](auto backup){
-                    auto& info = getInfo(InnerPort{i});
-                    auto guard = getLock();
-                    if(charger->stateStore->oState.value() != State::Charging) return;
-                    rt_kprintf("backup port%d due to timing, {left: %d}\n", NatPort{InnerPort{i}}.get(), info.leftSeconds);
-                    backup->leftSeconds = info.leftSeconds;
-                    backup->consumption = info.consumption;
-                });
-            }, i);
+            auto guard = getLock();
+            if(specs[i].count.updateAndCheck()) {
+                magic_switch<Config::Bsp::kPortNum>{}([&](auto x){
+                    storage->make<Backup<decltype(x)::value>>([this, i, charger](auto backup){
+                        auto& info = getInfo(InnerPort{i});
+                        auto guard = getLock();
+                        rt_kprintf("backup port%d, {left: %d}\n", NatPort{InnerPort{i}}.get(), info.leftSeconds);
+                        backup->leftSeconds = info.leftSeconds;
+                        backup->consumption = info.consumption;
+                        if(charger->stateStore->oState.value() == State::Charging) {
+                            specs[i].count.retrigger();
+                        }
+                    });
+                }, i);
+            }
+
+
         };
 
         timer.start();

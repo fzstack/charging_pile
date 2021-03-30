@@ -18,14 +18,16 @@ class CurrentLimiter: public Base {
     virtual void init() override;
     virtual void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) override;
 
+
 public:
     struct Params {
         int maxCurrentMiA = 150; //电流变化阈值
     };
 
-
 private:
     Observable<bool> inited = false;
+    std::optional<Params> params;
+    CountDown<> fReadConf = {};
     Timer timer = {kDuration, kTimer};
     std::array<CountDown<>, Config::Bsp::kPortNum> specs = {kInitCount,kInitCount,kInitCount,kInitCount,kInitCount,kInitCount,kInitCount,kInitCount,kInitCount,kInitCount};
 

@@ -2,6 +2,7 @@
 
 #include <utilities/nested.hxx>
 #include <applications/thing.hxx>
+#include <Mutex.h>
 #include <Lock.h>
 #include <utilities/inner_port.hxx>
 
@@ -18,5 +19,6 @@ protected:
     virtual void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {};
     ChargerInfo& getInfo(InnerPort port);
     rtthread::Lock getLock();
+    rtthread::Mutex& getMutex();
 };
 }

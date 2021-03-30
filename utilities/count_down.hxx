@@ -13,7 +13,7 @@
 template<class T = rt_uint8_t>
 class CountDown {
 public:
-    CountDown(T initVal): currVal(initVal), initVal(initVal) {
+    CountDown(T initVal = 1): currVal(initVal), initVal(initVal) {
 
     }
     void reset() {
@@ -23,6 +23,11 @@ public:
 
     void trigger() {
         counting = true;
+    }
+
+    void forceTrigger() {
+        counting = true;
+        currVal = 1;
     }
 
     void retrigger() {

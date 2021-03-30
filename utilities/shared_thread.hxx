@@ -6,8 +6,8 @@
 #include "signals.hxx"
 #include <config/os.hxx>
 
-class SharedThread: public Thread {
-    using Thread::Thread;
+class SharedThread: public ::Thread {
+    using ::Thread::Thread;
 public:
     template<class... Args>
     void exec(Args&&... args) {

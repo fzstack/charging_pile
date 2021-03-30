@@ -4,6 +4,7 @@
 #include <utilities/observable.hxx>
 #include <config/bsp.hxx>
 #include <components/timer.hxx>
+#include <utilities/count_down.hxx>
 
 namespace Things::Decos {
 /**
@@ -27,12 +28,15 @@ public:
 private:
     struct PortSpec {
         bool stateHasTransitioned = false;
+        CountDown<> count = {kCnt};
     };
 
     Timer timer = {kDuration, kTimer};
     rt_uint8_t currPort = 0;
     std::array<PortSpec, Config::Bsp::kPortNum> specs;
-    static constexpr int kDuration = 1000;
+    static constexpr int kCnt = 10;
+    static constexpr int kAutoBackupDur = 10 * 1000;
+    static constexpr int kDuration = kAutoBackupDur / kCnt / Config::Bsp::kPortNum;
     static const char* kTimer;
 
 };

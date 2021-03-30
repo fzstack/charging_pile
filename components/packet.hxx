@@ -16,7 +16,7 @@
 #include <utilities/ostream.hxx>
 #include <utilities/serializer.hxx>
 #include <utilities/deserializer.hxx>
-#include <utilities/shared_thread.hxx>
+#include <utilities/thread.hxx>
 #include <utilities/type.hxx>
 
 //#define LOG_PKG_DEF
