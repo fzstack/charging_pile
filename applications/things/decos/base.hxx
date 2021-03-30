@@ -14,9 +14,12 @@ class Base: public Nested<Thing> {
     friend outer_t;
 protected:
     using nested_t::Nested;
-    virtual void init() = 0;
+    virtual void init() {};
     virtual void query() {};
     virtual void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {};
+    virtual void onStateChanged(InnerPort port, State::Value state) {};
+    virtual void onCurrentChanged(InnerPort port, int value) {};
+    virtual void onVoltageChanged(InnerPort port, int value) {};
     ChargerInfo& getInfo(InnerPort port);
     rtthread::Lock getLock();
     rtthread::Mutex& getMutex();

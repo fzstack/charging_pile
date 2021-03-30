@@ -11,8 +11,7 @@ class Counter: public Base {
     friend outer_t;
     Counter(outer_t* outer);
     virtual void init() override;
-
-    Observable<bool> inited = false;
+    virtual void onStateChanged(InnerPort port, State::Value state) override;
 
     Timer timer = {1000, kTimer};
     static const char* kTimer;

@@ -30,7 +30,7 @@ private:
     static rtthread::Mutex mutex;
 
 private:
-    static constexpr int kDelayFactor = 2;
+    static constexpr int kDelayFactor = 4;
     static constexpr int kRelayOffStateUpdateDelayMs = LoadDetector::kDetectWndMs * kDelayFactor;
 
     static const char* kMutex;

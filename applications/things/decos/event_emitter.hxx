@@ -9,10 +9,7 @@ namespace Things::Decos {
  */
 class EventEmitter: public Base {
     friend outer_t;
-    EventEmitter(outer_t* outer);
-    virtual void init() override;
-
-private:
-    Observable<bool> inited = false;
+    using Base::Base;
+    virtual void onStateChanged(InnerPort port, State::Value state) override;
 };
 }

@@ -35,7 +35,6 @@ const char
     *Counter::kTimer = "tapoff",
     *::Thing::kMutex = "thing",
     *CurrentLimiter::kTimer = "kltdec",
-    *CurrentLimiter::kMutex = "kltdec",
     *Backuper::kTimer = "btdec",
     *DataSetter::kTimer = "dsdec",
     *ConsumptionMeasurer::kTimer = "cmtdec",

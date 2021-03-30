@@ -9,7 +9,7 @@
 #include <optional>
 #include <components/persistent_storage_preset.hxx>
 #include <things/decos/params/noload_detecter.hxx>
-//#include "conf_man.hxx"
+#include "conf_man.hxx"
 
 namespace Things::Decos {
 /**
@@ -19,6 +19,8 @@ class NoloadDetecter: public Base {
     friend outer_t;
     NoloadDetecter(outer_t* outer);
     virtual void init() override;
+    virtual void onStateChanged(InnerPort port, State::Value state) override;
+    virtual void onCurrentChanged(InnerPort port, int value) override;
     virtual void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) override;
 
 public:
@@ -29,7 +31,7 @@ private:
     };
 
 
-    //ConfMan<Params::NoloadDetecter> params = {getMutex()};
+    ConfMan<Params::NoloadDetecter> params = {getMutex()};
     Timer timer = {kDuration, kTimer};
     Observable<bool> inited = false;
     std::array<ChargerSpec, Config::Bsp::kPortNum> specs;

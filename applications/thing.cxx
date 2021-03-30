@@ -24,6 +24,29 @@ Thing::Thing(array<shared_ptr<Charger>, Config::Bsp::kPortNum> chargers):
         for(auto& deco: decos) {
             deco->init();
         }
+
+        for(rt_uint8_t i = 0; i < Config::Bsp::kPortNum; i++) {
+            this->infos[i].charger->stateStore->oState += [this, i](auto state) {
+                if(!state) return;
+                for(auto& deco: decos) {
+                    deco->onStateChanged(InnerPort{i}, *state);
+                }
+            };
+
+            this->infos[i].charger->multimeterChannel->current += [this, i](auto value) {
+                if(!value) return;
+                for(auto& deco: decos) {
+                    deco->onCurrentChanged(InnerPort{i}, *value);
+                }
+            };
+
+            this->infos[i].charger->multimeterChannel->voltage += [this, i](auto value) {
+                if(!value) return;
+                for(auto& deco: decos) {
+                    deco->onVoltageChanged(InnerPort{i}, *value);
+                }
+            };
+        }
     };
 }
 
@@ -75,12 +98,12 @@ void Thing::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurr
 using namespace Things::Decos;
 namespace Preset {
 ThingPre::ThingPre(): ::Thing(Chargers::get()) {
-    //addDeco<EventEmitter>(); //TODO: 使用count down //重构: 统一的port时钟回调
+    addDeco<EventEmitter>(); //TODO: 使用count down //重构: 统一的port时钟回调
     addDeco<Counter>();
     addDeco<CurrentLimiter>();
     //addDeco<Backuper>();
     //addDeco<DataSetter>(); //NOTE: 这里会死机
-    //addDeco<ConsumptionMeasurer>(); //NOTE: 这里会发生死锁
+    addDeco<ConsumptionMeasurer>(); //NOTE: 这里会发生死锁
 //    //addDeco<FuseDetecter>();
     addDeco<NoloadDetecter>();
     init();

@@ -36,7 +36,6 @@ public:
     virtual void stop(InnerPort port, int timerId) override;
     virtual void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) override;
 
-
 private:
     std::array<ChargerInfo, Config::Bsp::kPortNum> infos;
     std::list<std::shared_ptr<Things::Decos::Base>> decos = {};

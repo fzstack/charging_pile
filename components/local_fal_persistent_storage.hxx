@@ -43,7 +43,7 @@ private:
 
 #include <utilities/singleton.hxx>
 #include <applications/things/decos/backuper.hxx>
-#include <applications/things/decos/current_limiter.hxx>
+#include <applications/things/decos/params/current_limiter.hxx>
 #include <applications/things/decos/data_setter.hxx>
 #include <applications/things/decos/fuse_detecter.hxx>
 #include <applications/things/decos/params/noload_detecter.hxx>
@@ -61,7 +61,7 @@ class LocalFalPersistentStorage: public Singleton<LocalFalPersistentStorage>, pu
             }, i);
         }
 
-        def<CurrentLimiter::Params>();
+        def<Params::CurrentLimiter>();
         def<DataSetter::Params>();
         def<FuseDetecter::Params>();
         def<Params::NoloadDetecter>();

@@ -18,22 +18,16 @@ Counter::Counter(outer_t* outer): Base(outer) {
             }
         }
     };
-
-    inited.onChanged += [this](auto value) {
-        if(!value) return;
-        for(rt_uint8_t i = 0u; i < Config::Bsp::kPortNum; i++) {
-            auto& info = getInfo(InnerPort{i});
-            info.charger->stateStore->oState += [this, &info](auto value) {
-                auto guard = getLock();
-                if(value != State::LoadWaitRemove) return;
-                info.leftSeconds = 0; //充电完成则将剩余时间清零
-            };
-        }
-        timer.start();
-    };
 }
 
 void Counter::init() {
-    inited = true;
+    timer.start();
+}
+
+void Counter::onStateChanged(InnerPort port, State::Value state) {
+    auto guard = getLock();
+    auto& info = getInfo(port);
+    if(state != State::LoadWaitRemove) return;
+    info.leftSeconds = 0; //充电完成则将剩余时间清零
 }
 

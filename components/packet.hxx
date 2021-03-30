@@ -30,7 +30,7 @@
 //需要一个packet线程来获得数据
 class Packet {
 public:
-    Packet(std::shared_ptr<QueuedUart> uart, std::shared_ptr<Thread> pktThread);
+    Packet(std::shared_ptr<QueuedUart> uart, std::shared_ptr<::Thread> pktThread);
 
 private:
     class Callback {
@@ -160,7 +160,7 @@ private:
 
 private:
     std::shared_ptr<QueuedUart> uart;
-    std::shared_ptr<Thread> pktThread;
+    std::shared_ptr<::Thread> pktThread;
     std::map<std::size_t, TypeInfo> typeInfos = {};
     rtthread::Mutex mutex;
     std::optional<rt_uint8_t> last = {};
@@ -171,13 +171,13 @@ private:
 namespace Preset {
 class Packet: public Singleton<Packet>, public ::Packet {
     friend singleton_t;
-    Packet(): ::Packet(std::make_shared<QueuedUart>(kUart, getConf()), std::make_shared<Thread>(kThreadStack, kThreadPrio, kThreadTick, kThread)) {
+    Packet(): ::Packet(std::make_shared<QueuedUart>(kUart, getConf()), std::make_shared<::Thread>(kThreadStack, kThreadPrio, kThreadTick, kThread)) {
 
     }
 
     static serial_configure* getConf() {
         static serial_configure conf = RT_SERIAL_CONFIG_DEFAULT;
-        conf.baud_rate = BAUD_RATE_9600;
+        conf.baud_rate = BAUD_RATE_4800;
         //conf.parity = PARITY_ODD;
         conf.bufsz = 2048;
         return &conf;
