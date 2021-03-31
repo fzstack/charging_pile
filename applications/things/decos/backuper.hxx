@@ -14,8 +14,8 @@ class Backuper: public Base {
     friend outer_t;
     Backuper(outer_t* outer);
     virtual void init() override;
-
-    Observable<bool> inited = false;
+    virtual void onStateChanged(InnerPort port, State::Value state) override;
+    void resume(InnerPort port);
 
 public:
     template<int N>
@@ -29,6 +29,7 @@ private:
     struct PortSpec {
         bool stateHasTransitioned = false;
         CountDown<> count = {kCnt};
+        CountDown<> fResume = {};
     };
 
     Timer timer = {kDuration, kTimer};

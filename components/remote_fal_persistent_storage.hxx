@@ -3,15 +3,17 @@
 #include <memory>
 #include <config/co.hxx>
 #include <components/rpc.hxx>
+#include <components/packet.hxx>
 #include <co/remote.hxx>
 #include <functional>
 #include <Mutex.h>
+#include <optional>
 
 #define LOG_RFPS_NULL_PTR
 
 class RemoteFalPersistentStorage: public Remote {
 public:
-    RemoteFalPersistentStorage(std::shared_ptr<Rpc> rpc);
+    RemoteFalPersistentStorage(std::shared_ptr<Rpc> rpc, std::shared_ptr<Packet> packet);
 
     template<class T>
     auto make() {
@@ -55,8 +57,26 @@ public:
         });
     }
 
+    template<class T>
+    void read(std::function<void(std::optional<T>)> cb) {
+        rpc->invoke<Rpcs::PersistentStorage::Read<T>>({}, [this, cb](auto p) {
+            auto pdata = std::get_if<T>(&p);
+            if(pdata == nullptr) {
+                cb(std::nullopt);
+                return;
+            }
+            cb(*pdata);
+        });
+    }
+
+    template<class T>
+    void write(T&& t) {
+        packet->emit<Rpcs::PersistentStorage::Write<T>>({t});
+    }
+
 private:
     std::shared_ptr<Rpc> rpc;
+    std::shared_ptr<Packet> packet;
     std::map<std::size_t, std::weak_ptr<void>> buf;
     rtthread::Mutex mutex = {"rfps"};
 };
@@ -65,6 +85,6 @@ private:
 namespace Preset {
 class RemoteFalPersistentStorage: public Singleton<RemoteFalPersistentStorage>, public ::RemoteFalPersistentStorage {
     friend singleton_t;
-    RemoteFalPersistentStorage(): ::RemoteFalPersistentStorage(Rpc::get()) { }
+    RemoteFalPersistentStorage(): ::RemoteFalPersistentStorage(Rpc::get(), Packet::get()) { }
 };
 }

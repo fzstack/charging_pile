@@ -300,4 +300,3 @@ class Rpc: public Singleton<Rpc>, public ::Rpc {
     Rpc(): ::Rpc(Packet::get()) { }
 };
 }
-

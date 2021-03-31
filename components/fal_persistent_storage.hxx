@@ -11,6 +11,7 @@
 #include <utilities/f.hxx>
 
 #include <Mutex.h>
+#include <Lock.h>
 
 class FalPersistentStorage {
 public:
@@ -19,31 +20,24 @@ public:
 
     template<class T>
     std::shared_ptr<T> make() {
-        //1.hash_code 转 hex
-        auto encoded = toHex(typeid(T).hash_code());
-        //2.判断配置是否存在，如果不存在，则使用默认配置
-        struct fdb_kv kv;
-        mutex.lock();
-        auto result = fdb_kv_get_obj(db, encoded.c_str(), &kv);
-
-        auto saver = [=](auto p){
-            //序列化后保存
-            fdb_blob blob;
-            auto ostream = std::make_shared<MemoryIOStream>();
-            auto ser = Serializer{ostream};
-            ser.build(*(T*)p);
-            auto buf = ostream->getBuffer();
-            fdb_kv_set_blob(db, encoded.c_str(), fdb_blob_make(&blob, &buf[0], buf.size()));
-            mutex.unlock();
+        return std::shared_ptr<T>(new T(read<T>()), [=](auto p){
+            write<T>(std::move(*p));
 #ifdef TEST_PERSISTENT_STORAGE
             F{} << "config done"_r << endln;
 #endif
             delete p;
-        };
+        });
+    }
 
+    template<class T>
+    T read() {
+        struct fdb_kv kv;
+        auto encoded = toHex(typeid(T).hash_code());
+        auto guard = rtthread::Lock(mutex);
+        auto result = fdb_kv_get_obj(db, encoded.c_str(), &kv);
         if(result == nullptr) { //配置不存在
             //直接返回初始化的T
-            return std::shared_ptr<T>(new T(), saver);
+            return {};
         } else {
             //读取配置并返回
             auto value = std::vector<rt_uint8_t>(kv.len);
@@ -54,16 +48,26 @@ public:
             auto iostream = std::make_shared<MemoryIOStream>();
             iostream->writeData(&value[0], kv.len);
             auto des = Deserializer{iostream};
-            return std::shared_ptr<T>(new T(des.parse<T>()), saver);
+            return des.parse<T>();
         }
+    }
+
+    template<class T>
+    void write(T&& t) {
+        //序列化后保存
+        fdb_blob blob;
+        auto encoded = toHex(typeid(T).hash_code());
+        auto ostream = std::make_shared<MemoryIOStream>();
+        auto ser = Serializer{ostream};
+        ser.build(t);
+        auto buf = ostream->getBuffer();
+        auto guard = rtthread::Lock(mutex);
+        fdb_kv_set_blob(db, encoded.c_str(), fdb_blob_make(&blob, &buf[0], buf.size()));
     }
 
     void reset() {
         fdb_kv_set_default(db);
     }
-
-    std::shared_ptr<void> makeInternal(size_t id);
-
 
 private:
     std::string toBase64(size_t hash);

@@ -8,92 +8,86 @@
 using namespace std;
 using namespace Things::Decos;
 
-//#define LOG_PKG_DEAD
-
 Backuper::Backuper(outer_t* outer): Base(outer) {
-    inited.onChanged += [this](auto value) {
-        if(!value) return;
-
-        for(rt_uint8_t i = 0u; i < Config::Bsp::kPortNum; i++) {
-            auto& info = getInfo(InnerPort{rt_uint8_t(i)});
-            auto& spec = specs[i];
-            auto charger = info.charger;
-            charger->stateStore->oState += [this, charger, i, &spec, &info](auto value) {
-                if(!value) return;
-                auto storage = Preset::PersistentStorage::get();
-                if(!spec.stateHasTransitioned) { //首次进行状态转移
-                    spec.stateHasTransitioned = true;
-                    magic_switch<Config::Bsp::kPortNum>{}([&](auto x){
-#ifdef LOG_PKG_DEAD
-                        rt_kprintf("curr thread: %s\n", rt_thread_self()->name);
-#endif
-                        storage->make<Backup<decltype(x)::value>>([this, value, charger, i, &info](auto backup){
-                            switch(*value) {
-                            case State::LoadInserted:
-                                if(backup->leftSeconds != 0) {
-                                    auto backupCopy = *backup;
-                                    rt_kprintf("port%d state resumed\n", i);
-                                    auto guard = getLock();
-                                    charger->start();
-                                    info.leftSeconds = backupCopy.leftSeconds;
-                                    info.timerId = backupCopy.timerId;
-                                    info.consumption = backupCopy.consumption;
-                                }
-                                break;
-                            case State::LoadNotInsert:
-                                backup->leftSeconds = 0;
-                                backup->consumption = 0;
-                                break;
-                            default:
-                                break;
-                            }
-                        });
-                    }, i);
-                } else {
-                    magic_switch<Config::Bsp::kPortNum>{}([&](auto x){
-                        if(value == State::Charging || value == State::LoadWaitRemove) {
-#ifdef LOG_PKG_DEAD
-                            rt_kprintf("curr thread: %s\n", rt_thread_self()->name);
-#endif
-                            rt_kprintf("backup port%d (state transition)\n", NatPort{InnerPort{i}}.get());
-                            auto guard = getLock();
-                            spec.count.forceTrigger();
-                        }
-                    }, i);
-                }
-            };
+    timer.onRun += [this]{ //每10秒保存一次端口的剩余时间
+        auto port = InnerPort{currPort};
+        currPort++;
+        currPort %= Config::Bsp::kPortNum;
+        auto storage = Preset::PersistentStorage::get();
+        auto& info = getInfo(port);
+        auto& spec = specs[port.get()];
+        auto charger = info.charger;
+        auto guard = getLock();
+        if(spec.fResume.updateAndCheck()) {
+            resume(port);
         }
-
-        timer.onRun += [this]{ //每10秒保存一次端口的剩余时间
-            auto i = currPort;
-            currPort++;
-            currPort %= Config::Bsp::kPortNum;
-            auto storage = Preset::PersistentStorage::get();
-            auto charger = getInfo(InnerPort{rt_uint8_t(i)}).charger;
-            auto guard = getLock();
-            if(specs[i].count.updateAndCheck()) {
-                magic_switch<Config::Bsp::kPortNum>{}([&](auto x){
-                    storage->make<Backup<decltype(x)::value>>([this, i, charger](auto backup){
-                        auto& info = getInfo(InnerPort{i});
-                        auto guard = getLock();
-                        rt_kprintf("backup port%d, {left: %d}\n", NatPort{InnerPort{i}}.get(), info.leftSeconds);
-                        backup->leftSeconds = info.leftSeconds;
-                        backup->consumption = info.consumption;
-                        if(charger->stateStore->oState.value() == State::Charging) {
-                            specs[i].count.retrigger();
-                        }
-                    });
-                }, i);
+        if(spec.count.updateAndCheck()) {
+            if(charger->stateStore->oState.value() == State::Charging) {
+                spec.count.retrigger();
             }
-
-
-        };
-
-        timer.start();
+            magic_switch<Config::Bsp::kPortNum>{}([&](auto x){
+                storage->write(Backup<decltype(x)::value> {
+                    leftSeconds: info.leftSeconds,
+                    timerId: info.timerId,
+                    consumption: info.consumption,
+                });
+                rt_kprintf("backup port%d, {left: %d}\n", NatPort{port}.get(), info.leftSeconds);
+            }, port.get());
+        }
     };
 }
 
 void Backuper::init() {
-    inited = true;
+    timer.start();
+}
+
+void Backuper::onStateChanged(InnerPort port, State::Value state) {
+    auto storage = Preset::PersistentStorage::get();
+    auto& info = getInfo(port);
+    auto& spec = specs[port.get()];
+    auto charger = info.charger;
+    auto guard = getLock();
+    magic_switch<Config::Bsp::kPortNum>{}([&](auto x){
+        if(!spec.stateHasTransitioned) { //首次进行状态转移
+            spec.fResume.trigger();
+        } else {
+            if(state == State::Charging || state == State::LoadWaitRemove) {
+                rt_kprintf("backup port%d (state transition)\n", NatPort{port}.get());
+                spec.count.forceTrigger();
+            }
+        }
+    }, port.get());
+}
+
+//do not use lock inside this func
+void Backuper::resume(InnerPort port) {
+    auto storage = Preset::PersistentStorage::get();
+    auto& info = getInfo(port);
+    auto& spec = specs[port.get()];
+    if(spec.stateHasTransitioned) return;
+    auto charger = info.charger;
+    auto state = charger->stateStore->oState.value().value_or(State::Error);
+    magic_switch<Config::Bsp::kPortNum>{}([&](auto x){
+        storage->read<Backup<decltype(x)::value>>([this, charger, &info, &spec, port, state](auto backup) mutable {
+            if(backup == nullopt) {
+                rt_kprintf("[%d]retry res\n", NatPort{port}.get());
+                spec.fResume.retrigger();
+                return;
+            }
+            auto guard = getLock();
+            spec.stateHasTransitioned = true;
+            info.timerId = backup->timerId;
+            if(state == State::LoadInserted && backup->leftSeconds != 0) {
+                rt_kprintf("port%d state resumed\n", NatPort{port}.get());
+                info.leftSeconds = backup->leftSeconds;
+                info.consumption = backup->consumption;
+                charger->start();
+            } else {
+                info.leftSeconds = 0;
+                info.consumption = 0;
+                spec.count.trigger();
+            }
+        });
+    }, port.get());
 }
 

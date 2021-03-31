@@ -53,15 +53,13 @@ public:
         mutex.lock();
         params = t;
         mutex.unlock();
-        Preset::PersistentStorage::get()->make<T>([=](auto p) {
-            *p = t;
-        });
+        Preset::PersistentStorage::get()->write<T>(std::move(t));
     }
 
 private:
     void prepare() {
-        Preset::PersistentStorage::get()->make<T>([=](auto p){
-            if(p == nullptr) {
+        Preset::PersistentStorage::get()->read<T>([=](auto p) {
+            if(p == std::nullopt) {
                 mutex.lock();
                 flag.retrigger();
                 mutex.unlock();

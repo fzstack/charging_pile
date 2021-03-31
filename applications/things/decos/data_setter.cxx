@@ -6,61 +6,23 @@ using namespace std;
 using namespace Things::Decos;
 
 DataSetter::DataSetter(outer_t* outer): Base(outer) {
-    inited.onChanged += [this](auto value) {
-        if(!value) return;
-
-        for(rt_uint8_t i = 0u; i < Config::Bsp::kPortNum; i++) {
-            auto charger = getInfo(InnerPort{i}).charger;
-            charger->stateStore->oState += [this, i, charger](auto state) {
-                if(!state) return;
-                switch(*state) {
-                case State::Charging:
-                case State::LoadWaitRemove: {
-                    auto& prevCurrMiA = specs[i].prevCurrMiA;
-                    auto guard = getLock();
-                    prevCurrMiA = *charger->multimeterChannel->current.value();
-                    specs[i].count.retrigger();
-                    }
-                    break;
-                default:
-                    break;
-                };
-            };
-
-            charger->multimeterChannel->current += [this, i, charger](auto value) {
-                if(!value) return;
-                auto& prevCurrMiA = specs[i].prevCurrMiA;
-                auto& count = specs[i].count;
-                if(*charger->stateStore->oState != State::Charging) {
-                    return;
-                }
-                Preset::PersistentStorage::get()->make<Params>([this, i, value, &prevCurrMiA, &count](auto params){
-                    auto guard = getLock();
-                    if(abs(*value - prevCurrMiA) >= params->currDiffThrMiA) {
-                        prevCurrMiA = *value;
-                        count.retrigger();
-                    }
-                });
-
-            };
+    timer.onRun += [this] {
+        {
+            auto guard = getLock();
+            params.refresh();
         }
-
-        timer.onRun += [this] {
-            auto willEmit = false;
-            auto port = rt_uint8_t{};
-            {
-                auto guard = getLock();
-                port = currPort;
-                willEmit = specs[port].count.updateAndCheck();
-                currPort++;
-                currPort %= Config::Bsp::kPortNum;
-            }
-            if(willEmit) {
-                emitPortData(InnerPort{port});
-            }
-        };
-
-        timer.start();
+        auto willEmit = false;
+        auto port = rt_uint8_t{};
+        {
+            auto guard = getLock();
+            port = currPort;
+            willEmit = specs[port].count.updateAndCheck();
+            currPort++;
+            currPort %= Config::Bsp::kPortNum;
+        }
+        if(willEmit) {
+            emitPortData(InnerPort{port});
+        }
     };
 }
 
@@ -79,7 +41,7 @@ void DataSetter::emitPortData(InnerPort port) {
 }
 
 void DataSetter::init() {
-    inited = true;
+    timer.start();
 }
 
 void DataSetter::query() {
@@ -89,8 +51,35 @@ void DataSetter::query() {
     }
 }
 
+void DataSetter::onStateChanged(InnerPort port, State::Value state) {
+    auto charger = getInfo(port).charger;
+    auto& spec = specs[port.get()];
+    auto guard = getLock();
+    switch(state) {
+    case State::Charging:
+    case State::LoadWaitRemove:
+        spec.prevCurrMiA = charger->multimeterChannel->current.value().value_or(0);
+        spec.count.retrigger();
+        break;
+    default:
+        break;
+    };
+}
+
+void DataSetter::onCurrentChanged(InnerPort port, int value) {
+    auto charger = getInfo(port).charger;
+    auto& spec = specs[port.get()];
+    auto& prevCurrMiA = spec.prevCurrMiA;
+    auto guard = getLock();
+    if(*charger->stateStore->oState != State::Charging || params == nullopt) {
+        return;
+    }
+    if(abs(value - prevCurrMiA) >= params->currDiffThrMiA) {
+        prevCurrMiA = value;
+        spec.count.retrigger();
+    }
+}
+
 void DataSetter::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
-    Preset::PersistentStorage::get()->make<Params>([=](auto params) {
-        params->currDiffThrMiA = uploadThr;
-    });
+    params.save({uploadThr});
 }

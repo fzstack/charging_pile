@@ -79,8 +79,14 @@ struct Config {
 
 namespace PersistentStorage {
 template<class T>
-struct Make {
+struct Make { };
 
+template<class T>
+struct Read { };
+
+template<class T>
+struct Write {
+    T data;
 };
 }
 
@@ -89,6 +95,11 @@ struct Make {
 template<class T>
 struct RpcTrait<Rpcs::PersistentStorage::Make<T>> {
     using result_t = std::shared_ptr<T>;
+};
+
+template<class T>
+struct RpcTrait<Rpcs::PersistentStorage::Read<T>> {
+    using result_t = T;
 };
 
 #endif /* CONFIG_CO_HXX_ */

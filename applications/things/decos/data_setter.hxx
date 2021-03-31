@@ -6,6 +6,8 @@
 #include <config/bsp.hxx>
 #include <components/timer.hxx>
 #include <utilities/count_down.hxx>
+#include "conf_man.hxx"
+#include "params/data_setter.hxx"
 
 namespace Things::Decos {
 /**
@@ -16,25 +18,25 @@ class DataSetter: public Base {
     DataSetter(outer_t* outer);
     virtual void init() override;
     virtual void query() override;
+    virtual void onStateChanged(InnerPort port, State::Value state) override;
+    virtual void onCurrentChanged(InnerPort port, int value) override;
     virtual void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) override;
 
 private:
     void emitPortData(InnerPort port);
 
 public:
-    struct Params {
-        int currDiffThrMiA = 10; //电流变化阈值
-    };
+
 
 private:
-    struct ChargerSpec {
+    struct Spec {
         int prevCurrMiA = 0;
         CountDown<> count = {1};
     };
 
 private:
-    std::array<ChargerSpec, Config::Bsp::kPortNum> specs;
-    Observable<bool> inited = false;
+    ConfMan<Params::DataSetter> params = {getMutex()};
+    std::array<Spec, Config::Bsp::kPortNum> specs;
 
     Timer timer = {kDuration, kTimer};
     rt_uint8_t currPort = 0;

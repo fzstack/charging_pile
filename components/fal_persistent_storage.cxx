@@ -36,10 +36,6 @@ FalPersistentStorage::FalPersistentStorage(const char *spiBus, const char *spiDe
     fdb_kvdb_init(db, dbName, partName, &def_kv, NULL);
 }
 
-std::shared_ptr<void> FalPersistentStorage::makeInternal(size_t id) {
-    return make_shared<int>();
-}
-
 string FalPersistentStorage::toBase64(size_t hash) {
     auto result = string(10, '\0');
     int dlen;

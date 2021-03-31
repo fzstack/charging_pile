@@ -101,8 +101,8 @@ ThingPre::ThingPre(): ::Thing(Chargers::get()) {
     addDeco<EventEmitter>(); //TODO: 使用count down //重构: 统一的port时钟回调
     addDeco<Counter>();
     addDeco<CurrentLimiter>();
-    //addDeco<Backuper>();
-    //addDeco<DataSetter>(); //NOTE: 这里会死机
+    addDeco<Backuper>();
+    addDeco<DataSetter>(); //NOTE: 这里会死机
     addDeco<ConsumptionMeasurer>(); //NOTE: 这里会发生死锁
 //    //addDeco<FuseDetecter>();
     addDeco<NoloadDetecter>();
