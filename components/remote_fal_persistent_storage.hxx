@@ -8,6 +8,7 @@
 #include <functional>
 #include <Mutex.h>
 #include <optional>
+#include <utilities/tiny_type_id.hxx>
 
 #define LOG_RFPS_NULL_PTR
 
@@ -31,7 +32,7 @@ public:
                 ++iter;
             }
         }
-        auto found = buf.find(typeid(T).hash_code());
+        auto found = buf.find(TypeId<T>::get());
         if(found != buf.end()) {
             auto p = found->second.lock();
             if(p != nullptr) {
@@ -44,14 +45,14 @@ public:
         rpc->invoke<Rpcs::PersistentStorage::Make<T>>({}, [this, cb](auto p) {
             auto pdata = std::get_if<std::shared_ptr<T>>(&p);
             if(pdata == nullptr) {
-#ifdef LOG_RFPS_NULL_PTR
-                rt_kprintf("W: ps made a null ptr for %s\n", typeid(T).name());
-#endif
+//#ifdef LOG_RFPS_NULL_PTR
+//                rt_kprintf("W: ps made a null ptr for %s\n", typeid(T).name());
+//#endif
                 cb(nullptr);
                 return;
             }
             mutex.lock();
-            buf[typeid(T).hash_code()] = *pdata;
+            buf[TypeId<T>::get()] = *pdata;
             mutex.unlock();
             cb(*pdata);
         });

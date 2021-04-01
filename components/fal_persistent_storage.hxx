@@ -10,6 +10,8 @@
 #include <utilities/deserializer.hxx>
 #include <utilities/f.hxx>
 
+#include <utilities/tiny_type_id.hxx>
+
 #include <Mutex.h>
 #include <Lock.h>
 
@@ -32,7 +34,7 @@ public:
     template<class T>
     T read() {
         struct fdb_kv kv;
-        auto encoded = toHex(typeid(T).hash_code());
+        auto encoded = toHex(TypeId<T>::get());
         auto guard = rtthread::Lock(mutex);
         auto result = fdb_kv_get_obj(db, encoded.c_str(), &kv);
         if(result == nullptr) { //配置不存在
@@ -56,7 +58,7 @@ public:
     void write(T&& t) {
         //序列化后保存
         fdb_blob blob;
-        auto encoded = toHex(typeid(T).hash_code());
+        auto encoded = toHex(TypeId<T>::get());
         auto ostream = std::make_shared<MemoryIOStream>();
         auto ser = Serializer{ostream};
         ser.build(t);

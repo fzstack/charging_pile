@@ -17,5 +17,4 @@ private:
     std::shared_ptr<Cloud> cloud = Preset::AliCloud::get();
     std::shared_ptr<User> user = Preset::User::get();
     std::shared_ptr<Handshake> handshake = Preset::Handshake::get();
-    std::shared_ptr<LocalFalPersistentStorage> storage = Preset::PersistentStorage::get();
 };

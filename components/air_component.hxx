@@ -31,14 +31,14 @@ protected:
         }
 
         if(!state->inst.expired())
-            throw std::runtime_error{typeid(T).name() + std::string(" should have only one instance at the same time")};
+            throw std::runtime_error{" should have only one instance at the same time"};
         state->inst = shared_from_this();
     }
 
     static std::shared_ptr<T> urc(at_client_t client) {
         for(auto const& kvp: states) {
             if(kvp.first.get() == client->device->user_data) {
-                return std::dynamic_pointer_cast<T>(kvp.second->inst.lock());
+                return std::static_pointer_cast<T>(kvp.second->inst.lock());
             }
         }
         return {};

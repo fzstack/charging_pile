@@ -5,7 +5,7 @@
 using namespace std;
 
 UpperApp::UpperApp() {
-
+    Preset::PersistentStorage::get();
 }
 
 void UpperApp::run() {
@@ -50,8 +50,8 @@ void UpperApp::run() {
     thing->onCurrentData += [=](auto data){
         cloud->emitCurrentData(std::move(data));
     };
-    cloud->init();
-    handshake->hello();
-    thing->init();
+    //cloud->init();
+    //handshake->hello();
+    //thing->init();
 }
 

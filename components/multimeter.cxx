@@ -1,5 +1,6 @@
 #include "multimeter.hxx"
 #include <rtthread.h>
+#include <utilities/tiny_type_id.hxx>
 
 #define LOG_TAG "com.multimeter"
 #define LOG_LVL LOG_LVL_DBG
@@ -29,7 +30,7 @@ Multimeter::Multimeter(std::shared_ptr<Hlw8112> device): device(device) {
                 this->angleA = angleA;
                 this->angleB = angleB;
             } catch(const exception& e) {
-                rt_kprintf("\033[39m{%s} %s\n\033[0m", typeid(e).name(), e.what());
+                rt_kprintf("\033[39m %s\n\033[0m", e.what());
             }
         };
 

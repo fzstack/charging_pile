@@ -14,7 +14,7 @@ void AliIotDeviceThread::run(void *p) {
         try {
             post.poll();
         } catch(const exception& e) {
-            rt_kprintf("ali_iot: {%s}%s", typeid(e).name(), e.what());
+            rt_kprintf("ali_iot: %s", e.what());
         }
     }
 

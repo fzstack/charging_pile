@@ -8,6 +8,7 @@
 #include <utilities/idx.hxx>
 #include <array>
 #include <Mutex.h>
+#include <utilities/tiny_type_id.hxx>
 
 extern "C" {
 #include <at24cxx.h>
@@ -199,10 +200,10 @@ private:
         static Idx<Meta> make(std::size_t deviceSize);
 
         bool isValid() {
-            return magic == typeid(Meta).hash_code();
+            return magic == TypeId<Meta>::get();
         }
 
-        std::size_t magic = typeid(Meta).hash_code(); //魔数，判断是否需要格式化
+        std::size_t magic = TypeId<Meta>::get(); //魔数，判断是否需要格式化
         List<HeapNode> idle = {};
         List<HeapNode> alloc = {};
         List<TypeNode> type = {};
@@ -227,7 +228,7 @@ public:
     template<class T>
     Idx<T> make() {
         auto guard = getCtxGuard();
-        auto result = makeInternal(typeid(T).hash_code(), sizeof(T));
+        auto result = makeInternal(TypeId<T>::get(), sizeof(T));
         auto idx = Idx<T>{result.addr};
         if(!result.created) {
             idx();

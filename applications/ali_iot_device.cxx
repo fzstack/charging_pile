@@ -33,7 +33,7 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
                 try {
                     if(result) std::rethrow_exception(*result);
                 } catch (const exception& e) {
-                    rt_kprintf("\033[31mprop [%s] invoke failed: {%s} %s\n\033[0m", name.c_str(), typeid(e).name(), e.what());
+                    rt_kprintf("\033[31mprop [%s] invoke failed: %s\n\033[0m", name.c_str(), e.what());
                 }
             }, value);
         }
@@ -60,7 +60,7 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
                             try {
                                 if(auto err = get_if<exception_ptr>(&result)) std::rethrow_exception(*err);
                             } catch (const exception& e) {
-                                rt_kprintf("\033[31mservice [%s] async invoke failed: {%s} %s\n\033[0m", identifier.c_str(), typeid(e).name(), e.what());
+                                rt_kprintf("\033[31mservice [%s] async invoke failed: %s\n\033[0m", identifier.c_str(), e.what());
                                 return;
                             }
                             auto reply = Alink::Reply(*json, 200, id);
@@ -83,7 +83,7 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
                     try {
                         if(auto err = get_if<exception_ptr>(&result)) std::rethrow_exception(*err);
                     } catch (const exception& e) {
-                        rt_kprintf("\033[31mservice [%s] sync invoke failed: {%s} %s\n\033[0m", serviceName.c_str(), typeid(e).name(), e.what());
+                        rt_kprintf("\033[31mservice [%s] sync invoke failed: %s\n\033[0m", serviceName.c_str(), e.what());
                         return;
                     }
                     auto reply = Alink::Reply(*json, 200, id);

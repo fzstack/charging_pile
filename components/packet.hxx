@@ -18,6 +18,7 @@
 #include <utilities/deserializer.hxx>
 #include <utilities/thread.hxx>
 #include <utilities/type.hxx>
+#include <utilities/tiny_type_id.hxx>
 
 //#define LOG_PKG_DEF
 //#define LOG_PKG_ABSORB
@@ -103,7 +104,6 @@ private:
     struct TypeInfo {
         std::shared_ptr<Callback> callback = nullptr;
         std::shared_ptr<Parser> parser = nullptr;
-        const char* name;
     };
 
 public:
@@ -112,10 +112,9 @@ public:
 #ifdef LOG_PKG_DEF
         rt_kprintf("def %s => %08x\n", typeid(T).name(), typeid(T).hash_code());
 #endif
-        typeInfos.insert({typeid(T).hash_code(), TypeInfo {
+        typeInfos.insert({TypeId<T>::get(), TypeInfo {
             callback: std::make_shared<CallbackImpl<T>>(cb),
             parser: std::make_shared<ParserImpl<T>>(),
-            name: typeid(T).name(),
         }});
     }
 
@@ -124,7 +123,7 @@ public:
 #ifdef LOG_PKG_EMIT
         rt_kprintf("emit %s => %08x\n", typeid(T).name(), typeid(T).hash_code());
 #endif
-        auto emitter = std::make_shared<Emitter>(this, typeid(T).hash_code());
+        auto emitter = std::make_shared<Emitter>(this, TypeId<T>::get());
         //序列化器序列化到指针的时候，需要通知outter持有指针的引用
         Serializer{emitter, holder}.build(t);
     }

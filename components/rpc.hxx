@@ -14,6 +14,7 @@
 #include <vector>
 #include <utilities/serialize_utilities.hxx>
 #include <utilities/shared_thread.hxx>
+#include <utilities/tiny_type_id.hxx>
 
 struct Void {
 
@@ -95,8 +96,8 @@ public:
     void invoke(T&& t, std::function<void(ivk_cb_param_t<T>)> r, int timeout = kTimeout) { //调用远程过程, 请不要在packet线程调用
         //TODO: 维护状态(用mutex)
         mutex.lock();
-        if(registeredType.count(typeid(T).hash_code()) == 0) {
-            registeredType.insert(typeid(T).hash_code());
+        if(registeredType.count(TypeId<T>::get()) == 0) {
+            registeredType.insert(TypeId<T>::get());
             packet->on<Response<T>>([this](auto p){
                 mutex.lock();
                 auto found = pendings.find(p->id);
@@ -105,7 +106,7 @@ public:
                     return;
                 }
 
-                auto pending = std::dynamic_pointer_cast<PendingImpl<T>>(found->second);
+                auto pending = std::static_pointer_cast<PendingImpl<T>>(found->second);
                 pendings.erase(p->id);
                 mutex.unlock();
                 p->data = handleInvokeResult(p->data, p->id);
@@ -118,7 +119,7 @@ public:
                     rt_kprintf("W: wild resp\n");
                     return;
                 }
-                auto pending = std::dynamic_pointer_cast<PendingImpl<T>>(found->second);
+                auto pending = std::static_pointer_cast<PendingImpl<T>>(found->second);
                 pendings.erase(p->id);
                 mutex.unlock();
                 try {
@@ -131,10 +132,10 @@ public:
         if(pendings.size() > kMaxParallel) {
             mutex.unlock();
 #ifdef LOG_RPC_E_MAX_PARALLEL
-            rt_kprintf("exceed max parallel when invoke %s\n", typeid(T).name());
+            rt_kprintf("exceed max parallel when invoke %08x\n", TypeId<T>::get());
 #endif
             try {
-                throw timeout_error{typeid(T).name()};
+                throw timeout_error{"timeout"};
             } catch(std::exception& e) {
                 r(std::current_exception());
             }

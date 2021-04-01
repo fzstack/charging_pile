@@ -116,7 +116,7 @@ void PersistentStorage::Meta::create(Meta& self, std::size_t deviceSize) {
 
 PersistentStorage::Idx<PersistentStorage::Meta> PersistentStorage::Meta::get() {
     auto meta = Idx<Meta>((rt_uint16_t)0);
-    if(meta->magic != typeid(Meta).hash_code())
+    if(meta->magic != TypeId<Meta>::get())
         throw std::runtime_error{"invalid meta"};
     return meta;
 }

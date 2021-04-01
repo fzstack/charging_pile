@@ -12,7 +12,7 @@ Packet::Packet(std::shared_ptr<QueuedUart> uart, std::shared_ptr<Thread> pktThre
             try {
                 handleFrame();
             } catch(const exception& e) {
-                rt_kprintf("\033[33m[%s]{%s}%s\n\033[0m", rt_thread_self()->name, typeid(e).name(), e.what());
+                rt_kprintf("\033[33m[%s] %s\n\033[0m", rt_thread_self()->name, e.what());
             }
         }
     };
@@ -29,7 +29,7 @@ void Packet::handleFrame() {
     if(found == typeInfos.end()) throw type_info_not_found_error{"type info not found"};
     auto& info = found->second;
     auto p = info.parser->parse(absorber);
-    if(!absorber->check()) throw invalid_frame_error{info.name};
+    if(!absorber->check()) throw invalid_frame_error{"invalid frame"};
 #ifdef LOG_PKG_ABSORB
     rt_kprintf("\n");
 #endif

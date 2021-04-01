@@ -71,7 +71,8 @@ public:
 //        if(last != nullptr) {
 //            realname = last + 1;
 //        }
-        rt_kprintf("\033[34m%s\033[0m {", typeid(t).name());
+        //rt_kprintf("\033[34m%s\033[0m {", typeid(t).name());
+        rt_kprintf("\033[0m {");
         auto size = boost::pfr::tuple_size_v<std::decay_t<T>>;
         auto i = 0u;
         boost::pfr::for_each_field(t, [&](auto& field) {

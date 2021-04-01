@@ -76,6 +76,7 @@
 #define FINSH_CMD_SIZE 80
 #define FINSH_USING_MSH
 #define FINSH_USING_MSH_DEFAULT
+#define FINSH_USING_MSH_ONLY
 #define FINSH_ARG_MAX 10
 /* end of Command shell */
 
@@ -260,9 +261,9 @@
 #define CRC32_POLY 3988292384
 #define PKG_USING_CRCLIB_V100
 
-/* games: games run on RT-Thread console */
+/* entertainment: terminal games and other interesting software packages */
 
-/* end of games: games run on RT-Thread console */
+/* end of entertainment: terminal games and other interesting software packages */
 /* end of miscellaneous packages */
 /* end of RT-Thread online packages */
 
