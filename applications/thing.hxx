@@ -24,7 +24,7 @@ class Thing: public ThingBase {
 public:
     friend class Things::Decos::Base;
     Thing(std::array<std::shared_ptr<Charger>, Config::Bsp::kPortNum> chargers);
-    void init();
+    virtual void init() override;
 
     template<class T>
     auto addDeco() -> std::enable_if_t<std::is_base_of_v<Things::Decos::Base, T>> {

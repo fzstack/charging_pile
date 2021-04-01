@@ -179,7 +179,10 @@
 									<listOptionValue builtIn="false" value="UPPER_END"/>
 									<listOptionValue builtIn="false" value="_LOWER_END"/>
 									<listOptionValue builtIn="false" value="_RUN_APP"/>
-									<listOptionValue builtIn="false" value="TEST_THING"/>
+									<listOptionValue builtIn="false" value="_TEST_USER"/>
+									<listOptionValue builtIn="false" value="TEST_TINY_TYPE_ID"/>
+									<listOptionValue builtIn="false" value="_TEST_USER_INPUT"/>
+									<listOptionValue builtIn="false" value="_TEST_THING"/>
 									<listOptionValue builtIn="false" value="_TEST_FLASH"/>
 									<listOptionValue builtIn="false" value="_TEST_PERSISTENT_STORAGE"/>
 									<listOptionValue builtIn="false" value="_TEST_PACKET"/>

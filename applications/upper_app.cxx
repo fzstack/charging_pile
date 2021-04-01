@@ -51,5 +51,7 @@ void UpperApp::run() {
         cloud->emitCurrentData(std::move(data));
     };
     cloud->init();
+    handshake->hello();
+    thing->init();
 }
 

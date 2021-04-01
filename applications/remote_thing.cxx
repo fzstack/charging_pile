@@ -21,6 +21,10 @@ RemoteThing::RemoteThing(shared_ptr<Packet> packet, shared_ptr<Rpc> rpc): packet
     });
 }
 
+void RemoteThing::init() {
+
+}
+
 void RemoteThing::query() {
     packet->emit<Services::Query>({});
 }

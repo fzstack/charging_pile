@@ -50,6 +50,10 @@ LocalThing::LocalThing(
     };
 }
 
+void LocalThing::init() {
+    thing->init();
+}
+
 void LocalThing::query() {
     thing->query();
 }

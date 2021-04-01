@@ -10,13 +10,15 @@ using namespace Things::Decos;
 
 CurrentLimiter::CurrentLimiter(outer_t* outer): Base(outer) {
     timer.onRun += [this]() {
-
+        {
+            auto guard = getLock();
+            params.refresh();
+        }
         for(rt_uint8_t i = 0u; i < Config::Bsp::kPortNum; i++) {
             auto willStop = false;
             auto charger = getInfo(InnerPort{i}).charger;
             {
                 auto guard = getLock();
-                params.refresh();
                 willStop = specs[i].count.updateAndCheck();
             }
             if(willStop) {

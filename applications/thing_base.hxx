@@ -8,6 +8,7 @@
 
 class ThingBase {
 public:
+    virtual void init() = 0;
     virtual void query() = 0;
     virtual void control(InnerPort port, int timerId, int minutes) = 0;
     virtual void stop(InnerPort port, int timerId) = 0;

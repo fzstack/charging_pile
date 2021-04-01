@@ -9,6 +9,7 @@ class RemoteThing: public ThingBase {
 public:
     RemoteThing(std::shared_ptr<Packet> packet, std::shared_ptr<Rpc> rpc);
 
+    virtual void init() override;
     virtual void query() override;
     virtual void control(InnerPort port, int timerId, int minutes) override;
     virtual void stop(InnerPort port, int timerId) override;

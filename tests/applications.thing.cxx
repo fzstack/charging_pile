@@ -11,6 +11,7 @@
 #include <components/persistent_storage_preset.hxx>
 #include <components/state_store_preset.hxx>
 #include <utilities/mp.hxx>
+#include <components/handshake.hxx>
 
 #define LOG_TAG "test.thing"
 #define LOG_LVL LOG_LVL_DBG
@@ -51,11 +52,20 @@ MSH_CMD_EXPORT(reset_config, );
 #endif
 
 int init_test_thing() {
+
     auto thing = Preset::Thing::get();
 
 #if defined(ENABLE_REMOTE)
+    Preset::PersistentStorage::get();
     Preset::Rpc::get();
+    auto handshake = Preset::Handshake::get();
+    rt_kprintf("handshaking...\n");
+    handshake->hello();
+    rt_kprintf("hello!\n");
 #endif
+
+    thing->init();
+
 
 #if !defined(ENABLE_REMOTE) || (defined(ENABLE_REMOTE) && defined(UPPER_END))
     thing->onPortAccess += [](NatPort port) {

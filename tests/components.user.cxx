@@ -1,6 +1,6 @@
-#ifdef TEST_USER
+#ifdef TEST_USER_INPUT
 
-#include <components/user.hxx>
+#include <components/user_input.hxx>
 #include <rtthread.h>
 #include <utilities/f.hxx>
 #include <string>
@@ -8,7 +8,7 @@
 using namespace std;
 
 int init_test_user() {
-    auto user = Preset::User::get();
+    auto user = Preset::UserInput::get();
     user->onConfirm += [](int port, string cardId) {
         F{} << "mock start @"_r << port << ", cardId"_r << cardId << endln;
     };

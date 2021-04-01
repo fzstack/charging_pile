@@ -10,6 +10,7 @@
 class LocalThing: public ThingBase {
 public:
     LocalThing(std::shared_ptr<Thing> thing, std::shared_ptr<Packet> packet, std::shared_ptr<Rpc> rpc);
+    virtual void init() override;
     virtual void query() override;
     virtual void control(InnerPort port, int timerId, int minutes) override;
     virtual void stop(InnerPort port, int timerId) override;

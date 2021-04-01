@@ -17,6 +17,10 @@
 #endif
 
 namespace Packets {
+struct Handshake {
+
+};
+
 struct State {
     InnerPort port;
     ::State::Value value;

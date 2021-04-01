@@ -1,5 +1,6 @@
 #include "thing.hxx"
 #include <Lock.h>
+#include <optional>
 
 using namespace std;
 using namespace string_literals;
@@ -26,26 +27,34 @@ Thing::Thing(array<shared_ptr<Charger>, Config::Bsp::kPortNum> chargers):
         }
 
         for(rt_uint8_t i = 0; i < Config::Bsp::kPortNum; i++) {
-            this->infos[i].charger->stateStore->oState += [this, i](auto state) {
+            auto charger = this->infos[i].charger;
+            charger->stateStore->oState += [this, i](auto state) {
                 if(!state) return;
                 for(auto& deco: decos) {
                     deco->onStateChanged(InnerPort{i}, *state);
                 }
             };
 
-            this->infos[i].charger->multimeterChannel->current += [this, i](auto value) {
+            charger->multimeterChannel->current += [this, i](auto value) {
                 if(!value) return;
                 for(auto& deco: decos) {
                     deco->onCurrentChanged(InnerPort{i}, *value);
                 }
             };
 
-            this->infos[i].charger->multimeterChannel->voltage += [this, i](auto value) {
+            charger->multimeterChannel->voltage += [this, i](auto value) {
                 if(!value) return;
                 for(auto& deco: decos) {
                     deco->onVoltageChanged(InnerPort{i}, *value);
                 }
             };
+
+            auto state = charger->stateStore->oState.value();
+            if(state != nullopt) {
+                for(auto& deco: decos) {
+                    deco->onStateChanged(InnerPort{i}, *state);
+                }
+            }
         }
     };
 }
@@ -106,7 +115,6 @@ ThingPre::ThingPre(): ::Thing(Chargers::get()) {
     addDeco<ConsumptionMeasurer>(); //NOTE: 这里会发生死锁
 //    //addDeco<FuseDetecter>();
     addDeco<NoloadDetecter>();
-    init();
 }
 }
 #endif
