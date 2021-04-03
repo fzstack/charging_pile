@@ -14,15 +14,15 @@ class LocalFalPersistentStorage: public Local {
 public:
     LocalFalPersistentStorage(std::shared_ptr<FalPersistentStorage> storage, std::shared_ptr<Rpc> rpc, std::shared_ptr<Packet> packet);
 
-    template<class T>
-    auto make() {
-        return storage->make<T>();
-    }
-
-    template<class T>
-    auto make(std::function<void(std::shared_ptr<T>)> cb) {
-        cb(storage->make<T>());
-    }
+//    template<class T>
+//    auto make() {
+//        return storage->make<T>();
+//    }
+//
+//    template<class T>
+//    auto make(std::function<void(std::shared_ptr<T>)> cb) {
+//        cb(storage->make<T>());
+//    }
 
     template<class T>
     auto read() {
@@ -41,12 +41,12 @@ public:
 
     template<class T>
     void def() { //请在预设类中调用，定义可远程访问的配置
-        rpc->def<Rpcs::PersistentStorage::Make<T>>([this](auto p) {
-#ifdef TEST_PERSISTENT_STORAGE
-            F{} << "remote cfg maked"_r << endln;
-#endif
-            return make<T>();
-        });
+//        rpc->def<Rpcs::PersistentStorage::Make<T>>([this](auto p) {
+//#ifdef TEST_PERSISTENT_STORAGE
+//            F{} << "remote cfg maked"_r << endln;
+//#endif
+//            return make<T>();
+//        });
 
         rpc->def<Rpcs::PersistentStorage::Read<T>>([this](auto p) {
             return read<T>();
@@ -81,15 +81,15 @@ class LocalFalPersistentStorage: public Singleton<LocalFalPersistentStorage>, pu
     friend singleton_t;
     LocalFalPersistentStorage(): ::LocalFalPersistentStorage(FalPersistentStorage::get(), Rpc::get(), Packet::get()) {
         using namespace Things::Decos;
-        for(auto i = 0; i < Config::Bsp::kPortNum; i++) {
-            magic_switch<Config::Bsp::kPortNum>{}([&](auto v){
-                def<Backuper::Backup<decltype(v)::value>>();
-            }, i);
-        }
+//        for(auto i = 0; i < Config::Bsp::kPortNum; i++) {
+//            magic_switch<Config::Bsp::kPortNum>{}([&](auto v){
+//                def<Backuper::Backup<decltype(v)::value>>();
+//            }, i);
+//        }
 
-        def<Params::CurrentLimiter>();
+        def<Params::CurrentLimiter>(); //0.64kB per config
         def<Params::DataSetter>();
-        def<FuseDetecter::Params>();
+        //def<FuseDetecter::Params>();
         def<Params::NoloadDetecter>();
     }
 };

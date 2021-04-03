@@ -112,6 +112,7 @@ public:
 #ifdef LOG_PKG_DEF
         rt_kprintf("def %s => %08x\n", typeid(T).name(), typeid(T).hash_code());
 #endif
+        RT_ASSERT(typeInfos.find(TypeId<T>::get()) == typeInfos.end());
         typeInfos.insert({TypeId<T>::get(), TypeInfo {
             callback: std::make_shared<CallbackImpl<T>>(cb),
             parser: std::make_shared<ParserImpl<T>>(),

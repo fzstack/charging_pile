@@ -8,9 +8,9 @@
 using namespace Config;
 using namespace std;
 const char
-    *App::cloudDeviceName = "with_keyboard",
+    *App::cloudDeviceName = "prototype",
     *App::cloudProductKey = "a1SvHKhmFbS",
-    *App::cloudDeviceSecret = "92b788fb3f8ca58e209c5fa11573fcaf";
+    *App::cloudDeviceSecret = "ecc2b3bcfa8311585bc8818acf7239ce";
 
 namespace Preset {
 const int

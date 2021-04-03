@@ -10,6 +10,7 @@
 #pragma once
 
 #include <rtthread.h>
+#include <type_traits>
 
 //https://opensource.apple.com/source/zlib/zlib-5/zlib/crc32.c.auto.html
 static constexpr rt_uint32_t crc_table[256] = {
@@ -82,13 +83,23 @@ constexpr uint32_t crc32<size_t(-1)>(const char * str)
 #define HASH(x) (crc32<sizeof(x) - 2>(x) ^ 0xFFFFFFFF)
 
 template<typename T>
-class TypeId
+class TypeIdImpl
 {
 public:
     static uint32_t get()
     {
         static uint32_t s_id = HASH(__PRETTY_FUNCTION__);
         return s_id;
+    }
+};
+
+template<typename T>
+class TypeId
+{
+public:
+    static uint32_t get()
+    {
+        return TypeIdImpl<std::decay_t<T>>::get();
     }
 };
 

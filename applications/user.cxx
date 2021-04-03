@@ -14,9 +14,9 @@ using namespace std;
 
 User::User(
     std::shared_ptr<UserInput> input,
-    std::array<std::shared_ptr<RgbStateNotifier>, Config::Bsp::kPortNum>&& rgbs,
-    std::shared_ptr<VoiceNotifier> voice
-) : input(input), rgbs(rgbs), voice(voice) {
+    std::shared_ptr<RgbNotifierLite> rgb,
+    std::shared_ptr<VoiceNotifierLite> voice
+) : input(input), rgb(rgb), voice(voice) {
     input->onConfirm += [this](NatPort port, string cardId){
         this->onInputConfirm(port, cardId);
     };

@@ -5,6 +5,11 @@
 #include "ali_iot_device.hxx"
 #include <devices/air724.hxx>
 #include <memory>
+#include <components/timer.hxx>
+#include <utilities/count_down.hxx>
+#include <config/bsp.hxx>
+#include <array>
+#include <utilities/inner_port.hxx>
 
 class AliCloud: public Cloud {
 public:
@@ -30,6 +35,18 @@ protected:
     virtual void setSignalInterval() override;
 
 private:
+
+    struct Spec {
+        CountDown<> fPlugged = {};
+        CountDown<> fUnpluged = {};
+    };
+
+    std::array<Spec, Config::Bsp::kPortNum> specs;
+    Timer psTimer = {97, "acp"};
+    rt_uint8_t psCnt = 0;
+    bool initDone = false;
+    static constexpr rt_uint8_t kPsActionsNum = 2;
+
     std::shared_ptr<AliIotDevice> device;
     std::shared_ptr<Air724> air;
     Signals<void()> heartbeat = {};

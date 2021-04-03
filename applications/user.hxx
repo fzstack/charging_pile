@@ -8,8 +8,8 @@
  * 2021-03-26     imgcr       the first version
  */
 #pragma once
-#include <components/rgb_state_notifier.hxx>
-#include <components/voice_notifier.hxx>
+#include <components/rgb_notifier_lite.hxx>
+#include <components/voice_notifier_lite.hxx>
 #include <components/user_input.hxx>
 #include <memory>
 #include <config/bsp.hxx>
@@ -20,32 +20,22 @@
 
 class User {
 public:
-    User(std::shared_ptr<UserInput> input, std::array<std::shared_ptr<RgbStateNotifier>, Config::Bsp::kPortNum>&& rgbs, std::shared_ptr<VoiceNotifier> voice);
+    User(std::shared_ptr<UserInput> input, std::shared_ptr<RgbNotifierLite> rgb, std::shared_ptr<VoiceNotifierLite> voice);
 
     Signals<void(NatPort port, std::string cardId)> onInputConfirm;
 
 private:
     std::shared_ptr<UserInput> input;
-    std::array<std::shared_ptr<RgbStateNotifier>, Config::Bsp::kPortNum> rgbs;
-    std::shared_ptr<VoiceNotifier> voice;
+    std::shared_ptr<RgbNotifierLite> rgb;
+    std::shared_ptr<VoiceNotifierLite> voice;
 };
 
 #include <utilities/singleton.hxx>
 namespace Preset {
 class User: public Singleton<User>, public ::User {
     friend class Singleton<User>;
-    User(): ::User(UserInput::get(), std::move(getRgbs()), VoiceNotifier::get()) {
+    User(): ::User(UserInput::get(), RgbNotifierLite::get(), VoiceNotifierLite::get()) {
 
-    }
-
-    std::array<std::shared_ptr<::RgbStateNotifier>, Config::Bsp::kPortNum> getRgbs() {
-        auto result = std::array<std::shared_ptr<::RgbStateNotifier>, Config::Bsp::kPortNum>{};
-        for(int i = 0; i < Config::Bsp::kPortNum; i++) {
-            magic_switch<Config::Bsp::kPortNum>{}([&](auto v) {
-                result[i] = Preset::RgbStateNotifier<decltype(v)::value>::get();
-            }, i);
-        }
-        return result;
     }
 };
 }

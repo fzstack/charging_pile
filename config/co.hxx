@@ -11,6 +11,7 @@
 #include <array>
 #include <memory>
 #include <utilities/inner_port.hxx>
+#include "app.hxx"
 
 #if (defined(LOWER_END) && defined(UPPER_END)) || (!defined(LOWER_END) && !defined(UPPER_END))
 #error "Only one of LOWER_END or UPPER_END can be defined"
@@ -20,6 +21,13 @@ namespace Packets {
 struct Handshake {
 
 };
+
+namespace BackupMan {
+struct Write {
+    InnerPort port;
+    Backup backup;
+};
+}
 
 struct State {
     InnerPort port;
@@ -57,6 +65,14 @@ struct CurrentData {
 }
 
 namespace Rpcs {
+
+namespace BackupMan {
+struct Read {
+    InnerPort port;
+};
+}
+
+
 namespace Services {
 struct Query {
 
@@ -104,6 +120,11 @@ struct RpcTrait<Rpcs::PersistentStorage::Make<T>> {
 template<class T>
 struct RpcTrait<Rpcs::PersistentStorage::Read<T>> {
     using result_t = T;
+};
+
+template<>
+struct RpcTrait<Rpcs::BackupMan::Read> {
+    using result_t = Backup;
 };
 
 #endif /* CONFIG_CO_HXX_ */

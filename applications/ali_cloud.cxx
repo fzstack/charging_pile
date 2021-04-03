@@ -7,6 +7,38 @@ using namespace std;
 using namespace json_literals;
 
 AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724> air, std::shared_ptr<CloudTimer> timer): Cloud(timer), device(device), air(air) {
+    psTimer.onRun += [this, device] {
+        auto port = InnerPort{rt_uint8_t(psCnt / kPsActionsNum)};
+        auto& spec = specs[port.get()];
+        switch(psCnt % kPsActionsNum) {
+        case 0:
+            if(spec.fPlugged.updateAndCheck()) {
+                runOn(device->thread->post([=] () {
+                    device->emit("port_access", {
+                        {"port", NatPort{port}.get()},
+                    });
+                }));
+            }
+            break;
+        case 1:
+            if(spec.fUnpluged.updateAndCheck()) {
+                runOn(device->thread->post([=] () {
+                    device->emit("port_unplug", {
+                        {"port", NatPort{port}.get()},
+                    });
+                }));
+            }
+            break;
+        default:
+            break;
+        }
+
+
+        psCnt++;
+        psCnt %= Config::Bsp::kPortNum * kPsActionsNum;
+
+    };
+
     inited.onChanged += [this](auto value) {
         if(!value) return;
 
@@ -89,7 +121,9 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
             });
         }));
 
+        psTimer.start();
         Cloud::init();
+        initDone = true;
     };
 }
 
@@ -98,9 +132,7 @@ void AliCloud::init() {
 }
 
 void AliCloud::emitCurrentData(CurrentData&& data) {
-    if(rt_tick_get() - lastSetTick < 2000)
-        return;
-    lastSetTick = rt_tick_get();
+    if(!initDone) return;
     auto value = Json {
         {"port", data.port.get()},
         {"timer_id", data.timerId},
@@ -122,6 +154,7 @@ void AliCloud::emitCurrentData(CurrentData&& data) {
 }
 
 void AliCloud::setIccid(std::string_view iccid) {
+    if(!initDone) return;
     auto iccidStr = string{iccid};
     runOn(device->thread->post([=]{
         device->set("iccid", iccidStr);
@@ -129,6 +162,7 @@ void AliCloud::setIccid(std::string_view iccid) {
 }
 
 void AliCloud::emitHeartbeat(Heartbeat&& heartbeat) {
+    if(!initDone) return;
     runOn(device->thread->post([=]{
         device->emit("heartbeat", {
             {"signal", heartbeat.signal},
@@ -142,22 +176,17 @@ void AliCloud::emitHeartbeat(Heartbeat&& heartbeat) {
 }
 
 void AliCloud::emitPortAccess(NatPort port) {
-    runOn(device->thread->post([=]{
-        device->emit("port_access", {
-            {"port", port.get()},
-        });
-    }));
+    if(!initDone) return;
+    specs[InnerPort{port}.get()].fPlugged.retrigger();
 }
 
 void AliCloud::emitPortUnplug(NatPort port) {
-    runOn(device->thread->post([=]{
-        device->emit("port_unplug", {
-            {"port", port.get()},
-        });
-    }));
+    if(!initDone) return;
+    specs[InnerPort{port}.get()].fUnpluged.retrigger();
 }
 
 void AliCloud::emitIcNumber(NatPort port, std::string_view icNumber) {
+    if(!initDone) return;
     auto icNumberS = string{icNumber.begin(), icNumber.end()};
     runOn(device->thread->post([=]{
         device->emit("ic_number", {
@@ -168,6 +197,7 @@ void AliCloud::emitIcNumber(NatPort port, std::string_view icNumber) {
 }
 
 void AliCloud::emitCurrentLimit(NatPort port) {
+    if(!initDone) return;
     runOn(device->thread->post([=]{
         device->emit("current_limit", {
            {"port", port.get()},

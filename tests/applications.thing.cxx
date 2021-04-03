@@ -12,6 +12,7 @@
 #include <components/state_store_preset.hxx>
 #include <utilities/mp.hxx>
 #include <components/handshake.hxx>
+#include <components/backup_man_preset.hxx>
 
 #define LOG_TAG "test.thing"
 #define LOG_LVL LOG_LVL_DBG
@@ -56,6 +57,7 @@ int init_test_thing() {
     auto thing = Preset::Thing::get();
 
 #if defined(ENABLE_REMOTE)
+    Preset::BackupMan::get();
     Preset::PersistentStorage::get();
     Preset::Rpc::get();
     auto handshake = Preset::Handshake::get();
@@ -94,12 +96,6 @@ int init_test_thing() {
         }) << endln;
     };
 
-    Preset::PersistentStorage::get();
-    for(auto i = 0; i < Config::Bsp::kPortNum; i++) {
-        magic_switch<Config::Bsp::kPortNum>{}([&](auto v){
-            Preset::StateStore<decltype(v)::value>::get();
-        }, i);
-    }
 #endif
 
     return RT_EOK;

@@ -50,12 +50,12 @@ int AirEssential::getCsq() {
 void AirEssential::attachGprs(){
     auto resp = createResp();
     auto atClient = getAtClient();
-    int cgattVal;
+    int cgattVal = 0;
     do {
-        if(at_obj_exec_cmd(atClient, resp.get(), "AT+CGATT?") != RT_EOK)
-            throw runtime_error{"timeout when getting CGATT"};
-        if(at_resp_parse_line_args_by_kw(resp.get(), "CGATT:", "+CGATT: %d", &cgattVal) <= 0)
-            throw runtime_error{"CGATT parse failed"};
+        if(at_obj_exec_cmd(atClient, resp.get(), "AT+CGATT?") == RT_EOK) {
+            if(at_resp_parse_line_args_by_kw(resp.get(), "CGATT:", "+CGATT: %d", &cgattVal) <= 0)
+                throw runtime_error{"CGATT parse failed"};
+        }
         if(cgattVal != 1)
             rt_thread_mdelay(1000);
     } while(cgattVal != 1);

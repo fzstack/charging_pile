@@ -6,6 +6,8 @@
 #include <utilities/observer.hxx>
 #include <optional>
 #include <set>
+#include <utilities/count_down.hxx>
+#include <components/timer.hxx>
 
 class Keyboard {
 public:
@@ -24,6 +26,9 @@ public:
     Observer<std::optional<Keys>> oValue = value;
 
 private:
+    Timer timer = {100, "kbd"};
+    rt_uint16_t data;
+    CountDown<> fKey = {};
     std::shared_ptr<Ttp229> device;
     static const std::set<Keys> values;
 };

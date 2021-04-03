@@ -5,7 +5,7 @@
 using namespace std;
 
 UpperApp::UpperApp() {
-    Preset::PersistentStorage::get();
+    Preset::PersistentStorage::get(); //~15.4k RAM
 }
 
 void UpperApp::run() {
@@ -50,8 +50,17 @@ void UpperApp::run() {
     thing->onCurrentData += [=](auto data){
         cloud->emitCurrentData(std::move(data));
     };
-    //cloud->init();
-    //handshake->hello();
-    //thing->init();
+
+    handshake->hello();
+    thing->init();
+    cloud->init();
 }
+
+#if defined(RUN_APP) && (!defined(ENABLE_REMOTE) || (defined(ENABLE_REMOTE) && defined(UPPER_END)))
+void reset_config(int argc, char** argv) {
+    auto storage = Preset::PersistentStorage::get();
+    storage->reset();
+}
+MSH_CMD_EXPORT(reset_config, );
+#endif
 

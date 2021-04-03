@@ -5,6 +5,7 @@
 #include <config/bsp.hxx>
 #include <components/timer.hxx>
 #include <utilities/count_down.hxx>
+#include <components/backup_man_preset.hxx>
 
 namespace Things::Decos {
 /**
@@ -17,13 +18,6 @@ class Backuper: public Base {
     virtual void onStateChanged(InnerPort port, State::Value state) override;
     void resume(InnerPort port);
 
-public:
-    template<int N>
-    struct Backup {
-        int leftSeconds = 0;
-        int timerId = 0;
-        float consumption = 0;
-    };
 
 private:
     struct PortSpec {
@@ -32,10 +26,11 @@ private:
         CountDown<> fResume = {};
     };
 
+    std::shared_ptr<BackupMan> man = Preset::BackupMan::get();
     Timer timer = {kDuration, kTimer};
     rt_uint8_t currPort = 0;
     std::array<PortSpec, Config::Bsp::kPortNum> specs;
-    static constexpr int kCnt = 10;
+    static constexpr int kCnt = 5;
     static constexpr int kAutoBackupDur = 10 * 1000;
     static constexpr int kDuration = kAutoBackupDur / kCnt / Config::Bsp::kPortNum;
     static const char* kTimer;

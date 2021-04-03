@@ -20,7 +20,6 @@ struct Void {
 
 };
 
-//#define LOG_RPC_CB
 //#define LOG_RPC_PTR_RV
 #define LOG_RPC_E_MAX_PARALLEL
 
@@ -211,18 +210,7 @@ public:
                     packet->emit<Failure<T>>({id, e.what()});
                 }
             };
-#ifdef LOG_RPC_CB
-            rt_kprintf("try invoke rpc cb...\n");
-#endif
-            //thread->exec([=](){
-#ifdef LOG_RPC_CB
-            rt_kprintf("invoking rpc cb @%s...\n", rt_thread_self()->name);
-#endif
             cb(p, f); //可能会被packet堵塞，所以在不同于middle的回调线程执行
-#ifdef LOG_RPC_CB
-            rt_kprintf("rpc cb invoked @%s\n", rt_thread_self()->name);
-#endif
-            //});
         });
         handleDefResult<result_t<T>>();
     }

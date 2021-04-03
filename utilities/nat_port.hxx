@@ -7,7 +7,7 @@ class NatPort: public Port {
 public:
     NatPort();
     explicit NatPort(rt_uint8_t value);
-    operator InnerPort();
+    operator InnerPort() const;
 };
 
 

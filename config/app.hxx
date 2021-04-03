@@ -24,6 +24,12 @@ struct State {
     };
 };
 
+struct Backup {
+    int leftSeconds = 0;
+    int timerId = 0;
+    float consumption = 0;
+};
+
 struct CurrentData {
     NatPort port;
     int timerId;

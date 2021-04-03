@@ -9,7 +9,7 @@ NatPort::NatPort(rt_uint8_t value): Port(value) {
 
 }
 
-NatPort::operator InnerPort() {
+NatPort::operator InnerPort() const {
     return InnerPort(value - 1);
 }
 

@@ -14,6 +14,7 @@ void RemoteStateStore::on(State::Value value) {
 
 void RemoteStateStore::staticCtor() {
     auto packet = Preset::Packet::get();
+    rt_kprintf("remote state store static stor\n");
     packet->on<Packets::State>([](auto p) {
         magic_switch<Config::Bsp::kPortNum>{}([&](auto v) {
             Preset::RemoteStateStore<decltype(v)::value>::get()->on(p->value);

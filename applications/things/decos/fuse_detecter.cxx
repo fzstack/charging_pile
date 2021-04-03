@@ -41,7 +41,7 @@ void FuseDetecter::init() {
 }
 
 void FuseDetecter::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
-    auto params = Preset::PersistentStorage::get()->make<Params>();
-    params->fuzedS2Thr = fuzedThr;
+//    auto params = Preset::PersistentStorage::get()->make<Params>();
+//    params->fuzedS2Thr = fuzedThr;
 }
 
