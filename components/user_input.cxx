@@ -16,10 +16,15 @@ void UserInput::watch(std::shared_ptr<Keyboard> keyboard) {
         case Keyboard::Keys::Ret:
             currPort = 0;
             break;
-        case Keyboard::Keys::Ok:
-            onConfirm(NatPort{(rt_uint8_t)currPort}, lastCard);
-            currPort = 0;
+        case Keyboard::Keys::Ok: {
+            auto port = NatPort{(rt_uint8_t)currPort};
+            if(port.validate() && !lastCard.empty()) {
+                onConfirm(port, lastCard);
+                lastCard.clear();
+                currPort = 0;
+            }
             break;
+        }
         default:
             auto sel = std::unordered_map<Keyboard::Keys, int> {
                 {Keyboard::Keys::K0, 0},

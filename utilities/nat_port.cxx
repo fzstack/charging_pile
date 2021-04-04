@@ -13,3 +13,7 @@ NatPort::operator InnerPort() const {
     return InnerPort(value - 1);
 }
 
+bool NatPort::validate() {
+    return InnerPort{*this}.validate();
+}
+

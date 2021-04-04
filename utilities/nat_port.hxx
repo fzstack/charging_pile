@@ -8,6 +8,7 @@ public:
     NatPort();
     explicit NatPort(rt_uint8_t value);
     operator InnerPort() const;
+    bool validate();
 };
 
 

@@ -12,10 +12,11 @@
 #include <components/app_state.hxx>
 #include <components/user_input.hxx>
 #include <array>
+#include <components/keyboard.hxx>
 
 class VoiceNotifierLite {
 public:
-    VoiceNotifierLite(std::shared_ptr<Wtn6Base> wtn6, std::shared_ptr<AppState> state, std::shared_ptr<UserInput> userInput);
+    VoiceNotifierLite(std::shared_ptr<Wtn6Base> wtn6, std::shared_ptr<AppState> state, std::shared_ptr<UserInput> userInput, std::shared_ptr<Keyboard> keybaord);
 private:
 
     static const std::array<Voices, Config::Bsp::kPortNum> kUnpluged;
@@ -26,6 +27,6 @@ private:
 namespace Preset {
 class VoiceNotifierLite: public Singleton<VoiceNotifierLite>, public ::VoiceNotifierLite {
     friend singleton_t;
-    VoiceNotifierLite(): ::VoiceNotifierLite(Wtn6::get(), AppState::get(), UserInput::get()) { }
+    VoiceNotifierLite(): ::VoiceNotifierLite(Wtn6::get(), AppState::get(), UserInput::get(), Keyboard::get()) { }
 };
 }

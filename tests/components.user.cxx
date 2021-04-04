@@ -7,16 +7,16 @@
 
 using namespace std;
 
-int init_test_user() {
+int init_test_user_input() {
     auto user = Preset::UserInput::get();
-    user->onConfirm += [](int port, string cardId) {
-        F{} << "mock start @"_r << port << ", cardId"_r << cardId << endln;
+    user->onConfirm += [](NatPort port, string cardId) {
+        F{} << "mock start @"_r << port.get() << ", cardId"_r << cardId << endln;
     };
 
     F{} << "user test init ok, please test"_r << endln;
     return RT_EOK;
 }
 
-INIT_APP_EXPORT(init_test_user);
+INIT_APP_EXPORT(init_test_user_input);
 
 #endif

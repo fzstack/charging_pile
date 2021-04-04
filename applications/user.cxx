@@ -20,5 +20,7 @@ User::User(
     input->onConfirm += [this](NatPort port, string cardId){
         this->onInputConfirm(port, cardId);
     };
+
+
 }
 
