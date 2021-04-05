@@ -176,8 +176,8 @@
 									<listOptionValue builtIn="false" value="HAVE_SIGVAL"/>
 									<listOptionValue builtIn="false" value="HAVE_SIGEVENT"/>
 									<listOptionValue builtIn="false" value="HAVE_SIGINFO"/>
-									<listOptionValue builtIn="false" value="_UPPER_END"/>
-									<listOptionValue builtIn="false" value="LOWER_END"/>
+									<listOptionValue builtIn="false" value="UPPER_END"/>
+									<listOptionValue builtIn="false" value="_LOWER_END"/>
 									<listOptionValue builtIn="false" value="RUN_APP"/>
 									<listOptionValue builtIn="false" value="_TEST_USER"/>
 									<listOptionValue builtIn="false" value="_TEST_TINY_TYPE_ID"/>

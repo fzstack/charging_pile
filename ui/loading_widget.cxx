@@ -1,14 +1,10 @@
 #include "loading_widget.hxx"
 #include <cmath>
 #include <utilities/math.hxx>
+#include "core.hxx"
 
-LoadingWidget::LoadingWidget(int x, int y, int zIndex, std::shared_ptr<Timer> timer): p_t(x, y, zIndex), timer(timer) {
-    timer->onRun += [this]{
-        invalid();
-        curVal += (float)this->timer->getDuration() / kDuration;
-        curVal = fmod(curVal, 1.f);
-    };
-    timer->start();
+LoadingWidget::LoadingWidget(int x, int y, int zIndex): p_t(x, y, zIndex) {
+
 }
 
 void LoadingWidget::onDraw(std::shared_ptr<Graphics> graphics) {
@@ -20,6 +16,12 @@ void LoadingWidget::onDraw(std::shared_ptr<Graphics> graphics) {
         curColor.a *= timing(tarVal);
         graphics->addPixel(curColor, dx, dy); //绘制loading条
     }
+}
+
+void LoadingWidget::onTick() {
+    invalid();
+    curVal += (float)Core::kDuration / kDuration;
+    curVal = fmod(curVal, 1.f);
 }
 
 float LoadingWidget::timing(float t) {

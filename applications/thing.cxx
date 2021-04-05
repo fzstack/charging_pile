@@ -111,7 +111,7 @@ DevConfig Thing::readConfig() {
 using namespace Things::Decos;
 namespace Preset {
 ThingPre::ThingPre(): ::Thing(Chargers::get()) {
-    addDeco<EventEmitter>(); //TODO: 使用count down //重构: 统一的port时钟回调
+    //addDeco<EventEmitter>(); //TODO: 使用count down //重构: 统一的port时钟回调
     addDeco<Counter>();
     addDeco<CurrentLimiter>();
     addDeco<Backuper>();

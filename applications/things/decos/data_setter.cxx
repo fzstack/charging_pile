@@ -28,11 +28,12 @@ DataSetter::DataSetter(outer_t* outer): Base(outer) {
 
 void DataSetter::emitPortData(InnerPort port) {
     auto& info = getInfo(port);
+    auto state = info.charger->stateStore->oState.value().value_or(State::Error);
     this->outer->onCurrentData(CurrentData {
         port: port,
         timerId: info.timerId,
         leftMinutes: info.leftSeconds / 60,
-        state: info.charger->stateStore->oState.value().value_or(State::Error),
+        state: state,
         current: info.charger->multimeterChannel->current.value().value_or(0),
         voltage: info.charger->multimeterChannel->voltage.value().value_or(0),
         consumption: info.consumption,

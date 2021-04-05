@@ -1,13 +1,23 @@
 #include "core.hxx"
 #include <algorithm>
+#include <Lock.h>
 
 using namespace std;
+using namespace rtthread;
 
 Core::Core(std::shared_ptr<Screen> screen): screen(screen), buffer(make_shared<VSizeBuffer>(screen->getWidth(), screen->getHeight())) {
-
+    timer.onRun += [this](){
+        auto gaurd = Lock(mutex);
+        for(auto widget: widgets) {
+            widget->onTick();
+        }
+        this->screen->onTick();
+    };
+    timer.start();
 }
 
 void Core::add(std::shared_ptr<Widget> widget) {
+    auto gaurd = Lock(mutex);
     widgets.push_back(widget);
     widget->addTo(shared_from_this());
     //按照z顺排序
@@ -19,7 +29,6 @@ void Core::add(std::shared_ptr<Widget> widget) {
 void Core::invalidWidget(std::shared_ptr<Widget> widget) {
     //调用widget的onDraw函数
     widget->onDraw(make_shared<Graphics>(widget->getBuffer()));
-
 
     //重新计算缓存
     buffer->fill(widget->x, widget->y, widget->getWidth(), widget->getHeight(), Colors::Argb::kBlack);

@@ -11,7 +11,7 @@ InnerPort::InnerPort(rt_uint8_t value): Port(value) {
 }
 
 InnerPort::operator NatPort() const {
-    return NatPort(value + 1);
+    return NatPort(Config::Bsp::kPortNum - value); //9...0 -> 1...10
 }
 
 bool InnerPort::validate() {

@@ -9,6 +9,7 @@ public:
     virtual Colors::Rgb getPixel(int x, int y) = 0;
     virtual void setPixel(Colors::Rgb color, int x, int y) = 0;
     virtual void flush() = 0;
+    virtual void onTick() {};
 };
 
 

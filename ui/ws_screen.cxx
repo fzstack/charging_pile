@@ -1,14 +1,8 @@
 #include "ws_screen.hxx"
 #include <utilities/err.hxx>
 
-WsScreen::WsScreen(std::shared_ptr<Ws2812> ws2812, std::shared_ptr<Timer> timer, int width, int height): ws2812(ws2812), timer(timer), width(width), height(height) {
-    timer->onRun += [this]{
-        if(willFlush) {
-            willFlush = false;
-            this->ws2812->flush();
-        }
-    };
-    timer->start();
+WsScreen::WsScreen(std::shared_ptr<Ws2812> ws2812, int width, int height): ws2812(ws2812), width(width), height(height) {
+
 }
 
 int WsScreen::getWidth() {
@@ -21,6 +15,13 @@ int WsScreen::getHeight() {
 
 Colors::Rgb WsScreen::getPixel(int x, int y) {
     throw not_implemented{""};
+}
+
+void WsScreen::onTick() {
+    if(willFlush) {
+        willFlush = false;
+        this->ws2812->flush();
+    }
 }
 
 void WsScreen::setPixel(Colors::Rgb color, int x, int y) {

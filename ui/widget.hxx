@@ -18,6 +18,7 @@ protected:
     void invalid();
     virtual void onDraw(std::shared_ptr<Graphics> graphics) = 0;
     virtual std::shared_ptr<Buffer> getBuffer() = 0;
+    virtual void onTick() {};
 
 private:
     void addTo(std::shared_ptr<Core> core);

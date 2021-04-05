@@ -9,6 +9,7 @@
  */
 
 #include "user.hxx"
+#include <ui/loading_widget.hxx>
 
 using namespace std;
 
@@ -21,6 +22,7 @@ User::User(
         this->onInputConfirm(port, cardId);
     };
 
+    Preset::LoadingWidget::get();
 
 }
 

@@ -24,10 +24,10 @@ RgbNotifierLite::RgbNotifierLite(std::shared_ptr<AppState> state, std::shared_pt
         }
 
         if(fUpdate.updateAndCheck()) {
-            for(rt_uint8_t j = 0; j < Config::Bsp::kPortNum; j++) {
-                auto s = state->getPortState(InnerPort{j});
-                auto& p = ws2812->getPixel(j);
-                auto b = (i + j) % 10 < 5;
+            for(auto j = NatPort::min(); j <= NatPort::max(); ++j) { //自然端口
+                auto s = state->getPortState(j);
+                auto& p = ws2812->getPixel(j - NatPort::min());
+                auto b = (i + j.get()) % 10 < 5;
                 switch(s) {
                 case State::LoadNotInsert:
                     p = kGreen;

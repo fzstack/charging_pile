@@ -6,6 +6,8 @@
 #include "buffer.hxx"
 #include <memory>
 #include <list>
+#include <components/timer.hxx>
+#include <Mutex.h>
 
 class Widget;
 class Buffer;
@@ -24,6 +26,12 @@ private:
     std::shared_ptr<Screen> screen;
     std::shared_ptr<Buffer> buffer;
     std::list<std::shared_ptr<Widget>> widgets;
+
+public:
+    static constexpr int kDuration = 20;
+private:
+    Timer timer = {kDuration, "uicore"};
+    rtthread::Mutex mutex = {"uicore"};
 };
 
 #include <utilities/singleton.hxx>

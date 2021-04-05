@@ -11,7 +11,7 @@ void StateStore::watch(std::shared_ptr<Relay> relay) {
     this->relay = relay;
     relay->value.onChanged += [this](auto value){
         if(value == Relay::Off) {
-            state = State::LoadWaitRemove; //TODO: 在一秒后调用update
+            state = State::LoadWaitRemove; //TODO: 在一秒后调用update //LoadWaitRemove
             return;
         }
         update();

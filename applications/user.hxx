@@ -34,7 +34,7 @@ private:
 namespace Preset {
 class User: public Singleton<User>, public ::User {
     friend class Singleton<User>;
-    User(): ::User(UserInput::get(), RgbNotifierLite::get(), VoiceNotifierLite::get()) {
+    User(): ::User(UserInput::get(), nullptr/*RgbNotifierLite::get()*/, VoiceNotifierLite::get()) {
 
     }
 };

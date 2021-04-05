@@ -67,12 +67,6 @@ template<> const int SharedThread<Priority::High>::kThreadTick = 10;
 template<> const char* SharedThread<Priority::Middle>::kThread = "middle";
 template<> const int SharedThread<Priority::Middle>::kThreadStack = 2048;
 template<> const int SharedThread<Priority::Middle>::kThreadTick = 10;
-
-const int WsScreen::kDuration = 20;
-const char* WsScreen::kTimer = "wscrn";
-
-const int LoadingWidget::kDuration = 20;
-const char* LoadingWidget::kTimer = "lodwgt";
 }
 
 
