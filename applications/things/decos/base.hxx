@@ -5,6 +5,7 @@
 #include <Mutex.h>
 #include <Lock.h>
 #include <utilities/inner_port.hxx>
+#include <config/app.hxx>
 
 class Thing;
 class ChargerInfo;
@@ -16,7 +17,7 @@ protected:
     using nested_t::Nested;
     virtual void init() {};
     virtual void query() {};
-    virtual void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {};
+    virtual void config(DevConfig conf) {};
     virtual void onStateChanged(InnerPort port, State::Value state) {};
     virtual void onCurrentChanged(InnerPort port, int value) {};
     virtual void onVoltageChanged(InnerPort port, int value) {};

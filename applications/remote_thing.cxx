@@ -37,7 +37,25 @@ void RemoteThing::stop(InnerPort port, int timerId) {
     packet->emit<Services::Stop>({port, timerId});
 }
 
-void RemoteThing::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
-    packet->emit<Services::Config>({currentLimit, uploadThr, fuzedThr, noloadCurrThr});
+void RemoteThing::config(DevConfig conf) {
+    packet->emit<Services::Config>({conf});
+}
+
+#include <config/app.hxx>
+#include <components/persistent_storage_preset.hxx>
+#include "things/decos/params/current_limiter.hxx"
+#include "things/decos/params/data_setter.hxx"
+#include "things/decos/params/noload_detecter.hxx"
+DevConfig RemoteThing::readConfig() {
+    using namespace Things::Decos::Params;
+    auto storage = Preset::PersistentStorage::get();
+    auto nolodDetConf = storage->read<NoloadDetecter>();
+    return DevConfig {
+        currentLimit: storage->read<CurrentLimiter>().maxCurrentMiA,
+        uploadThr: storage->read<DataSetter>().currDiffThrMiA,
+        fuzedThr: 0,
+        noloadCurrThr: nolodDetConf.noloadCurrThr,
+        doneCurrThr: nolodDetConf.doneCurrThr,
+    };
 }
 

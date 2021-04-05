@@ -12,7 +12,8 @@ public:
     virtual void query() = 0;
     virtual void control(InnerPort port, int timerId, int minutes) = 0;
     virtual void stop(InnerPort port, int timerId) = 0;
-    virtual void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) = 0;
+    virtual void config(DevConfig conf) = 0;
+    virtual DevConfig readConfig() = 0;
 
     Signals<void(InnerPort port)> onPortAccess;
     Signals<void(InnerPort port)> onPortUnplug;

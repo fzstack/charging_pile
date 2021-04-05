@@ -51,7 +51,7 @@ void CurrentLimiter::onCurrentChanged(InnerPort port, int value) {
     }
 }
 
-void CurrentLimiter::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
-    params.save({currentLimit});
+void CurrentLimiter::config(DevConfig conf) {
+    params.save({conf.currentLimit});
 }
 

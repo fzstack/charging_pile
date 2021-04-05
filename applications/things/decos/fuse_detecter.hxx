@@ -15,7 +15,7 @@ class FuseDetecter: public Base {
     friend outer_t;
     FuseDetecter(outer_t* outer);
     virtual void init() override;
-    virtual void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) override;
+    virtual void config(DevConfig conf) override;
 
 public:
     struct Params {

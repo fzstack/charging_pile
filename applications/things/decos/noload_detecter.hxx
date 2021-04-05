@@ -21,7 +21,7 @@ class NoloadDetecter: public Base {
     virtual void init() override;
     virtual void onStateChanged(InnerPort port, State::Value state) override;
     virtual void onCurrentChanged(InnerPort port, int value) override;
-    virtual void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) override;
+    virtual void config(DevConfig conf) override;
 
 public:
 

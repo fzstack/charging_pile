@@ -14,7 +14,9 @@ public:
     virtual void query() override;
     virtual void control(InnerPort port, int timerId, int minutes) override;
     virtual void stop(InnerPort port, int timerId) override;
-    virtual void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) override;
+    virtual void config(DevConfig conf) override;
+    virtual DevConfig readConfig() override;
+
 private:
     std::shared_ptr<Thing> thing;
     std::shared_ptr<Packet> packet;

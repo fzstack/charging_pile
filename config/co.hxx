@@ -12,6 +12,7 @@
 #include <memory>
 #include <utilities/inner_port.hxx>
 #include "app.hxx"
+#include <config/app.hxx>
 
 #if (defined(LOWER_END) && defined(UPPER_END)) || (!defined(LOWER_END) && !defined(UPPER_END))
 #error "Only one of LOWER_END or UPPER_END can be defined"
@@ -90,10 +91,7 @@ struct Stop {
 };
 
 struct Config {
-    int currentLimit;
-    int uploadThr;
-    int fuzedThr;
-    int noloadCurrThr;
+    DevConfig conf;
 };
 }
 

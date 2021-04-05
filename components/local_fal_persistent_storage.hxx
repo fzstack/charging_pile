@@ -68,13 +68,13 @@ private:
 };
 
 #include <utilities/singleton.hxx>
-#include <applications/things/decos/backuper.hxx>
+//#include <applications/things/decos/backuper.hxx>
 #include <applications/things/decos/params/current_limiter.hxx>
 #include <applications/things/decos/params/data_setter.hxx>
-#include <applications/things/decos/fuse_detecter.hxx>
+//#include <applications/things/decos/fuse_detecter.hxx>
 #include <applications/things/decos/params/noload_detecter.hxx>
-#include <utilities/mp.hxx>
-#include <config/bsp.hxx>
+//#include <utilities/mp.hxx>
+//#include <config/bsp.hxx>
 
 namespace Preset {
 class LocalFalPersistentStorage: public Singleton<LocalFalPersistentStorage>, public ::LocalFalPersistentStorage {

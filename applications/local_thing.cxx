@@ -20,7 +20,7 @@ LocalThing::LocalThing(
         stop(p->port, p->timerId);
     });
     packet->on<Services::Config>([this](auto p){
-        config(p->currentLimit, p->uploadThr, p->fuzedThr, p->noloadCurrThr);
+        config(p->conf);
     });
     packet->on<Services::Query>([this](auto p) {
 #ifdef LOG_LT_INVOKE
@@ -66,8 +66,12 @@ void LocalThing::stop(InnerPort port, int timerId) {
     thing->stop(port, timerId);
 }
 
-void LocalThing::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
-    thing->config(currentLimit, uploadThr, fuzedThr, noloadCurrThr);
+void LocalThing::config(DevConfig conf) {
+    thing->config(conf);
+}
+
+DevConfig LocalThing::readConfig() {
+    return thing->readConfig();
 }
 
 

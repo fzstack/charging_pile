@@ -33,9 +33,11 @@ public:
             Succeed = 1, Failed,
         };
     };
+
     Signals<ServiceResult::Value(NatPort port, int timerId, int minutes)> onControl = {};
     Signals<ServiceResult::Value(NatPort port, int timerId)> onStop = {};
-    Signals<void(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr)> onConfig = {};
+    Signals<void(DevConfig conf)> onConfig = {};
+    Signals<DevConfig()> onReadConfig = {};
 
 protected:
     virtual void setSignalInterval() = 0;

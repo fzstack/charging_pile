@@ -25,12 +25,16 @@ void UpperApp::run() {
             return Cloud::ServiceResult::Failed;
         }
     };
-    cloud->onConfig += [=](int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
-        thing->config(currentLimit, uploadThr, fuzedThr, noloadCurrThr);
+    cloud->onConfig += [=](auto conf) {
+        thing->config(conf);
     };
 
     cloud->onQuery += [=]{
         thing->query();
+    };
+
+    cloud->onReadConfig += [=] {
+        return thing->readConfig();
     };
 
     user->onInputConfirm += [=](auto port, auto icNumber) {

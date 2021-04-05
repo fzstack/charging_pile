@@ -19,10 +19,10 @@ VoiceNotifierLite::VoiceNotifierLite(std::shared_ptr<Wtn6Base> wtn6, std::shared
         auto i = InnerPort{port}.get();
         switch(state) {
         case State::LoadNotInsert:
-            voice = kUnpluged[i];
+            //voice = kUnpluged[i];
             break;
         case State::LoadInserted:
-            voice = kPluged[i];
+            //voice = kPluged[i];
             break;
         case State::Charging:
             voice = Voices::StartCharing;

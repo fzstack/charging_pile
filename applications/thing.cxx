@@ -89,10 +89,14 @@ void Thing::stop(InnerPort port, int timerId) {
     info.timerId = timerId;
 }
 
-void Thing::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
+void Thing::config(DevConfig conf) {
     for(auto deco: decos) {
-        deco->config(currentLimit, uploadThr, fuzedThr, noloadCurrThr);
+        deco->config(conf);
     }
+}
+
+DevConfig Thing::readConfig() {
+    throw not_implemented{"read conf in upper end pls"};
 }
 
 #ifdef LOWER_END

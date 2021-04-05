@@ -94,7 +94,27 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
                     } else {
                         r(*err);
                     }
-                }, params["current_limit"], params["upload_thr"], params["fused_thr"], params["noload_curr_thr"]);
+                }, DevConfig{params["current_limit"], params["upload_thr"], params["fused_thr"], params["noload_curr_thr"], params["done_curr_thr"]});
+            } catch(const exception& e) {
+                r(std::current_exception());
+            }
+        };
+
+        this->device->services["rd_conf"] += [this](auto r, const auto params)  {
+            try {
+                onReadConfig([r](auto result) mutable {
+                    if(auto conf = get_if<DevConfig>(&result)) {
+                        r(Json {
+                           {"current_limit", conf->currentLimit},
+                           {"upload_thr", conf->uploadThr},
+                           {"fused_thr", conf->fuzedThr},
+                           {"noload_curr_thr", conf->noloadCurrThr},
+                           {"done_curr_thr", conf->doneCurrThr},
+                        });
+                    } else if(auto err = get_if<exception_ptr>(&result)) {
+                        r(*err);
+                    }
+                });
             } catch(const exception& e) {
                 r(std::current_exception());
             }

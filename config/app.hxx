@@ -58,6 +58,14 @@ struct Heartbeat {
 
 };
 
+struct DevConfig {
+    int currentLimit;
+    int uploadThr;
+    int fuzedThr;
+    int noloadCurrThr;
+    int doneCurrThr;
+};
+
 std::string getStateStr(State::Value state);
 
 

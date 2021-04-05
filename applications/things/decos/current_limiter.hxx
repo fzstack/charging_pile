@@ -18,7 +18,7 @@ class CurrentLimiter: public Base {
     friend outer_t;
     CurrentLimiter(outer_t* outer);
     virtual void init() override;
-    virtual void config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) override;
+    virtual void config(DevConfig conf) override;
     virtual void onCurrentChanged(InnerPort port, int value) override;
 private:
     ConfMan<Params::CurrentLimiter> params = {getMutex()};

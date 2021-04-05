@@ -80,6 +80,6 @@ void DataSetter::onCurrentChanged(InnerPort port, int value) {
     }
 }
 
-void DataSetter::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
-    params.save({uploadThr});
+void DataSetter::config(DevConfig conf) {
+    params.save({conf.uploadThr});
 }

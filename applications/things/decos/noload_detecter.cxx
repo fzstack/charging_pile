@@ -1,6 +1,7 @@
 #include <config/bsp.hxx>
 #include <components/persistent_storage_preset.hxx>
 #include "noload_detecter.hxx"
+#include <algorithm>
 
 using namespace Things::Decos;
 using namespace std;
@@ -54,14 +55,14 @@ void NoloadDetecter::onCurrentChanged(InnerPort port, int value) {
     rt_kprintf("[%d] cur: %dmA, noloadCurrThr: %dmA\n", NatPort{InnerPort{i}}.get(), *value, params->noloadCurrThr);
 #endif
 
-    if(value < params->noloadCurrThr) {
+    if(value < max(params->noloadCurrThr, params->doneCurrThr)) {
         spec.count.trigger();
     } else {
         spec.count.reset();
     }
 }
 
-void NoloadDetecter::config(int currentLimit, int uploadThr, int fuzedThr, int noloadCurrThr) {
-    params.save({noloadCurrThr});
+void NoloadDetecter::config(DevConfig conf) {
+    params.save({conf.noloadCurrThr, conf.doneCurrThr});
 }
 
