@@ -4,6 +4,7 @@
 #include <ui/ws_screen.hxx>
 #include <ui/rgb_light_widget.hxx>
 #include <ui/loading_widget.hxx>
+#include <ui/state_noti_widget.hxx>
 
 using namespace Config;
 using namespace std;
@@ -28,6 +29,7 @@ template<> const int RgbLightWidget<7>::zIndex = 0;
 template<> const int RgbLightWidget<8>::zIndex = 0;
 template<> const int RgbLightWidget<9>::zIndex = 0;
 const int LoadingWidget::zIndex = 1;
+const int StateNotiWidget::zIndex = 0;
 }
 
 string getStateStr(State::Value state) {

@@ -2,7 +2,6 @@
 
 #include "widget.hxx"
 #include <tuple>
-#include <components/timer.hxx>
 
 class LoadingWidget: public CSizeWidget<5, 2> {
     using p_t = CSizeWidget<5, 2>;

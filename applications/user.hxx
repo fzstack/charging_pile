@@ -17,6 +17,7 @@
 #include <string>
 #include <array>
 #include <utilities/mp.hxx>
+#include <ui/present.hxx>
 
 class User {
 public:
@@ -35,7 +36,7 @@ namespace Preset {
 class User: public Singleton<User>, public ::User {
     friend class Singleton<User>;
     User(): ::User(UserInput::get(), nullptr/*RgbNotifierLite::get()*/, VoiceNotifierLite::get()) {
-
+        Present::get();
     }
 };
 }

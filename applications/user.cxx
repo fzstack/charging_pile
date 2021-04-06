@@ -22,7 +22,5 @@ User::User(
         this->onInputConfirm(port, cardId);
     };
 
-    Preset::LoadingWidget::get();
-
 }
 
