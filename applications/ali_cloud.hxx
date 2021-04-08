@@ -10,10 +10,11 @@
 #include <config/bsp.hxx>
 #include <array>
 #include <utilities/inner_port.hxx>
+#include <components/app_state.hxx>
 
 class AliCloud: public Cloud {
 public:
-    AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724> air, std::shared_ptr<CloudTimer> timer);
+    AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724> air, std::shared_ptr<CloudTimer> timer, std::shared_ptr<AppState> appState);
     virtual void init() override;
     virtual void emitCurrentData(CurrentData&& data) override;
 
@@ -49,6 +50,7 @@ private:
 
     std::shared_ptr<AliIotDevice> device;
     std::shared_ptr<Air724> air;
+    std::shared_ptr<AppState> appState;
     Signals<void()> heartbeat = {};
     Observable<bool> inited = {false};
     rt_tick_t lastSetTick = 0;
@@ -58,7 +60,7 @@ private:
 namespace Preset {
 class AliCloud: public Singleton<AliCloud>, public ::AliCloud {
     friend class Singleton<AliCloud>;
-    AliCloud(): ::AliCloud(AliIotDevice::get(), Air724::get(), CloudTimer::get(this)) {};
+    AliCloud(): ::AliCloud(AliIotDevice::get(), Air724::get(), CloudTimer::get(this), AppState::get()) {};
 };
 }
 

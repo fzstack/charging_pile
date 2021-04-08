@@ -16,7 +16,7 @@ using namespace std;
 VoiceNotifierLite::VoiceNotifierLite(std::shared_ptr<Wtn6Base> wtn6, std::shared_ptr<AppState> state, std::shared_ptr<UserInput> userInput, std::shared_ptr<Keyboard> keybaord) {
     state->portStateChanged += [this, wtn6](auto port, auto state) {
         auto voice = Voices::Slience;
-        auto i = InnerPort{port}.get();
+        //auto i = InnerPort{port}.get();
         switch(state) {
         case State::LoadNotInsert:
             //voice = kUnpluged[i];

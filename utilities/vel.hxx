@@ -50,7 +50,7 @@ private:
     T originVal, currVal, targetVal;
 };
 
-static inline float vel_step(int durationMs, int tickFreqHz) {
+static inline float vel_step(int durationMs, int tickFreqHz = 50) {
     return 1000.f / durationMs / tickFreqHz;
 }
 

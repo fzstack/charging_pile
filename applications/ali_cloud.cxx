@@ -6,7 +6,7 @@
 using namespace std;
 using namespace json_literals;
 
-AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724> air, std::shared_ptr<CloudTimer> timer): Cloud(timer), device(device), air(air) {
+AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724> air, std::shared_ptr<CloudTimer> timer, std::shared_ptr<AppState> appState): Cloud(timer), device(device), air(air), appState(appState) {
     psTimer.onRun += [this, device] {
         auto port = InnerPort{rt_uint8_t(psCnt / kPsActionsNum)};
         auto& spec = specs[port.get()];
@@ -133,14 +133,12 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
         this->device->login(Config::App::cloudDeviceName, Config::App::cloudProductKey, Config::App::cloudDeviceSecret);
 
         runOn(this->device->thread->post([=]{
-            auto ess = this->air->make<AirEssential>();
-            setIccid(ess->getIccid());
-            auto imei = ess->getImei();
+            setIccid(this->appState->iccid);
+            auto imei = this->appState->imei;
             imei = imei.substr(imei.size() - 12);
             heartbeat += this->device->thread->post([=](){
-                auto ess = this->air->make<AirEssential>();
                 auto hb = Heartbeat {
-                    signal: ess->getCsq(),
+                    signal: *this->appState->signal,
                     imeiSuff: imei,
                     temperature: 0,
                     humidity: 0,

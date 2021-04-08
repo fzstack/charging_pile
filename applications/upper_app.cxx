@@ -58,10 +58,10 @@ void UpperApp::run() {
     thing->onCurrentData += [=](auto data){
         cloud->emitCurrentData(std::move(data));
     };
-
     handshake->hello();
     thing->init();
     cloud->init();
+    state->cloudConnected = true;
 }
 
 #if defined(RUN_APP) && (!defined(ENABLE_REMOTE) || (defined(ENABLE_REMOTE) && defined(UPPER_END)))

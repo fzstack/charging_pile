@@ -7,6 +7,7 @@
 #include <memory>
 #include <string>
 #include <utilities/observable.hxx>
+#include <utilities/observer.hxx>
 #include <components/air_component_base.hxx>
 #include <tuple>
 #include <utilities/mp.hxx>
@@ -48,6 +49,8 @@ private:
     at_client_t atClient;
     OutputPin resetPin;
     Observable<bool> inited = {false};
+public:
+    Observer<bool> oInited = {inited};
 
 public:
     static constexpr int

@@ -14,24 +14,34 @@
 #include <config/bsp.hxx>
 #include <array>
 #include <components/packet.hxx>
+#include <utilities/observable.hxx>
+#include <components/timer.hxx>
+#include <devices/air724.hxx>
+#include <string>
 
 //TODO: do not use remote store
 class AppState {
 public:
-    AppState(std::shared_ptr<Packet> packet);
+    AppState(std::shared_ptr<Packet> packet, std::shared_ptr<Air724> air);
     Signals<void(InnerPort, State::Value)> portStateChanged;
     State::Value getPortState(InnerPort port);
+
+    Observable<bool> cloudConnected = {false};
+    Observable<int> signal = {17};
+    std::string iccid = {}, imei = {};
+
 private:
     struct Wrapper {
         State::Value state = State::LoadNotInsert;
     };
     std::array<Wrapper, Config::Bsp::kPortNum> portStates;
+    Timer timer = {5 * 1000, "appst"};
 };
 
 #include <utilities/singleton.hxx>
 namespace Preset {
 class AppState: public Singleton<AppState>, public ::AppState {
     friend singleton_t;
-    AppState(): ::AppState(Packet::get()) { }
+    AppState(): ::AppState(Packet::get(), Air724::get()) { }
 };
 }
