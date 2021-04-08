@@ -27,6 +27,7 @@ public:
     virtual void emitCurrentLimit(NatPort port) = 0;
 
     Signals<void()> onQuery = {};
+    Signals<void()> onReboot = {};
 
     struct ServiceResult {
         enum Value {

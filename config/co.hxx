@@ -23,6 +23,10 @@ struct Handshake {
 
 };
 
+struct Reboot {
+
+};
+
 namespace BackupMan {
 struct Write {
     InnerPort port;

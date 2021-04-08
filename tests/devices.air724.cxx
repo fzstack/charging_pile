@@ -33,7 +33,7 @@ static void test_air724_reset() {
     Preset::Air724::get()->reset();
 }
 
-static int init_test_air724() {
+static int test_air724_init() {
     auto air724 = Preset::Air724::get();
     try {
         air724->init();
@@ -46,7 +46,7 @@ static int init_test_air724() {
 
 MSH_CMD_EXPORT(test_air724, );
 MSH_CMD_EXPORT(test_air724_reset, );
-INIT_APP_EXPORT(init_test_air724);
+MSH_CMD_EXPORT(test_air724_init,);
 #endif
 
 

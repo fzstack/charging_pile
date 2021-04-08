@@ -8,7 +8,7 @@ class Os {
 public:
     static constexpr int
         kThreadDefaultStackSize = 4096,
-        kAliIotDeviceThreadPrio = 10,
+        kAliIotDeviceThreadPrio = 8,
         kAliIotDeviceThreadStackSize = 4096;
 
     static const char

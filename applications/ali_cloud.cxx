@@ -54,6 +54,16 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
           });
         };
 
+        this->device->services["reboot"] += [this](auto r, const auto params) {
+          onReboot([r](auto e) mutable {
+              if(e) {
+                  r(*e);
+              } else {
+                  r(Json {});
+              }
+          });
+        };
+
         this->device->services["control"] += [this](auto r, const auto params) {
             try {
                 onControl([r](auto result) mutable {

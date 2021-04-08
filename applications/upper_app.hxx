@@ -7,6 +7,7 @@
 #include <components/handshake.hxx>
 #include <components/persistent_storage_preset.hxx>
 #include <components/backup_man_preset.hxx>
+#include <components/rebooter_preset.hxx>
 class App;
 class UpperApp: public App {
 public:
@@ -18,4 +19,5 @@ private:
     std::shared_ptr<User> user = Preset::User::get(); //~12k RAM
     std::shared_ptr<Handshake> handshake = Preset::Handshake::get(); //~5k RAMA
     std::shared_ptr<BackupMan> man = Preset::BackupMan::get();
+    std::shared_ptr<Rebooter> rebooter = Preset::Rebooter::get();
 };

@@ -52,6 +52,6 @@ int LoadingWidget::particleNumFromSize(int width, int height) {
 }
 
 const Colors::Argb
-    LoadingWidget::kBaseColor = {20, 255, 255, 255},
-    LoadingWidget::kBackground = {200, 0, 0, 0};
+    LoadingWidget::kBaseColor = {50, 255, 255, 255},
+    LoadingWidget::kBackground = {240, 0, 0, 0};
 

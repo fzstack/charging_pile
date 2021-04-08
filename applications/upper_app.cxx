@@ -33,6 +33,10 @@ void UpperApp::run() {
         thing->query();
     };
 
+    cloud->onReboot += [=]{
+        rebooter->reboot();
+    };
+
     cloud->onReadConfig += [=] {
         return thing->readConfig();
     };
