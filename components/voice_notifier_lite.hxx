@@ -13,14 +13,15 @@
 #include <components/user_input.hxx>
 #include <array>
 #include <components/keyboard.hxx>
+#include "voice.hxx"
 
 class VoiceNotifierLite {
 public:
     VoiceNotifierLite(std::shared_ptr<Wtn6Base> wtn6, std::shared_ptr<AppState> state, std::shared_ptr<UserInput> userInput, std::shared_ptr<Keyboard> keybaord);
-private:
 
-    static const std::array<Voices, Config::Bsp::kPortNum> kUnpluged;
-    static const std::array<Voices, Config::Bsp::kPortNum> kPluged;
+private:
+    static const std::array<VoiceFragment, Config::Bsp::kPortNum> kUnpluged;
+    static const std::array<VoiceFragment, Config::Bsp::kPortNum> kPluged;
 };
 
 #include <utilities/singleton.hxx>

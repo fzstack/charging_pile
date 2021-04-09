@@ -55,6 +55,7 @@ void NoloadDetecter::onCurrentChanged(InnerPort port, int value) {
     rt_kprintf("[%d] cur: %dmA, noloadCurrThr: %dmA\n", NatPort{InnerPort{i}}.get(), *value, params->noloadCurrThr);
 #endif
 
+
     if(value < max(params->noloadCurrThr, params->doneCurrThr)) {
         spec.count.trigger();
     } else {

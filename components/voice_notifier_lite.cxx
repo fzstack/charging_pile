@@ -13,9 +13,13 @@
 
 using namespace std;
 
+//需求:
+//1. 声音分多种优先级
+//2. 声音可以由片段合成
+
 VoiceNotifierLite::VoiceNotifierLite(std::shared_ptr<Wtn6Base> wtn6, std::shared_ptr<AppState> state, std::shared_ptr<UserInput> userInput, std::shared_ptr<Keyboard> keybaord) {
     state->portStateChanged += [this, wtn6](auto port, auto state) {
-        auto voice = Voices::Slience;
+        auto voice = VoiceFragment::Slience;
         //auto i = InnerPort{port}.get();
         switch(state) {
         case State::LoadNotInsert:
@@ -25,21 +29,21 @@ VoiceNotifierLite::VoiceNotifierLite(std::shared_ptr<Wtn6Base> wtn6, std::shared
             //voice = kPluged[i];
             break;
         case State::Charging:
-            voice = Voices::StartCharing;
+            voice = VoiceFragment::StartCharing;
             break;
         case State::LoadWaitRemove:
-            voice = Voices::ChargeCompleted;
+            voice = VoiceFragment::ChargeCompleted;
             break;
         default:
             break;
         }
-        if(voice != Voices::Slience) {
+        if(voice != VoiceFragment::Slience) {
             wtn6->write(voice);
         }
     };
 
     userInput->onConfirm += [wtn6](auto port, auto cardId){
-        wtn6->write(Voices::CardDetected);
+        wtn6->write(VoiceFragment::CardDetected);
     };
 
 //    keybaord->oValue += [wtn6](auto value) {
@@ -90,17 +94,17 @@ VoiceNotifierLite::VoiceNotifierLite(std::shared_ptr<Wtn6Base> wtn6, std::shared
 //    };
 }
 
-const std::array<Voices, Config::Bsp::kPortNum> VoiceNotifierLite::kUnpluged = {
-    Voices::Port1Unpluged, Voices::Port2Unpluged, Voices::Port3Unpluged,
-    Voices::Port4Unpluged, Voices::Port5Unpluged, Voices::Port6Unpluged,
-    Voices::Port7Unpluged, Voices::Port8Unpluged, Voices::Port9Unpluged,
-    Voices::Port10Unpluged,
+const std::array<VoiceFragment, Config::Bsp::kPortNum> VoiceNotifierLite::kUnpluged = {
+    VoiceFragment::Port1Unpluged, VoiceFragment::Port2Unpluged, VoiceFragment::Port3Unpluged,
+    VoiceFragment::Port4Unpluged, VoiceFragment::Port5Unpluged, VoiceFragment::Port6Unpluged,
+    VoiceFragment::Port7Unpluged, VoiceFragment::Port8Unpluged, VoiceFragment::Port9Unpluged,
+    VoiceFragment::Port10Unpluged,
 };
 
-const std::array<Voices, Config::Bsp::kPortNum> VoiceNotifierLite::kPluged = {
-    Voices::Port1Pluged, Voices::Port2Pluged, Voices::Port3Pluged,
-    Voices::Port4Pluged, Voices::Port5Pluged, Voices::Port6Pluged,
-    Voices::Port7Pluged, Voices::Port8Pluged, Voices::Port9Pluged,
-    Voices::Port10Pluged,
+const std::array<VoiceFragment, Config::Bsp::kPortNum> VoiceNotifierLite::kPluged = {
+    VoiceFragment::Port1Pluged, VoiceFragment::Port2Pluged, VoiceFragment::Port3Pluged,
+    VoiceFragment::Port4Pluged, VoiceFragment::Port5Pluged, VoiceFragment::Port6Pluged,
+    VoiceFragment::Port7Pluged, VoiceFragment::Port8Pluged, VoiceFragment::Port9Pluged,
+    VoiceFragment::Port10Pluged,
 };
 

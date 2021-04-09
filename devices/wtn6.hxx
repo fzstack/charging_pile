@@ -8,7 +8,7 @@ class Wtn6: public Wtn6Base {
 public:
     Wtn6(rt_base_t dataPin, rt_base_t busyPin);
 
-//    bool isBusy();
+    bool isBusy();
     virtual void write(rt_uint8_t data) override;
 
 
