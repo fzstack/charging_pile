@@ -19,7 +19,9 @@ NoloadDetecter::NoloadDetecter(outer_t* outer): Base(outer) {
         auto willStop = false;
         {
             auto guard = getLock();
-            willStop = spec.count.updateAndCheck() && *charger->stateStore->oState == State::Charging;
+            auto noloadCond = spec.noloadCount.updateAndCheck();
+            auto doneCond = spec.doneCount.updateAndCheck();
+            willStop = (noloadCond || doneCond) && *charger->stateStore->oState == State::Charging;
         }
         if(willStop) {
             charger->stop();
@@ -36,7 +38,8 @@ void NoloadDetecter::onStateChanged(InnerPort port, State::Value state) {
     auto& spec = specs[port.get()];
     auto guard = getLock();
     if(state != State::Charging) {
-        spec.count.reset();
+        spec.noloadCount.reset();
+        spec.doneCount.reset();
     }
 }
 
@@ -56,10 +59,16 @@ void NoloadDetecter::onCurrentChanged(InnerPort port, int value) {
 #endif
 
 
-    if(value < max(params->noloadCurrThr, params->doneCurrThr)) {
-        spec.count.trigger();
+    if(value < params->noloadCurrThr) {
+        spec.noloadCount.trigger();
     } else {
-        spec.count.reset();
+        spec.noloadCount.reset();
+    }
+
+    if(value < params->doneCurrThr) {
+        spec.doneCount.trigger();
+    } else {
+        spec.doneCount.reset();
     }
 }
 

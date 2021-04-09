@@ -8,26 +8,12 @@
 
 using namespace Config;
 using namespace std;
-const char
-    *App::cloudDeviceName = "with_keyboard",
-    *App::cloudProductKey = "a1SvHKhmFbS",
-    *App::cloudDeviceSecret = "92b788fb3f8ca58e209c5fa11573fcaf";
 
 namespace Preset {
 const int
     WsScreen::kWidth = 5,
     WsScreen::kHeight = 2;
 
-template<> const int RgbLightWidget<0>::zIndex = 0;
-template<> const int RgbLightWidget<1>::zIndex = 0;
-template<> const int RgbLightWidget<2>::zIndex = 0;
-template<> const int RgbLightWidget<3>::zIndex = 0;
-template<> const int RgbLightWidget<4>::zIndex = 0;
-template<> const int RgbLightWidget<5>::zIndex = 0;
-template<> const int RgbLightWidget<6>::zIndex = 0;
-template<> const int RgbLightWidget<7>::zIndex = 0;
-template<> const int RgbLightWidget<8>::zIndex = 0;
-template<> const int RgbLightWidget<9>::zIndex = 0;
 const int LoadingWidget::zIndex = 1;
 const int StateNotiWidget::zIndex = 0;
 }

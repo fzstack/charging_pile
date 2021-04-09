@@ -83,7 +83,7 @@ int LoadingWidget::particleNumFromSize(int width, int height) {
 }
 
 const Colors::Argb
-    LoadingWidget::kInfoColor = {60, 255, 255, 255},
+    LoadingWidget::kInfoColor = {80, 2, 140, 211},
     LoadingWidget::kWarnColor = {80, 220, 90, 0},
     LoadingWidget::kErrorColor = {100, 255, 0, 0},
     LoadingWidget::kBackground = {230, 0, 0, 0};

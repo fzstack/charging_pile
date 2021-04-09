@@ -33,7 +33,7 @@ void DataSetter::emitPortData(InnerPort port) {
         port: port,
         timerId: info.timerId,
         leftMinutes: info.leftSeconds / 60,
-        state: state,
+        state: state == State::LoadWaitRemove ? State::LoadInserted : state,
         current: info.charger->multimeterChannel->current.value().value_or(0),
         voltage: info.charger->multimeterChannel->voltage.value().value_or(0),
         consumption: info.consumption,
@@ -53,12 +53,14 @@ void DataSetter::query() {
 }
 
 void DataSetter::onStateChanged(InnerPort port, State::Value state) {
-    auto charger = getInfo(port).charger;
+    auto& info = getInfo(port);
+    auto charger = info.charger;
     auto& spec = specs[port.get()];
     auto guard = getLock();
     switch(state) {
-    case State::Charging:
     case State::LoadWaitRemove:
+        info.timerId = 0;
+    case State::Charging:
         spec.prevCurrMiA = charger->multimeterChannel->current.value().value_or(0);
         spec.count.retrigger();
         break;

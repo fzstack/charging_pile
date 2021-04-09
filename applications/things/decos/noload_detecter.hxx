@@ -27,7 +27,8 @@ public:
 
 private:
     struct ChargerSpec {
-        CountDown<> count = {kNoloadDurThr / kDuration / Config::Bsp::kPortNum};
+        CountDown<> noloadCount = {kNoloadDurThr / kDuration / Config::Bsp::kPortNum};
+        CountDown<> doneCount = {kDoneDurThr / kDuration / Config::Bsp::kPortNum};
     };
 
 
@@ -39,6 +40,7 @@ private:
     static const char* kTimer;
     static constexpr int kDuration = 100;
     static constexpr int kNoloadDurThr = 2 * 60 * 1000;  //空载时长阈值
+    static constexpr int kDoneDurThr = (2 * 60 + 5) * 1000;  //充电完成时长阈值
 };
 }
 

@@ -4,12 +4,10 @@
 #include <utilities/nat_port.hxx>
 
 namespace Config {
-class App {
-public:
-    static const char
-        *cloudDeviceName,
-        *cloudProductKey,
-        *cloudDeviceSecret;
+struct Cloud {
+    std::string deviceName = "prototype";
+    std::string productKey = "a1SvHKhmFbS";
+    std::string deviceSecret = "ecc2b3bcfa8311585bc8818acf7239ce";
 };
 
 }

@@ -33,7 +33,7 @@ private:
     std::array<NotiPixel, Config::Bsp::kPortNum> notis; //自然端口顺序
     std::shared_ptr<AppState> appState;
 
-    static Colors::Argb kRed, kGreen, kBlue, kBlack;
+    static Colors::Argb kRed, kGreen, kBlue, kBlack, kWhite;
 };
 
 #include <utilities/singleton.hxx>

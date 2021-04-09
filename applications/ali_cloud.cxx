@@ -2,6 +2,7 @@
 #include <components/air_components.hxx>
 #include <config/app.hxx>
 #include <utilities/json.hxx>
+#include <components/persistent_storage_preset.hxx>
 
 using namespace std;
 using namespace json_literals;
@@ -130,7 +131,11 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
             }
         };
 
-        this->device->login(Config::App::cloudDeviceName, Config::App::cloudProductKey, Config::App::cloudDeviceSecret);
+        auto storage = Preset::PersistentStorage::get();
+        auto conf = storage->read<Config::Cloud>();
+
+        this->device->login(conf.deviceName, conf.productKey, conf.deviceSecret);
+        storage->write<Config::Cloud>(std::move(conf));
 
         runOn(this->device->thread->post([=]{
             setIccid(this->appState->iccid);

@@ -13,28 +13,9 @@
 StateNotiWidget::StateNotiWidget(int x, int y, int zIndex, std::shared_ptr<AppState> appState): p_t(x, y, zIndex), appState(appState) {
     appState->portStateChanged += [this](NatPort port, auto state) {
         auto& noti = notis[port.get() - NatPort::min().get()];
-        switch(state) {
-        case State::LoadNotInsert:
-            noti.blink.reset();
-            noti.vel.setTarget(kGreen);
-            break;
-        case State::LoadInserted:
-            noti.blink.retrigger();
-            noti.dir = false;
-            noti.vel.setTarget(kRed);
-            break;
-        case State::Charging:
-            noti.blink.retrigger();
-            noti.dir = false;
-            noti.vel.setTarget(kGreen);
-            break;
-        case State::LoadWaitRemove:
-            noti.blink.reset();
-            noti.vel.setTarget(kBlue);
-            break;
-        default:
-            break;
-        }
+        noti.blink.retrigger();
+        noti.dir = false;
+        noti.vel.setTarget(state == State::Charging ? kGreen: kWhite);
     };
 }
 
@@ -50,18 +31,10 @@ void StateNotiWidget::onTick() {
         if(noti.blink.updateAndCheck()) {
             auto port = NatPort{rt_uint8_t(i + NatPort::min().get())};
             auto s = appState->getPortState(port);
-            switch(s) {
-            case State::LoadInserted:
-            case State::Charging: {
-                auto color = noti.dir ? (s == State::Charging ? kGreen: kRed): Colors::Argb::kBlack;
-                noti.blink.retrigger();
-                noti.vel.setTarget(color);
-                noti.dir = !noti.dir;
-                break;
-            }
-            default:
-                break;
-            }
+            auto color = noti.dir ? (s == State::Charging ? kGreen: kWhite): Colors::Argb::kBlack;
+            noti.blink.retrigger();
+            noti.vel.setTarget(color);
+            noti.dir = !noti.dir;
         }
         notis[i].vel.update();
     }
@@ -71,5 +44,6 @@ void StateNotiWidget::onTick() {
 Colors::Argb
     StateNotiWidget::kRed = {255, 200, 35, 2},
     StateNotiWidget::kGreen = {255, 60, 150, 5},
-    StateNotiWidget::kBlue = {255, 2, 140, 211};
+    StateNotiWidget::kBlue = {255, 2, 140, 211},
+    StateNotiWidget::kWhite = {255, 117, 117, 117};
 
