@@ -22,6 +22,7 @@ public:
     void login(std::string_view deviceName, std::string_view productKey, std::string_view productSecret);
     void emit(std::string_view event, Json params);
     void set(std::string_view property, Json value);
+    void log(std::string_view msg);
 
 private:
     std::string genTopic(std::initializer_list<std::string_view> suffixes);

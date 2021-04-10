@@ -54,8 +54,10 @@ protected:
 private:
     static void func(Thread *pThis);
 
+protected:
     rt_thread_t _thread;
 
+private:
     thread_func_t _entry;
     void *_param;
 

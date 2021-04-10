@@ -5,6 +5,7 @@
 
 using namespace std;
 using namespace json_literals;
+using namespace string_literals;
 
 AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724> air, std::shared_ptr<CloudTimer> timer, std::shared_ptr<AppState> appState): Cloud(timer), device(device), air(air), appState(appState) {
     psTimer.onRun += [this, device] {
@@ -146,6 +147,10 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
                     timestamp: 0,
                 };
                 emitHeartbeat(std::move(hb));
+
+                rt_uint32_t total, maxUsed;
+                rt_memory_info(&total, nullptr, &maxUsed);
+                this->device->log("mem: "s + to_string(100 * maxUsed / total) + "%, middle: " + to_string(this->device->thread->maxUsed()) + "%");
             });
         }));
 

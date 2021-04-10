@@ -7,6 +7,8 @@
 class Thread: public rtthread::Thread {
 public:
     using rtthread::Thread::Thread;
+
+    int maxUsed();
 protected:
     virtual void run(void *p) override;
 public:

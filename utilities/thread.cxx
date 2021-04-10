@@ -12,3 +12,10 @@ void Thread::run(void *p) {
 
 }
 
+int Thread::maxUsed() {
+    rt_uint8_t *ptr;
+    ptr = (rt_uint8_t *)_thread->stack_addr;
+    while (*ptr == '#')ptr++;
+    return (_thread->stack_size - ((rt_ubase_t) ptr - (rt_ubase_t) _thread->stack_addr)) * 100 / _thread->stack_size;
+}
+

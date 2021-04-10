@@ -28,8 +28,9 @@ class SharedThread: public Singleton<SharedThread<Prio>>, public ::SharedThread 
     SharedThread(): ::SharedThread(kThreadStack, PriorityTrait<Prio>::value, kThreadTick, kThread) {
         start();
     }
-    static const char *kThread;
     static const int kThreadStack, kThreadTick;
+public:
+    static const char *kThread;
 };
 }
 

@@ -165,6 +165,17 @@ void AliIotDevice::set(std::string_view property, Json value) {
     });
 }
 
+void AliIotDevice::log(std::string_view msg) {
+    auto request = string(Alink::Request(Json::array({{
+        {"utcTime", ""},
+        {"logLevel", "INFO"},
+        {"module", "pre"},
+        {"code", "4103"},
+        {"logContent", msg},
+    }}), "thing.log.post"));
+    mqtt->publish(genTopic({"thing", "log", "post"}), request);
+}
+
 string AliIotDevice::genTopic(initializer_list<string_view> suffixes) {
     auto result = ""s;
     for(const auto& prefix: {"sys"s, productKey, deviceName})
