@@ -5,9 +5,14 @@
 
 namespace Config {
 struct Cloud {
-    std::string deviceName = "prototype";
-    std::string productKey = "a1SvHKhmFbS";
-    std::string deviceSecret = "ecc2b3bcfa8311585bc8818acf7239ce";
+    static const char* productKey;
+    static const char* productSecret;
+};
+
+struct AliIotDevice {
+    std::string deviceName = "";
+    std::string productKey = "";
+    std::string deviceSecret = "";
 };
 
 }

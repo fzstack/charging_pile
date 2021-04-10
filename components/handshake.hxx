@@ -23,6 +23,7 @@ public:
 private:
     std::shared_ptr<Packet> packet;
     bool responsed = false;
+    bool once = false;
     Timer timer = {1000, "hsk"};
 };
 

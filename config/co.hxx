@@ -20,7 +20,7 @@
 
 namespace Packets {
 struct Handshake {
-
+    bool sync;
 };
 
 struct Reboot {

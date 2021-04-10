@@ -16,18 +16,18 @@
 #include <components/air_components.hxx>
 #include <utilities/shared_thread.hxx>
 
-class AliIotDeviceThread;
-
 class AliIotDevice {
 public:
     AliIotDevice(std::shared_ptr<HttpClient> http, std::shared_ptr<MqttClient> mqtt, std::shared_ptr<SharedThread> thread);
-    void login(std::string_view deviceName, std::string_view productKey, std::string_view deviceSecret);
+    void login(std::string_view deviceName, std::string_view productKey, std::string_view productSecret);
     void emit(std::string_view event, Json params);
     void set(std::string_view property, Json value);
 
 private:
     std::string genTopic(std::initializer_list<std::string_view> suffixes);
-    static std::string getSign(std::string_view deviceName, std::string_view productKey, std::string_view deviceSecret);
+    static std::string getRegisterSign(std::string_view deviceName, std::string_view productKey, std::string_view productSecret, int random);
+    static std::string getLoginSign(std::string_view deviceName, std::string_view productKey, std::string_view deviceSecret);
+    static std::string getSign(std::string_view secret, std::string_view content);
     static std::string hexToAscii(const std::vector<char>& hex);
 
 private:
@@ -73,6 +73,7 @@ public:
 
 private:
     static const char* kApiAuth;
+    static const char* kApiRegister;
 
 };
 

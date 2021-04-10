@@ -18,6 +18,12 @@ const int LoadingWidget::zIndex = 1;
 const int StateNotiWidget::zIndex = 0;
 }
 
+namespace Config {
+const char
+    *Cloud::productKey = "a1SvHKhmFbS",
+    *Cloud::productSecret = "eNVvWlHUTCInHPIq";
+}
+
 string getStateStr(State::Value state) {
     switch(state) {
     case State::LoadNotInsert:

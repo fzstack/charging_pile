@@ -7,6 +7,7 @@
 #include <utilities/string.hxx>
 #include <variant>
 #include "ali_iot_alink.hxx"
+#include <components/persistent_storage_preset.hxx>
 
 #define LOG_TAG "app.ali_iot"
 #define LOG_LVL LOG_LVL_DBG
@@ -99,13 +100,39 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
 
 //TODO: Signal 转 function
 //TODO: 无返回值的Post无参数返回值回调
-void AliIotDevice::login(string_view deviceName, string_view productKey, string_view deviceSecret) {
+void AliIotDevice::login(string_view deviceName, string_view productKey, string_view productSecret) {
     this->deviceName = deviceName;
     this->productKey = productKey;
 
     //自动注册
+    auto storage = Preset::PersistentStorage::get();
+    auto conf = storage->read<Config::AliIotDevice>();
+    if(deviceName != conf.deviceName || productKey != conf.productKey) {
+        auto random = 1234;
+        auto sign = getRegisterSign(deviceName, productKey, productSecret, random);
+        rt_kprintf("device name: %s\n", deviceName.data());
+        auto json = Json::parse(http->send(
+            HttpFormRequestBuilder{}
+            .setUrl(kApiRegister)
+            .addParam("productKey", productKey)
+            .addParam("deviceName", deviceName)
+            .addParam("random", to_string(random))
+            .addParam("sign", sign)
+            .addParam("signMethod", "HmacMD5")
+            .build()
+        ));
 
-    auto sign = getSign(deviceName, productKey, deviceSecret);
+        auto code = json["code"_i];
+        if(code != 200) throw ali_iot_auth_failed{"device auth failed with code "s + to_string(code)};
+
+        conf.deviceName = deviceName;
+        conf.productKey = productKey;
+        conf.deviceSecret = json["data"]["deviceSecret"_s];
+        storage->write(conf);
+        rt_kprintf("reg succeed\n");
+    }
+
+    auto sign = getLoginSign(deviceName, productKey, conf.deviceSecret);
     auto json = Json::parse(http->send(
         HttpFormRequestBuilder{}
         .setUrl(kApiAuth)
@@ -147,10 +174,19 @@ string AliIotDevice::genTopic(initializer_list<string_view> suffixes) {
     return result;
 }
 
-string AliIotDevice::getSign(string_view deviceName, string_view productKey, string_view deviceSecret) {
+std::string AliIotDevice::getRegisterSign(std::string_view deviceName, std::string_view productKey, std::string_view productSecret, int random) {
+    auto input = "deviceName"s + deviceName.data() + "productKey"s + productKey.data() + "random"s + to_string(random);
+    return getSign(productSecret, input);
+}
+
+string AliIotDevice::getLoginSign(string_view deviceName, string_view productKey, string_view deviceSecret) {
     auto input = "clientId"s + deviceName.data() + "deviceName"s + deviceName.data() + "productKey"s + productKey.data();
+    return getSign(deviceSecret, input);
+}
+
+string AliIotDevice::getSign(string_view secret, string_view content) {
     auto output = vector<char>(16);
-    tiny_md5_hmac((rt_uint8_t*)deviceSecret.data(), deviceSecret.size(), (rt_uint8_t*)input.c_str(), input.size(), (rt_uint8_t*)&output[0]);
+    tiny_md5_hmac((rt_uint8_t*)secret.data(), secret.size(), (rt_uint8_t*)content.data(), content.size(), (rt_uint8_t*)&output[0]);
     return hexToAscii(output);
 }
 
@@ -163,4 +199,4 @@ string AliIotDevice::hexToAscii(const vector<char>& hex) {
 }
 
 const char* AliIotDevice::kApiAuth = "https://iot-auth.cn-shanghai.aliyuncs.com/auth/devicename";
-
+const char* AliIotDevice::kApiRegister = "https://iot-auth.cn-shanghai.aliyuncs.com/auth/register/device";
