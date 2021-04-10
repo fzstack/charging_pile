@@ -9,6 +9,7 @@
 #include <components/backup_man_preset.hxx>
 #include <components/rebooter_preset.hxx>
 #include <components/app_state.hxx>
+#include <components/watch_dog.hxx>
 class App;
 class UpperApp: public App {
 public:
@@ -22,4 +23,5 @@ private:
     std::shared_ptr<BackupMan> man = Preset::BackupMan::get();
     std::shared_ptr<Rebooter> rebooter = Preset::Rebooter::get();
     std::shared_ptr<AppState> state = Preset::AppState::get();
+    std::shared_ptr<WatchDog> watchDog = Preset::WatchDog::get();
 };

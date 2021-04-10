@@ -99,6 +99,7 @@
 #define RT_SFUD_USING_SFDP
 #define RT_SFUD_USING_FLASH_INFO_TABLE
 #define RT_SFUD_SPI_MAX_HZ 10000000
+#define RT_USING_WDT
 
 /* Using USB */
 

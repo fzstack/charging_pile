@@ -29,16 +29,37 @@ DataSetter::DataSetter(outer_t* outer): Base(outer) {
 void DataSetter::emitPortData(InnerPort port) {
     auto& info = getInfo(port);
     auto state = info.charger->stateStore->oState.value().value_or(State::Error);
+
+    auto vState = State::Error;
+    if(state == State::LoadWaitRemove) {
+        vState = info.finalState;
+        rt_kprintf("final state: %d\n", vState);
+    } else {
+        vState = state;
+    }
+
+    if(vState == State::LoadInserted) {
+        vState = State::LoadNotInsert;
+    }
+
+    rt_kprintf("emit port %d, s: %d\n", NatPort{port}.get(), vState);
+
     this->outer->onCurrentData(CurrentData {
         port: port,
         timerId: info.timerId,
         leftMinutes: info.leftSeconds / 60,
-        state: state == State::LoadWaitRemove ? State::LoadInserted : state,
+        state: vState,
         current: info.charger->multimeterChannel->current.value().value_or(0),
         voltage: info.charger->multimeterChannel->voltage.value().value_or(0),
         consumption: info.consumption,
         fuse: CurrentData::Fuse::Normal,
     });
+    if(state == State::LoadWaitRemove) {
+        //清空
+        info.timerId = 0;
+        info.consumption = 0;
+        info.finalState = State::LoadNotInsert;
+    }
 }
 
 void DataSetter::init() {
@@ -58,10 +79,12 @@ void DataSetter::onStateChanged(InnerPort port, State::Value state) {
     auto& spec = specs[port.get()];
     auto guard = getLock();
     switch(state) {
-    case State::LoadWaitRemove:
-        info.timerId = 0;
     case State::Charging:
+        info.finalState = State::LoadWaitRemove;
         spec.prevCurrMiA = charger->multimeterChannel->current.value().value_or(0);
+        spec.count.retrigger();
+        break;
+    case State::LoadWaitRemove:
         spec.count.retrigger();
         break;
     default:

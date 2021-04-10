@@ -31,6 +31,7 @@ private:
         CountDown<> doneCount = {kDoneDurThr / kDuration / Config::Bsp::kPortNum};
     };
 
+    void checkCurrent(InnerPort port, int value);
 
     ConfMan<Params::NoloadDetecter> params = {getMutex()};
     Timer timer = {kDuration, kTimer};

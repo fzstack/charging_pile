@@ -31,7 +31,7 @@ void ConsumptionMeasurer::onStateChanged(InnerPort port, State::Value state) {
         spec.prevVol = info.charger->multimeterChannel->voltage.value().value_or(0);
         break;
     case State::LoadWaitRemove: //充电完成，关闭定时器  TODO: consumption也写入需保存的状态中
-        info.consumption = 0;
+        //info.consumption = 0;
         break;
     case State::LoadNotInsert: //负载拔出后耗电量清零
         info.consumption = 0;

@@ -16,12 +16,14 @@ CurrentLimiter::CurrentLimiter(outer_t* outer): Base(outer) {
         }
         for(rt_uint8_t i = 0u; i < Config::Bsp::kPortNum; i++) {
             auto willStop = false;
-            auto charger = getInfo(InnerPort{i}).charger;
+            auto& info = getInfo(InnerPort{i});
+            auto charger = info.charger;
             {
                 auto guard = getLock();
                 willStop = specs[i].count.updateAndCheck();
             }
             if(willStop) {
+                info.finalState = State::Error;
                 charger->stop();
                 this->outer->onCurrentLimit(InnerPort{i});
             }

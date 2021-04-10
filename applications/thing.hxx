@@ -18,6 +18,7 @@ struct ChargerInfo {
     int timerId = 0;
     int leftSeconds = 0;
     float consumption = 0; //AxV
+    State::Value finalState;
 };
 
 class Thing: public ThingBase {
