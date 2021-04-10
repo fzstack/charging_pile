@@ -18,11 +18,12 @@
 #include <components/timer.hxx>
 #include <utilities/count_down.hxx>
 #include <Mutex.h>
+#include <utilities/shared_thread.hxx>
 
 
 class LocalBackupMan: public BackupMan {
 public:
-    LocalBackupMan(std::shared_ptr<Packet> packet, std::shared_ptr<Rpc> rpc);
+    LocalBackupMan(std::shared_ptr<Packet> packet, std::shared_ptr<Rpc> rpc, std::shared_ptr<SharedThread> thread);
 
     virtual void read(InnerPort port, std::function<void(std::optional<Backup>)>) override {
         throw not_implemented{};
@@ -46,6 +47,6 @@ private:
 namespace Preset {
 class LocalBackupMan: public Singleton<LocalBackupMan>, public ::LocalBackupMan {
     friend singleton_t;
-    LocalBackupMan(): ::LocalBackupMan(Packet::get(), Rpc::get()) { }
+    LocalBackupMan(): ::LocalBackupMan(Packet::get(), Rpc::get(), SharedThread<Priority::Middle>::get()) { }
 };
 }

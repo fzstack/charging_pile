@@ -12,7 +12,7 @@
 #include <rtdevice.h>
 
 WatchDog::WatchDog(uint32_t timeout): wdtDev(rt_device_find("wdt")) {
-    auto ret = rt_device_control(wdtDev, RT_DEVICE_CTRL_WDT_SET_TIMEOUT, &timeout);
+    rt_device_control(wdtDev, RT_DEVICE_CTRL_WDT_SET_TIMEOUT, &timeout);
     rt_device_control(wdtDev, RT_DEVICE_CTRL_WDT_START, RT_NULL);
     rt_thread_idle_sethook([](){
         auto self = Preset::WatchDog::get();

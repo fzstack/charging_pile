@@ -31,9 +31,18 @@ struct PriorityTrait<Priority::High> {
     static constexpr rt_uint8_t value = 2;
 };
 
+#ifdef UPPER_END
+template<>
+struct PriorityTrait<Priority::Middle> {
+    static constexpr rt_uint8_t value = 8;
+};
+#endif
+
+#ifdef LOWER_END
 template<>
 struct PriorityTrait<Priority::Middle> {
     static constexpr rt_uint8_t value = 15;
 };
+#endif
 
 #endif /* CONFIG_OS_HXX_ */

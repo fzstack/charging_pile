@@ -17,11 +17,10 @@ using namespace rtthread;
 using namespace string_literals;
 using namespace json_literals;
 
-AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> mqtt):
+AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> mqtt, std::shared_ptr<SharedThread> thread):
   http(http),
   mqtt(mqtt),
-  thread(shared_ptr<AliIotDeviceThread>(new AliIotDeviceThread(this))) {
-
+  thread(thread) {
     services["property"] += thread->post([this](Json params) -> Json {
         for(const auto& kvp: params) {
             auto& [key, value] = kvp;
@@ -40,7 +39,7 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
         return {};
     });
 
-    mqtt->onMessage += thread->post([this](string topic, string data) {
+    mqtt->onMessage += this->thread->post([this](string topic, string data) {
         rt_kprintf("topic: %s\ndata: %s\n", topic.c_str(), data.c_str());
 
         auto topics = split(topic, '/');
@@ -55,7 +54,7 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
                         auto service = services.find(identifier);
                         if(service == services.end()) return;
                         auto id = request.getId();
-                        service->second(thread->post([this, identifier, topic, id](variant<Json, exception_ptr> result){
+                        service->second(this->thread->post([this, identifier, topic, id](variant<Json, exception_ptr> result){
                             auto json = get_if<Json>(&result);
                             try {
                                 if(auto err = get_if<exception_ptr>(&result)) std::rethrow_exception(*err);
@@ -78,7 +77,7 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
                 auto service = services.find(serviceName);
                 if(service == services.end()) return;
                 auto id = request.getId();
-                service->second(thread->post([this, requestId, serviceName, id](variant<Json, exception_ptr> result) {
+                service->second(this->thread->post([this, requestId, serviceName, id](variant<Json, exception_ptr> result) {
                     auto json = get_if<Json>(&result);
                     try {
                         if(auto err = get_if<exception_ptr>(&result)) std::rethrow_exception(*err);
@@ -104,6 +103,8 @@ void AliIotDevice::login(string_view deviceName, string_view productKey, string_
     this->deviceName = deviceName;
     this->productKey = productKey;
 
+    //自动注册
+
     auto sign = getSign(deviceName, productKey, deviceSecret);
     auto json = Json::parse(http->send(
         HttpFormRequestBuilder{}
@@ -124,7 +125,6 @@ void AliIotDevice::login(string_view deviceName, string_view productKey, string_
 
     mqtt->login(productKey.data() + ".iot-as-mqtt.cn-shanghai.aliyuncs.com"s, deviceName, iotId, iotToken);
     LOG_I("login succeed");
-    thread->start();
 }
 
 void AliIotDevice::emit(std::string_view event, Json params) {

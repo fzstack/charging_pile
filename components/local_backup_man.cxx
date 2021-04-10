@@ -13,7 +13,7 @@
 #include <config/co.hxx>
 #include <Lock.h>
 
-LocalBackupMan::LocalBackupMan(std::shared_ptr<Packet> packet, std::shared_ptr<Rpc> rpc):
+LocalBackupMan::LocalBackupMan(std::shared_ptr<Packet> packet, std::shared_ptr<Rpc> rpc, std::shared_ptr<SharedThread> thread):
 conf(Preset::PersistentStorage::get()->read<RealBackupConf>()){
     auto storage = Preset::PersistentStorage::get();
     packet->on<Packets::BackupMan::Write>([this](auto p) {
@@ -26,14 +26,16 @@ conf(Preset::PersistentStorage::get()->read<RealBackupConf>()){
         return conf.backups[p->port.get()];
     });
 
-    timer.onRun += [this, storage]{
+    timer.onRun += [this, storage, thread]{
         auto willWrite = false;
         {
             auto guard = rtthread::Lock(mutex);
             willWrite = fBackup.updateAndCheck();
         }
         if(willWrite) {
-            storage->write(conf);
+            thread->exec([this, storage](){
+                storage->write(conf);
+            });
         }
     };
 

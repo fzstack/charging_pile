@@ -15,7 +15,7 @@ public:
     }
 protected:
     virtual void run(void *p) override;
-private:
+public:
     Post post;
 };
 

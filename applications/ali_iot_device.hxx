@@ -12,15 +12,15 @@
 #include <functional>
 #include <utilities/json.hxx>
 #include <utilities/signals.hxx>
-#include "ali_iot_device_thread.hxx"
 #include <devices/air724.hxx>
 #include <components/air_components.hxx>
+#include <utilities/shared_thread.hxx>
 
 class AliIotDeviceThread;
 
 class AliIotDevice {
 public:
-    AliIotDevice(std::shared_ptr<HttpClient> http, std::shared_ptr<MqttClient> mqtt);
+    AliIotDevice(std::shared_ptr<HttpClient> http, std::shared_ptr<MqttClient> mqtt, std::shared_ptr<SharedThread> thread);
     void login(std::string_view deviceName, std::string_view productKey, std::string_view deviceSecret);
     void emit(std::string_view event, Json params);
     void set(std::string_view property, Json value);
@@ -63,7 +63,7 @@ private:
     std::shared_ptr<HttpClient> http;
     std::shared_ptr<MqttClient> mqtt;
 public:
-    const std::shared_ptr<AliIotDeviceThread> thread;
+    std::shared_ptr<SharedThread> thread;
 private:
     std::string deviceName, productKey;
 
@@ -92,7 +92,7 @@ class ali_iot_do_not_reply: public ali_iot_error {
 namespace Preset {
 class AliIotDevice: public Singleton<AliIotDevice>, public ::AliIotDevice {
     friend class Singleton<AliIotDevice>;
-    AliIotDevice(): ::AliIotDevice(Air724::get()->make<HttpClient>(), Air724::get()->make<MqttClient>()) {}
+    AliIotDevice(): ::AliIotDevice(Air724::get()->make<HttpClient>(), Air724::get()->make<MqttClient>(), SharedThread<Priority::Middle>::get()) {}
 };
 }
 
