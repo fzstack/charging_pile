@@ -56,6 +56,7 @@ extern "C" {
 #define RT_SENSOR_VENDOR_GOERTEK       (5)  /* Goertek */
 #define RT_SENSOR_VENDOR_MIRAMEMS      (6)  /* MiraMEMS */
 #define RT_SENSOR_VENDOR_DALLAS        (7)  /* Dallas */
+#define RT_SENSOR_VENDOR_ASAIR         (8)  /* Dallas */
 
 /* Sensor unit types */
 

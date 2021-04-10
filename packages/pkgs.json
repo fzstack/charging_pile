@@ -20,6 +20,11 @@
   "name": "FLASHDB"
  }, 
  {
+  "path": "/packages/peripherals/sensors/dhtxx", 
+  "ver": "latest", 
+  "name": "DHTXX"
+ }, 
+ {
   "path": "/packages/peripherals/at24cxx", 
   "ver": "latest", 
   "name": "AT24CXX"

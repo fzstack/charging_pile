@@ -7,6 +7,7 @@
 #include <devices/ttp229.hxx>
 #include <devices/rc522.hxx>
 #include <devices/air724.hxx>
+#include <devices/dht11.hxx>
 #include <components/packet.hxx>
 #include <components/fal_persistent_storage.hxx>
 
@@ -36,6 +37,8 @@ const char
     *FalPersistentStorage::kSpiBus = "spi2",
     *FalPersistentStorage::kSpiDev = "spi20";
 const rt_base_t FalPersistentStorage::kSsPin = GET_PIN(B, 12);
+
+const rt_base_t Dht11::kPin = GET_PIN(B, 0);
 }
 
 
