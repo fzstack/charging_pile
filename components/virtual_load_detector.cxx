@@ -5,19 +5,14 @@ using namespace std;
 using namespace rtthread;
 
 VirtualLoadDetector::VirtualLoadDetector(
-  std::shared_ptr<LoadDetector> physical,
   std::shared_ptr<Relay> relay,
   std::shared_ptr<Multimeter::Channel> multimeterChannel
-):physical(physical),
-  relay(relay),
+):relay(relay),
   multimeterChannel(multimeterChannel),
   state(),
   oState(state) {
     inited.onChanged += [this](auto value) {
         if(!value) return;
-        this->physical->oState += [this](auto value){
-            update();
-        };
         this->relay->value.onChanged += [this](auto value) {
             if(value == Relay::Off) {
                 if(timer == nullptr)
@@ -46,7 +41,7 @@ void VirtualLoadDetector::update() {
     }
 
     if(timer->isRunning()) return;
-    state = this->physical->oState.value();
+    state = false;
 }
 
 void VirtualLoadDetector::createTimer() {

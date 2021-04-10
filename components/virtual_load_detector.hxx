@@ -11,7 +11,7 @@
 
 class VirtualLoadDetector {
 public:
-    VirtualLoadDetector(std::shared_ptr<LoadDetector> physical, std::shared_ptr<Relay> relay, std::shared_ptr<Multimeter::Channel> multimeterChannel);
+    VirtualLoadDetector(std::shared_ptr<Relay> relay, std::shared_ptr<Multimeter::Channel> multimeterChannel);
     void init();
 
 private:
@@ -19,7 +19,6 @@ private:
     void createTimer();
 
     Observable<bool> inited = {false};
-    std::shared_ptr<LoadDetector> physical;
     std::shared_ptr<Relay> relay;
     std::shared_ptr<Multimeter::Channel> multimeterChannel;
     Observable<std::optional<bool>> state;
@@ -44,7 +43,7 @@ namespace Preset {
 template<int R>
 class VirtualLoadDetector: public Singleton<VirtualLoadDetector<R>>, public Config::Bsp::assert_t<::VirtualLoadDetector, R> {
     friend class Singleton<VirtualLoadDetector<R>>;
-    VirtualLoadDetector(): ::VirtualLoadDetector(LoadDetector<R>::get(), Relay<R>::get(), MultiMeterChannel<R>::get()) {
+    VirtualLoadDetector(): ::VirtualLoadDetector(Relay<R>::get(), MultiMeterChannel<R>::get()) {
         ::VirtualLoadDetector::init();
     }
 };
