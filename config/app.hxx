@@ -9,6 +9,11 @@ struct Cloud {
     static const char* productSecret;
 };
 
+template<int N = 1>
+struct Version {
+    bool updated = false;
+};
+
 struct AliIotDevice {
     std::string deviceName = "";
     std::string productKey = "";
@@ -58,7 +63,6 @@ struct Heartbeat {
     int humidity;
     int smoke;
     int timestamp;
-
 };
 
 struct DevConfig {

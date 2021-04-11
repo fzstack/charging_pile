@@ -5,7 +5,15 @@
 using namespace std;
 
 UpperApp::UpperApp() {
-    Preset::PersistentStorage::get(); //~15.4k RAM
+    auto storage = Preset::PersistentStorage::get(); //~15.4k RAM
+    auto ver = storage->read<Config::Version<>>();
+    if(ver.updated == false) {
+        ver.updated = true;
+        storage->reset();
+        rt_kprintf("old conf cleared\n");
+    }
+
+    storage->write(ver);
 }
 
 void UpperApp::run() {
