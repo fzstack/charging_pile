@@ -20,17 +20,25 @@ public:
         Ret = 6, K0 = 7,  Ok = 8,
     };
 
+    static int keyToNumber(Keys key);
+    static bool isNumberKey(Keys key);
+
 private:
     Observable<std::optional<Keys>> value = {std::nullopt};
 public:
     Observer<std::optional<Keys>> oValue = value;
 
 private:
-    Timer timer = {100, "kbd"};
-    rt_uint16_t data;
-    CountDown<> fKey = {};
+    Timer timer = {50, "kbd"};
+    rt_uint16_t currData = 0;
+    std::array<rt_uint16_t, 8> data = {};
+    int i = 0;
     std::shared_ptr<Ttp229> device;
+    std::array<rt_uint8_t, 16> hist;
     static const std::set<Keys> values;
+    static const std::unordered_map<Keys, int> keyMap;
+    static constexpr int validThr = 6;
+
 };
 
 #include <utilities/singleton.hxx>
