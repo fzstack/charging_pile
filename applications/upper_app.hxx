@@ -10,6 +10,7 @@
 #include <components/rebooter_preset.hxx>
 #include <components/app_state.hxx>
 #include <components/watch_dog.hxx>
+
 class App;
 class UpperApp: public App {
 public:

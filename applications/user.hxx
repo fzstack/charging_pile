@@ -22,7 +22,7 @@
 class User {
 public:
     User(std::shared_ptr<UserInput> input, std::shared_ptr<RgbNotifierLite> rgb, std::shared_ptr<VoiceNotifierLite> voice);
-
+    void boradcast(int balance, BroadcastType type);
     Signals<void(NatPort port, std::string cardId)> onInputConfirm;
 
 private:

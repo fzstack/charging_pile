@@ -20,6 +20,10 @@ public:
         return obs;
     }
 
+    operator T() {
+        return obs;
+    }
+
     T operator*() const {
         return obs;
     }

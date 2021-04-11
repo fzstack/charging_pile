@@ -131,6 +131,20 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
             }
         };
 
+        this->device->services["broadcast"] += [this](auto r, const auto params)  {
+            try {
+                onBroadcast([r](auto e) mutable {
+                    if(e) {
+                        r(*e);
+                    } else {
+                        r(Json {});
+                    }
+                }, params["balance"_i], (BroadcastType)params["type"_i]);
+            } catch(const exception& e) {
+                r(std::current_exception());
+            }
+        };
+
         this->device->login(this->appState->imei, Config::Cloud::productKey, Config::Cloud::productSecret);
 
         runOn(this->device->thread->post([=]{
@@ -144,10 +158,10 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
                 auto hb = Heartbeat {
                     signal: *this->appState->signal,
                     imeiSuff: imei,
-                    temperature: 0,
-                    humidity: 0,
+                    temperature: (int)this->appState->dht11->oTemperature,
+                    humidity: (int)this->appState->dht11->oHumidity,
                     smoke: 0,
-                    timestamp: 0,
+                    timestamp: (int)rt_tick_get(),
                 };
                 emitHeartbeat(std::move(hb));
 

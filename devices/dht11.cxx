@@ -32,11 +32,3 @@ void Dht11::update() {
         }
     });
 }
-
-float Dht11::getHumidity() {
-    return humidity;
-}
-
-float Dht11::getTemperature() {
-    return temperature;
-}

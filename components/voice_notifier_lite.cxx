@@ -18,11 +18,11 @@ using namespace std;
 //1. 声音分多种优先级
 //2. 声音可以由片段合成
 
-VoiceNotifierLite::VoiceNotifierLite(std::shared_ptr<Player> player, std::shared_ptr<AppState> state, std::shared_ptr<UserInput> userInput, std::shared_ptr<Keyboard> keybaord) {
+VoiceNotifierLite::VoiceNotifierLite(std::shared_ptr<Player> player, std::shared_ptr<AppState> state, std::shared_ptr<UserInput> userInput, std::shared_ptr<Keyboard> keybaord): player(player) {
     state->portStateChanged += [this, player](auto port, auto state) {
         switch(state) {
         case State::Charging:
-            player->play(std::move(Voice{}.port(port).fragm(VoiceFragment::StartCharing)));
+            player->play(std::move(Voice{}.port(port).fragm(VoiceFragment::Starting).fragm(VoiceFragment::Beep)));
             break;
         case State::LoadWaitRemove:
             player->play(std::move(Voice{}.port(port).fragm(VoiceFragment::StopCharged)));
@@ -33,7 +33,29 @@ VoiceNotifierLite::VoiceNotifierLite(std::shared_ptr<Player> player, std::shared
     };
 
     userInput->onConfirm += [player](auto port, auto cardId){
+        player->play(std::move(Voice{}.fragm(VoiceFragment::Welcome)), Player::Level::Important);
+    };
+
+    userInput->onCardSwipe += [player](auto cardId) {
         player->play(std::move(Voice{}.fragm(VoiceFragment::CardSwipeOk)), Player::Level::Important);
+    };
+
+    userInput->onError += [player](auto error) {
+        auto voice = Voice{};
+        switch(error) {
+        case UserInput::Error::CardRequired:
+            voice.fragm(VoiceFragment::CardSwipeOrQRRequired);
+            break;
+        case UserInput::Error::PortInvalid:
+            voice.fragm(VoiceFragment::PortInvalid);
+            break;
+        case UserInput::Error::PortSelectRequired:
+            voice.fragm(VoiceFragment::PortSelectRequired);
+            break;
+        default:
+            break;
+        }
+        player->play(std::move(voice), Player::Level::Important);
     };
 
     keybaord->oValue += [player](auto value) {
@@ -55,6 +77,27 @@ VoiceNotifierLite::VoiceNotifierLite(std::shared_ptr<Player> player, std::shared
             }
         }
     };
+}
+
+void VoiceNotifierLite::boradcast(int balance, BroadcastType type) {
+    auto voice = Voice{};
+    switch(type) {
+    case BroadcastType::Succeed:
+        voice.fragm(VoiceFragment::Balance).amount(balance);
+        break;
+    case BroadcastType::BalanceInsufficient:
+        voice.fragm(VoiceFragment::BalanceInsufficient);
+        break;
+    case BroadcastType::CardNotActivated:
+        voice.fragm(VoiceFragment::CardNotActivated);
+        break;
+    case BroadcastType::DeviceAbnormal:
+        voice.fragm(VoiceFragment::DeviceAbnormal);
+        break;
+    default:
+        break;
+    }
+    player->play(std::move(voice), Player::Level::Important);
 }
 
 

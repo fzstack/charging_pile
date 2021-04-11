@@ -73,6 +73,13 @@ struct DevConfig {
     int doneCurrThr;
 };
 
+enum class BroadcastType {
+    Succeed,
+    CardNotActivated,
+    BalanceInsufficient,
+    DeviceAbnormal,
+};
+
 std::string getStateStr(State::Value state);
 
 

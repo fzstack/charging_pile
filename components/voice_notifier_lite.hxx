@@ -18,6 +18,9 @@
 class VoiceNotifierLite {
 public:
     VoiceNotifierLite(std::shared_ptr<Player> player, std::shared_ptr<AppState> state, std::shared_ptr<UserInput> userInput, std::shared_ptr<Keyboard> keybaord);
+    void boradcast(int balance, BroadcastType type);
+private:
+    std::shared_ptr<Player> player;
 };
 
 #include <utilities/singleton.hxx>

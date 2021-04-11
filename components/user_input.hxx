@@ -5,6 +5,9 @@
 #include <utilities/signals.hxx>
 #include <string>
 #include <utilities/nat_port.hxx>
+#include <optional>
+#include <components/timer.hxx>
+#include <utilities/count_down.hxx>
 
 class UserInput {
 public:
@@ -15,9 +18,18 @@ public:
     Signals<void(std::string)> onCardSwipe = {};
     Signals<void(NatPort port, std::string cardId)> onConfirm = {};
 
+    enum class Error {
+        PortInvalid,
+        CardRequired,
+        PortSelectRequired,
+    };
+    Signals<void(Error)> onError = {};
+
 private:
+    Timer timer = {1000, "usript"};
+    CountDown<> cardInvalid = {60};
     std::string lastCard;
-    int currPort = 0;
+    std::optional<int> currPort = std::nullopt;
 };
 
 #include <utilities/singleton.hxx>

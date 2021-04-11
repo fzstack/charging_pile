@@ -9,11 +9,18 @@
  */
 #pragma once
 #include <rtthread.h>
+#include <components/timer.hxx>
+#include <utilities/count_down.hxx>
 
 class WatchDog {
 public:
     WatchDog(uint32_t timeout);
+    void resetAfter(rt_uint8_t durationS);
+    void cancel();
 private:
+    Timer timer = {1000, "wdt"};
+    bool feedCond = true;
+    CountDown<> f = {};
     rt_device_t wdtDev;
 };
 

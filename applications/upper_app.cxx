@@ -49,6 +49,9 @@ void UpperApp::run() {
         return thing->readConfig();
     };
 
+    cloud->onBroadcast += [=](auto balance, auto type) {
+        user->boradcast(balance, type);
+    };
     user->onInputConfirm += [=](auto port, auto icNumber) {
         cloud->emitIcNumber(port, icNumber);
     };
@@ -66,6 +69,10 @@ void UpperApp::run() {
     thing->onCurrentData += [=](auto data){
         cloud->emitCurrentData(std::move(data));
     };
+    state->cloudConnected.onChanged += [this](auto value) {
+        watchDog->cancel();
+    };
+    watchDog->resetAfter(60);
     handshake->hello();
     thing->init();
     cloud->init();

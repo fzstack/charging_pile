@@ -16,7 +16,27 @@ WatchDog::WatchDog(uint32_t timeout): wdtDev(rt_device_find("wdt")) {
     rt_device_control(wdtDev, RT_DEVICE_CTRL_WDT_START, RT_NULL);
     rt_thread_idle_sethook([](){
         auto self = Preset::WatchDog::get();
-        rt_device_control(self->wdtDev, RT_DEVICE_CTRL_WDT_KEEPALIVE, NULL);
+        if(self->feedCond) {
+            rt_device_control(self->wdtDev, RT_DEVICE_CTRL_WDT_KEEPALIVE, NULL);
+        }
     });
+
+    timer.onRun += [this]{
+        if(f.updateAndCheck()) {
+            rt_kprintf("STOP WDT\n");
+            feedCond = false;
+        }
+    };
+
+    timer.start();
 }
 
+void WatchDog::resetAfter(rt_uint8_t durationS) {
+    f.setInitial(durationS);
+    f.reset();
+    f.retrigger();
+}
+
+void WatchDog::cancel() {
+    f.reset();
+}

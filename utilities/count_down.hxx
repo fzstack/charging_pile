@@ -37,6 +37,10 @@ public:
         }
     }
 
+    void setInitial(T initVal) {
+        this->initVal = initVal;
+    }
+
     bool updateAndCheck() {
         if(!counting) return false;
         if(currVal == 0) return false;
@@ -47,7 +51,7 @@ public:
 private:
     bool counting = false;
     T currVal;
-    const T initVal;
+    T initVal;
 };
 
 

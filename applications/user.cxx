@@ -24,3 +24,6 @@ User::User(
 
 }
 
+void User::boradcast(int balance, BroadcastType type) {
+    voice->boradcast(balance, type);
+}

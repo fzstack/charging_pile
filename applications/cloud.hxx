@@ -39,6 +39,7 @@ public:
     Signals<ServiceResult::Value(NatPort port, int timerId)> onStop = {};
     Signals<void(DevConfig conf)> onConfig = {};
     Signals<DevConfig()> onReadConfig = {};
+    Signals<void(int balance, BroadcastType type)> onBroadcast = {};
 
 protected:
     virtual void setSignalInterval() = 0;

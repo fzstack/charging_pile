@@ -15,18 +15,19 @@ extern "C" {
 }
 #include <utilities/shared_thread.hxx>
 #include <components/timer.hxx>
+#include <utilities/observer.hxx>
 
 class Dht11 {
 public:
     Dht11(rt_base_t pin, std::shared_ptr<SharedThread> thread);
-    float getHumidity();
-    float getTemperature();
 private:
     void update();
     std::shared_ptr<SharedThread> thread;
     std::shared_ptr<dht_device> dev;
     Timer timer = {1000, "dht11"};
-    float humidity = 0, temperature = 0;
+    Observable<float> humidity = 0, temperature = 0;
+public:
+    Observer<float> oHumidity = {humidity}, oTemperature = {temperature};
 };
 
 #include <utilities/singleton.hxx>
