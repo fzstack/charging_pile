@@ -68,7 +68,7 @@ void Backuper::resume(InnerPort port) {
         auto guard = getLock();
         spec.stateHasTransitioned = true;
         info.timerId = backup->timerId;
-        if(state == State::LoadInserted && backup->leftSeconds != 0) {
+        if(backup->leftSeconds != 0) {
             rt_kprintf("port%d state resumed\n", NatPort{port}.get());
             info.leftSeconds = backup->leftSeconds;
             info.consumption = backup->consumption;
