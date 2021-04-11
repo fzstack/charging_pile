@@ -56,12 +56,12 @@ const char* Packet::kThread = "packet";
 
 const char* Ttp229::kThread = "ttp229";
 const int
-    Ttp229::kThreadStack = 1024,
+    Ttp229::kThreadStack = 512,
     Ttp229::kThreadPrio = 2,
     Ttp229::kThreadTick = 10;
 
 template<> const char* SharedThread<Priority::High>::kThread = "high";
-template<> const int SharedThread<Priority::High>::kThreadStack = 2048;
+template<> const int SharedThread<Priority::High>::kThreadStack = 512;
 template<> const int SharedThread<Priority::High>::kThreadTick = 10;
 
 template<> const char* SharedThread<Priority::Middle>::kThread = "middle";

@@ -179,7 +179,7 @@ class Packet: public Singleton<Packet>, public ::Packet {
         static serial_configure conf = RT_SERIAL_CONFIG_DEFAULT;
         conf.baud_rate = BAUD_RATE_4800;
         //conf.parity = PARITY_ODD;
-        conf.bufsz = 2048;
+        conf.bufsz = 1024;
         return &conf;
     }
 

@@ -21,7 +21,7 @@ Keyboard::Keyboard(std::shared_ptr<Ttp229> device): device(device) {
         auto mode = std::max_element(hist.begin(), hist.end()) - hist.begin();
         auto cnt = hist[mode];
         hist.fill(0);
-        if(cnt < validThr) return;
+        if(cnt < validThr || rt_tick_get() < 2000) return;
         if(mode == 0) {
             value = nullopt;
         } else {

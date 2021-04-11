@@ -36,7 +36,7 @@ public:
 
     template<class T>
     void write(T&& t) {
-        storage->write(t);
+        storage->write<T>(std::forward<T>(t));
     }
 
     template<class T>

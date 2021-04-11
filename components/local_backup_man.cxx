@@ -23,7 +23,8 @@ conf(Preset::PersistentStorage::get()->read<RealBackupConf>()){
     });
 
     rpc->def<Rpcs::BackupMan::Read>([this](auto p){
-        return conf.backups[p->port.get()];
+        auto& backup = conf.backups[p->port.get()];
+        return backup;
     });
 
     timer.onRun += [this, storage, thread]{
@@ -34,7 +35,7 @@ conf(Preset::PersistentStorage::get()->read<RealBackupConf>()){
         }
         if(willWrite) {
             thread->exec([this, storage](){
-                storage->write(conf);
+                storage->write<RealBackupConf>(std::move(conf));
             });
         }
     };
