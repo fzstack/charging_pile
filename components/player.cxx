@@ -23,7 +23,7 @@ Player::Player() {
             if(currIt == currVoice.seq.end()) {
                 done = true;
             } else {
-                play(*currIt);
+                playFragment(*currIt);
                 ++currIt;
             }
         }

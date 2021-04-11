@@ -2,7 +2,6 @@
 #include <rtthread.h>
 #include <devices/wtn6.hxx>
 #include <utilities/cmd.hxx>
-#include <components/voice_notifier.hxx>
 
 #define LOG_TAG "test.wtn6"
 #define LOG_LVL LOG_LVL_DBG
@@ -13,7 +12,7 @@ void test_wtn6(int argc, char** argv) {
 
     auto wtn6 = Preset::Wtn6::get();
     auto data = atoi(argv[1]);
-    ASSERT_ARG(voice_id, 0 <= data && data <= (rt_uint8_t)Voices::Reserved3);
+    ASSERT_ARG(voice_id, 0 <= data);
     wtn6->write(data);
 }
 

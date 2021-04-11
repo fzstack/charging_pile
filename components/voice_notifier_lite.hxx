@@ -8,7 +8,7 @@
  * 2021-04-01     imgcr       the first version
  */
 #pragma once
-#include <devices/wtn6.hxx>
+#include <components/player_preset.hxx>
 #include <components/app_state.hxx>
 #include <components/user_input.hxx>
 #include <array>
@@ -17,17 +17,13 @@
 
 class VoiceNotifierLite {
 public:
-    VoiceNotifierLite(std::shared_ptr<Wtn6Base> wtn6, std::shared_ptr<AppState> state, std::shared_ptr<UserInput> userInput, std::shared_ptr<Keyboard> keybaord);
-
-private:
-    static const std::array<VoiceFragment, Config::Bsp::kPortNum> kUnpluged;
-    static const std::array<VoiceFragment, Config::Bsp::kPortNum> kPluged;
+    VoiceNotifierLite(std::shared_ptr<Player> player, std::shared_ptr<AppState> state, std::shared_ptr<UserInput> userInput, std::shared_ptr<Keyboard> keybaord);
 };
 
 #include <utilities/singleton.hxx>
 namespace Preset {
 class VoiceNotifierLite: public Singleton<VoiceNotifierLite>, public ::VoiceNotifierLite {
     friend singleton_t;
-    VoiceNotifierLite(): ::VoiceNotifierLite(Wtn6::get(), AppState::get(), UserInput::get(), Keyboard::get()) { }
+    VoiceNotifierLite(): ::VoiceNotifierLite(Player::get(), AppState::get(), UserInput::get(), Keyboard::get()) { }
 };
 }

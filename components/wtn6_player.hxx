@@ -14,7 +14,8 @@
 class Wtn6Player: public Player {
 public:
     Wtn6Player(std::shared_ptr<Wtn6> wtn6);
-    virtual void play(VoiceFragment fragment) override;
+protected:
+    virtual void playFragment(VoiceFragment fragment) override;
     virtual bool isFragmentPlaying() override;
 private:
     std::shared_ptr<Wtn6> wtn6;

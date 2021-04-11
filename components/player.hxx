@@ -21,9 +21,9 @@ public:
         Important, Ignorable
     };
 
-    void play(Voice&& voice, Level level);
+    void play(Voice&& voice, Level level = Level::Ignorable);
 protected:
-    virtual void play(VoiceFragment fragment) = 0;
+    virtual void playFragment(VoiceFragment fragment) = 0;
     virtual bool isFragmentPlaying() = 0;
 private:
     Timer timer = {100, "player"};

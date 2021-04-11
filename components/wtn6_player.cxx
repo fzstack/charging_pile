@@ -14,7 +14,7 @@ Wtn6Player::Wtn6Player(std::shared_ptr<Wtn6> wtn6): wtn6(wtn6) {
 
 }
 
-void Wtn6Player::play(VoiceFragment fragment) {
+void Wtn6Player::playFragment(VoiceFragment fragment) {
     wtn6->write((rt_uint8_t)fragment);
 }
 

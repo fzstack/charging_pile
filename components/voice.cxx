@@ -15,52 +15,53 @@ using namespace std;
 
 Voice& Voice::amount(int cents) {
     auto yuan = cents / 100;
-    auto msb = msb10(yuan);
+    integer(yuan);
+    auto centRemained = cents % 100;
+    if(centRemained != 0) {
+        fragm(VoiceFragment::Dot);
+        for(auto i = 1; i >= 0; i--) {
+            auto currBit = (centRemained / int(pow(10, i))) % 10;
+            if(currBit != 0 || i != 0) {
+                fragm(numbers[currBit]);
+            }
+        }
+    }
+    fragm(VoiceFragment::Yuan);
+    return *this;
+}
+
+Voice& Voice::integer(int number) {
+    auto msb = msb10(number);
     auto meetZero = false;
-
-    //13.00 十三元
-    //23.00 二十三元
-    //113.00 一百一十三元
-    //1010.00 一千零一十三元
-    //1001.00 一千零一元
-    //0.00 零元
-    //13.50 十三点五元
-    //0.05 零点零五元
-
     for(auto i = msb; i >= 0; i--) {
-        auto currBit = (yuan / int(pow(10, i))) % 10;
+        auto currBit = (number / int(pow(10, i))) % 10;
         if(currBit != 0) {
             if(meetZero) {
                 meetZero = false;
-                seq.push_back(numbers[0]);
+                fragm(numbers[0]);
             }
             if(msb != 1 || i != 1 || currBit != 1) {
-                seq.push_back(numbers[currBit]);
+                fragm(numbers[currBit]);
             }
             if(i != 0) {
-                seq.push_back(bits[i - 1]);
+                fragm(bits[i - 1]);
             }
         } else {
             meetZero = true;
         }
     }
-
-    if(yuan == 0) {
-        seq.push_back(numbers[0]);
+    if(number == 0) {
+        fragm(numbers[0]);
     }
+    return *this;
+}
 
-    auto centRemained = cents % 100;
-    if(centRemained != 0) {
-        seq.push_back(VoiceFragment::Dot);
-        for(auto i = 1; i >= 0; i--) {
-            auto currBit = (centRemained / int(pow(10, i))) % 10;
-            if(currBit != 0 || i != 0) {
-                seq.push_back(numbers[currBit]);
-            }
-        }
-    }
+Voice& Voice::port(NatPort port) {
+    return integer(port.get()).fragm(VoiceFragment::No).fragm(VoiceFragment::Port);
+}
 
-    seq.push_back(VoiceFragment::Yuan);
+Voice& Voice::fragm(VoiceFragment fragm) {
+    seq.push_back(fragm);
     return *this;
 }
 
