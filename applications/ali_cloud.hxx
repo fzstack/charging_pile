@@ -54,6 +54,7 @@ private:
     Signals<void()> heartbeat = {};
     Observable<bool> inited = {false};
     rt_tick_t lastSetTick = 0;
+    bool firstBeated = false;
 };
 
 #include <utilities/singleton.hxx>

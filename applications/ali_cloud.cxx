@@ -134,10 +134,13 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
         this->device->login(this->appState->imei, Config::Cloud::productKey, Config::Cloud::productSecret);
 
         runOn(this->device->thread->post([=]{
-            setIccid(this->appState->iccid);
             auto imei = this->appState->imei;
             imei = imei.substr(imei.size() - 12);
             heartbeat += this->device->thread->post([=](){
+                if(!firstBeated) {
+                    firstBeated = true;
+                    setIccid(this->appState->iccid);
+                }
                 auto hb = Heartbeat {
                     signal: *this->appState->signal,
                     imeiSuff: imei,
