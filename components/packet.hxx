@@ -78,7 +78,7 @@ private:
         std::size_t getHash();
         bool check();
 
-        virtual void readData(rt_uint8_t* data, int len) override;
+        virtual int readData(rt_uint8_t* data, int len) override;
         std::variant<rt_uint8_t, ControlChar> readByte();
         rt_uint8_t readAtom();
     private:

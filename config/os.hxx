@@ -19,6 +19,7 @@ public:
 enum class Priority {
     High,
     Middle,
+    Low,
 };
 
 template<Priority Proi>
@@ -36,7 +37,13 @@ template<>
 struct PriorityTrait<Priority::Middle> {
     static constexpr rt_uint8_t value = 8;
 };
+
 #endif
+
+template<>
+struct PriorityTrait<Priority::Low> {
+    static constexpr rt_uint8_t value = 10;
+};
 
 #ifdef LOWER_END
 template<>

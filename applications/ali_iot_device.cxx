@@ -3,11 +3,13 @@
 #include <tinycrypt.h>
 #include <string_view>
 #include <components/http_form_request_builder.hxx>
+#include <components/http_request.hxx>
 #include <utilities/json.hxx>
 #include <utilities/string.hxx>
 #include <variant>
 #include "ali_iot_alink.hxx"
 #include <components/persistent_storage_preset.hxx>
+
 
 #define LOG_TAG "app.ali_iot"
 #define LOG_LVL LOG_LVL_DBG
@@ -42,8 +44,23 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
 
     mqtt->onMessage += this->thread->post([this](string topic, string data) {
         rt_kprintf("topic: %s\ndata: %s\n", topic.c_str(), data.c_str());
-
         auto topics = split(topic, '/');
+        if(topics[1] == "ota" && topics[2] == "device" && topics[3] == "upgrade") {
+            auto reply = Alink::Reply::from(data);
+            const auto d = reply.getData();
+            rt_kprintf("\nOTA UPGRADE, NEW VERSION: %s\n", d["version"_s].c_str());
+            rt_kprintf("creating stream...\n");
+            auto stream = this->http->stream(
+                std::make_shared<HttpRequest>()
+                ->setUrl(d["url"_s])
+                ->setMethod(HttpMethod::Get));
+            rt_kprintf("invoking ota cb...\n");
+            //d["module"_s]
+            ota(d["version"_s], "default", stream, d["size"_i]);
+            rt_kprintf("ota cb returned\n");
+            return;
+        }
+
         auto request = Alink::Request::from(data);
         auto methods = request.getMethod();
 
@@ -104,6 +121,8 @@ void AliIotDevice::login(string_view deviceName, string_view productKey, string_
     this->deviceName = deviceName;
     this->productKey = productKey;
 
+
+    rt_kprintf("enter login...\n");
     //自动注册
     auto storage = Preset::PersistentStorage::get();
     auto conf = storage->read<Config::AliIotDevice>();
@@ -133,6 +152,8 @@ void AliIotDevice::login(string_view deviceName, string_view productKey, string_
     }
 
     auto sign = getLoginSign(deviceName, productKey, conf.deviceSecret);
+
+    rt_kprintf("try send http req...\n");
     auto json = Json::parse(http->send(
         HttpFormRequestBuilder{}
         .setUrl(kApiAuth)
@@ -176,10 +197,33 @@ void AliIotDevice::log(std::string_view msg) {
     mqtt->publish(genTopic({"thing", "log", "post"}), request);
 }
 
+void AliIotDevice::otaEmitVersion(std::string_view version, std::string_view module) {
+    auto request = string(Alink::Request({
+       {"version", version},
+       {"module", module},
+    }, ""));
+    mqtt->publish(genTopic({"ota", "device", "inform"}, {}), request);
+}
+
+void AliIotDevice::otaEmitProgress(int step, std::string_view desc, std::string_view module) {
+    auto request = string(Alink::Request({
+       {"step", to_string(step)},
+       {"desc", desc},
+       {"module", module}
+    }, ""));
+    mqtt->publish(genTopic({"ota", "device", "progress"}, {}), request);
+}
+
 string AliIotDevice::genTopic(initializer_list<string_view> suffixes) {
+    return genTopic({"sys"}, suffixes);
+}
+
+std::string AliIotDevice::genTopic(std::initializer_list<std::string_view> prefixes, std::initializer_list<std::string_view> suffixes) {
     auto result = ""s;
-    for(const auto& prefix: {"sys"s, productKey, deviceName})
-        result += '/' + prefix;
+    for(const auto& prefix: prefixes)
+        result += '/' + string(prefix.data());
+    for(const auto& e: {productKey, deviceName})
+        result += '/' + e;
     for(const auto& suffix: suffixes)
         result += '/' + string(suffix.data());
     return result;

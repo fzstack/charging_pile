@@ -81,6 +81,10 @@ public:
         packet->emit<Rpcs::PersistentStorage::Write<T>>({t});
     }
 
+    void reset() {
+        throw not_implemented{""};
+    }
+
 private:
     std::shared_ptr<Rpc> rpc;
     std::shared_ptr<Packet> packet;

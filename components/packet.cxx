@@ -102,10 +102,11 @@ std::size_t Packet::Absorber::getHash() {
     return hash;
 }
 
-void Packet::Absorber::readData(rt_uint8_t* data, int len) {
+int Packet::Absorber::readData(rt_uint8_t* data, int len) {
     for(auto i = 0; i < len; i++) {
         data[i] = get<rt_uint8_t>(readByte());
     }
+    return len;
 }
 
 std::variant<rt_uint8_t, Packet::ControlChar> Packet::Absorber::readByte() {

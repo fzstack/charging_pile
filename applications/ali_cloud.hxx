@@ -26,6 +26,8 @@ public:
     virtual void emitPortUnplug(NatPort port) override;
     virtual void emitIcNumber(NatPort port, std::string_view icNumber) override;
     virtual void emitCurrentLimit(NatPort port) override;
+    virtual void emitModuleVersion(std::string_view version, std::string_view module) override;
+    virtual void emitOtaProgress(int step, std::string_view desc, std::string_view module) override;
 
     template<class... Args>
     auto post(Args&&... args) {

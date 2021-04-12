@@ -9,6 +9,10 @@
 using namespace Config;
 using namespace std;
 
+const char
+    *::Version::lower = "0.2.5",
+    *::Version::upper = "0.2.5";
+
 namespace Preset {
 const int
     WsScreen::kWidth = 5,

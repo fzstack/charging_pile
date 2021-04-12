@@ -11,7 +11,7 @@ public:
         return t;
     }
 
-    virtual void readData(rt_uint8_t* data, int len) = 0;
+    virtual int readData(rt_uint8_t* data, int len) = 0;
 };
 
 

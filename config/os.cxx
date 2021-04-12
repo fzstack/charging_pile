@@ -65,6 +65,10 @@ template<> const int SharedThread<Priority::High>::kThreadStack = 512;
 template<> const int SharedThread<Priority::High>::kThreadTick = 10;
 
 template<> const char* SharedThread<Priority::Middle>::kThread = "middle";
+
+template<> const char* SharedThread<Priority::Low>::kThread = "low";
+template<> const int SharedThread<Priority::Low>::kThreadStack = 2048;
+template<> const int SharedThread<Priority::Low>::kThreadTick = 10;
 }
 
 

@@ -3,11 +3,12 @@
 
 using namespace std;
 
-void MemoryIOStream::readData(rt_uint8_t* data, int len) {
+int MemoryIOStream::readData(rt_uint8_t* data, int len) {
     for(auto i = 0; i < len; i++) {
         data[i] = buf.front();
         buf.pop_front();
     }
+    return len;
 }
 
 void MemoryIOStream::writeData(rt_uint8_t* data, int len) {

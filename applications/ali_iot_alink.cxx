@@ -9,7 +9,7 @@ Alink::Request::Request(Json params, std::string method): obj({
     {"id", to_string(Alink::id)},
     {"version", Alink::version},
     {"params", params},
-    {"method", method},
+    {"method", method}
 }) {
     Alink::id++;
 }

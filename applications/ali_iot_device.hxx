@@ -15,6 +15,7 @@
 #include <devices/air724.hxx>
 #include <components/air_components.hxx>
 #include <utilities/shared_thread.hxx>
+#include <utilities/istream.hxx>
 
 class AliIotDevice {
 public:
@@ -23,9 +24,11 @@ public:
     void emit(std::string_view event, Json params);
     void set(std::string_view property, Json value);
     void log(std::string_view msg);
-
+    void otaEmitVersion(std::string_view version, std::string_view module);
+    void otaEmitProgress(int step, std::string_view desc, std::string_view module);
 private:
     std::string genTopic(std::initializer_list<std::string_view> suffixes);
+    std::string genTopic(std::initializer_list<std::string_view> prefixes, std::initializer_list<std::string_view> suffixes);
     static std::string getRegisterSign(std::string_view deviceName, std::string_view productKey, std::string_view productSecret, int random);
     static std::string getLoginSign(std::string_view deviceName, std::string_view productKey, std::string_view deviceSecret);
     static std::string getSign(std::string_view secret, std::string_view content);
@@ -71,6 +74,7 @@ private:
 public:
     std::unordered_map<std::string, Signals<Json(const Json)>> services = {};
     std::unordered_map<std::string, Signals<void(const Json)>> properties = {};
+    Signals<void(std::string version, std::string module, std::shared_ptr<IStream>, int size)> ota;
 
 private:
     static const char* kApiAuth;

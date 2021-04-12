@@ -3,10 +3,18 @@
 #include <string>
 #include <utilities/nat_port.hxx>
 
+struct Version {
+    static const char *lower, *upper;
+};
+
 namespace Config {
 struct Cloud {
     static const char* productKey;
     static const char* productSecret;
+};
+
+struct LastVersion {
+    std::string upper = "";
 };
 
 template<int N = 1>

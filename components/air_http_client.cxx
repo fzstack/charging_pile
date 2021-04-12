@@ -16,10 +16,48 @@ AirHttpClient::AirHttpClient(std::shared_ptr<Air724> owner): AirComponent<AirHtt
 }
 
 string AirHttpClient::send(shared_ptr<HttpRequest> request) {
+    auto sess = sendInternal(request);
+    if(at_obj_exec_cmd(getAtClient(), sess.resp.get(), "AT+HTTPREAD") != RT_EOK)
+        throw runtime_error{"timeout when reading http response"};
+
+    auto result = string(recvBuf.begin(), recvBuf.end());
+    recvBuf.clear();
+    return result;
+}
+
+std::shared_ptr<IStream> AirHttpClient::stream(std::shared_ptr<HttpRequest> request) {
+    //自己使用weak_ptr保存stream的指针
+    auto sess = sendInternal(request);
+    return std::make_shared<Stream>(this, sess);
+}
+
+AirHttpClient::Stream::Stream(outer_t* outer, Session sess): nested_t(outer), sess(sess) {
+
+}
+
+int AirHttpClient::Stream::readData(rt_uint8_t* data, int len) {
+    auto res = at_obj_exec_cmd(outer->getAtClient(), sess.resp.get(), "AT+HTTPREAD=%d,%d", currPos, len);
+    if(res != RT_EOK) {
+        rt_kprintf("failed read http resp: %d\n", res);
+        throw runtime_error{"timeout when reading http response"};
+    }
+
+    auto readLen = outer->recvBuf.size();
+    currPos += readLen;
+    memcpy(data, &outer->recvBuf[0], readLen);
+    outer->recvBuf.clear();
+    return readLen;
+}
+
+AirHttpClient::Session AirHttpClient::sendInternal(std::shared_ptr<HttpRequest> request) {
     auto resp = createResp();
-    auto guard = shared_ptr<void>(nullptr, [this, resp](auto) {
-        at_obj_exec_cmd(getAtClient(), resp.get(), "AT+HTTPTERM");
-    });
+    auto sess = Session{
+        resp: resp,
+        termGuard: shared_ptr<void>(nullptr, [this, resp](auto) {
+            rt_kprintf("close http\n");
+            at_obj_exec_cmd(getAtClient(), resp.get(), "AT+HTTPTERM");
+        }),
+    };
     if(at_obj_exec_cmd(getAtClient(), resp.get(), "AT+HTTPINIT") != RT_EOK)
         throw runtime_error{"timeout when initing http"};
     if(at_obj_exec_cmd(getAtClient(), resp.get(), "AT+HTTPPARA=\"CID\",1") != RT_EOK)
@@ -36,27 +74,13 @@ string AirHttpClient::send(shared_ptr<HttpRequest> request) {
         if(at_obj_exec_cmd(getAtClient(), resp.get(), "AT+HTTPDATA=%d,20000", size) != RT_EOK)
             throw runtime_error{"timeout when defining body"};
         sendBuf = nullptr;
-
-//        auto size = request.getBody().size();
-//        at_resp_set_info(resp.get(), owner->kDefaultAtRespBuffSize, 1, owner->kTimeoutMs); //消耗DOWNLOAD
-//        if(at_obj_exec_cmd(getAtClient(), resp.get(), "AT+HTTPDATA=%d,20000", size) != RT_EOK)
-//            throw runtime_error{"timeout when defining body"};
-//        at_resp_set_info(resp.get(), owner->kDefaultAtRespBuffSize, 0, owner->kTimeoutMs);
-//        if(at_obj_exec_cmd(getAtClient(), resp.get(), request.getBody().c_str()) != RT_EOK)
-//            throw runtime_error{"timeout when sending data"};
     }
     if(at_obj_exec_cmd(getAtClient(), resp.get(), "AT+HTTPACTION=%d", int(request->getMethod())) != RT_EOK)
         throw runtime_error{"timeout when http action"};
 
     //TODO: 超时
     rt_event_recv(event.get(), Events::HttpAction, RT_EVENT_FLAG_AND | RT_EVENT_FLAG_CLEAR, RT_WAITING_FOREVER, RT_NULL);
-
-    if(at_obj_exec_cmd(getAtClient(), resp.get(), "AT+HTTPREAD") != RT_EOK)
-        throw runtime_error{"timeout when reading http response"};
-
-    auto result = string(recvBuf.begin(), recvBuf.end());
-    recvBuf.clear();
-    return result;
+    return sess;
 }
 
 std::vector<at_urc> AirHttpClient::onUrcTableInit() {
@@ -83,7 +107,7 @@ std::vector<at_urc> AirHttpClient::onUrcTableInit() {
             auto inst = urc(client);
             if(!inst) return;
 
-            LOG_D("on http read");
+            //LOG_D("on http read");
             int recvSize;
             sscanf(data, "+HTTPREAD: %d", &recvSize);
             vector<char> buf(recvSize);

@@ -1,6 +1,6 @@
 #include "upper_app.hxx"
 #include <rtthread.h>
-#include <utilities/mp.hxx>
+#include <utilities/f.hxx>
 
 using namespace std;
 
@@ -11,12 +11,20 @@ UpperApp::UpperApp() {
         ver.updated = true;
         storage->reset();
         rt_kprintf("old conf cleared\n");
+        storage->write(ver);
     }
 
-    storage->write(ver);
+    auto lastVer = storage->read<Config::LastVersion>();
+    if(lastVer.upper != Version::upper) {
+        updated = true;
+        lastVer.upper = Version::upper;
+        storage->write(lastVer);
+    }
 }
 
 void UpperApp::run() {
+    rt_kprintf("RUN APP\n");
+
     cloud->onControl += [=](auto port, auto timerId, auto minutes) {
         try {
             thing->control(port, timerId, minutes);
@@ -52,6 +60,36 @@ void UpperApp::run() {
     cloud->onBroadcast += [=](auto balance, auto type) {
         user->boradcast(balance, type);
     };
+
+    cloud->onOta += [=](std::string version, std::string module, std::shared_ptr<IStream> stream, int size) {
+        if(version == Version::upper) {
+            cloud->emitOtaProgress(100, "done", "default");
+            updated = false;
+            return;
+        }
+        ota->start(version, module, stream, size);
+    };
+
+    ota->onError += [=](auto e, auto desc) {
+        cloud->emitOtaProgress((int)e, desc, "default");
+    };
+
+    cloud->onTimer += [=]() {
+        if(updated) {
+            cloud->emitOtaProgress(100, "done", "default");
+            updated = false;
+        }
+    };
+
+    ota->oProgress += [=](auto value) {
+        rt_kprintf("%d\n", value);
+        cloud->emitOtaProgress(value < 99 ? value : 99, "download", "default");
+    };
+
+    ota->onDone += [=]{
+        rebooter->reboot();
+    };
+
     user->onInputConfirm += [=](auto port, auto icNumber) {
         cloud->emitIcNumber(port, icNumber);
     };
@@ -75,6 +113,8 @@ void UpperApp::run() {
     watchDog->resetAfter(60);
     handshake->hello();
     thing->init();
+
+    rt_kprintf("init cloud...\n");
     cloud->init();
 }
 
@@ -86,3 +126,14 @@ void reset_config(int argc, char** argv) {
 MSH_CMD_EXPORT(reset_config, );
 #endif
 
+#if defined(RUN_APP) && defined(UPPER_END)
+static int ota_app_vtor_reconfig(void)
+{
+    #define NVIC_VTOR_MASK   0x3FFFFF80
+    /* Set the Vector Table base location by user application firmware definition */
+    SCB->VTOR = 0x08009000 & NVIC_VTOR_MASK;
+
+    return 0;
+}
+INIT_BOARD_EXPORT(ota_app_vtor_reconfig);
+#endif

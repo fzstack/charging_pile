@@ -45,6 +45,7 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
 
         rt_kprintf("initing ali cloud\n");
         this->air->init();
+        rt_kprintf("air init OK\n");
         this->device->services["query"] += [this](auto r, const auto params) {
           onQuery([r](auto e) mutable {
               if(e) {
@@ -145,6 +146,13 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
             }
         };
 
+        rt_kprintf("register ota callback\n");
+        this->device->ota += [this](std::string version, std::string module, std::shared_ptr<IStream> stream, int size) {
+            rt_kprintf("ali cloud ota cb called\n");
+            onOta(version, module, stream, size);
+        };
+
+        rt_kprintf("try login device...\n");
         this->device->login(this->appState->imei, Config::Cloud::productKey, Config::Cloud::productSecret);
 
         runOn(this->device->thread->post([=]{
@@ -154,6 +162,7 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
                 if(!firstBeated) {
                     firstBeated = true;
                     setIccid(this->appState->iccid);
+                    emitModuleVersion(Version::upper, "default");
                 }
                 auto hb = Heartbeat {
                     signal: *this->appState->signal,
@@ -168,6 +177,7 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
                 rt_uint32_t total, maxUsed;
                 rt_memory_info(&total, nullptr, &maxUsed);
                 this->device->log("mem: "s + to_string(100 * maxUsed / total) + "%, middle: " + to_string(this->device->thread->maxUsed()) + "%");
+                onTimer();
             });
         }));
 
@@ -253,6 +263,22 @@ void AliCloud::emitCurrentLimit(NatPort port) {
         device->emit("current_limit", {
            {"port", port.get()},
         });
+    }));
+}
+
+void AliCloud::emitModuleVersion(std::string_view version, std::string_view module) {
+    if(!initDone) return;
+    auto versionS = string{version.begin(), version.end()};
+    auto moduleS = string{module.begin(), module.end()};
+    runOn(device->thread->post([=]{
+        device->otaEmitVersion(versionS, moduleS);
+    }));
+}
+
+void AliCloud::emitOtaProgress(int step, std::string_view desc, std::string_view module) {
+    if(!initDone) return;
+    runOn(device->thread->post([this, step, desc = string{desc}, module = string{module}]{
+        device->otaEmitProgress(step, desc, module);
     }));
 }
 

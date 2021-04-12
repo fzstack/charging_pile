@@ -32,9 +32,13 @@ Air724::Air724(const char* atUartDevice, rt_base_t resetPin): resetPin(resetPin)
         }
 
         auto ess = make<AirEssential>();
+        rt_kprintf("ess maked\n");
         ess->closeEcho();
+        rt_kprintf("echo closed\n");
         ess->attachGprs();
+        rt_kprintf("gprs attached\n");
         ess->activatePdp();
+        rt_kprintf("pdpactivated\n");
     };
 }
 
