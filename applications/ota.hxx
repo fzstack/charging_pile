@@ -38,7 +38,7 @@ private:
     std::shared_ptr<SharedThread> thread;
     static const char* kPartiName;
     static constexpr int kBufSize = 100;
-    Timer timer = {5000, "ota"};
+    Timer timer = {1000, "ota"};
 };
 
 #include <utilities/singleton.hxx>

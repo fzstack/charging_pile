@@ -24,10 +24,11 @@ protected:
     virtual std::vector<at_urc> onUrcTableInit();
 
     at_client_t getAtClient();
-    std::shared_ptr<at_response> createResp();
+    std::shared_ptr<at_response> createResp(int timeout = kTimeout);
     void initState(std::shared_ptr<State> state);
 
     std::shared_ptr<Air724> owner; //持有owner的引用
+    static constexpr int kTimeout = 1000;
 };
 
 

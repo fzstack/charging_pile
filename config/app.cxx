@@ -5,6 +5,7 @@
 #include <ui/rgb_light_widget.hxx>
 #include <ui/loading_widget.hxx>
 #include <ui/state_noti_widget.hxx>
+#include <ui/progress_widget.hxx>
 
 using namespace Config;
 using namespace std;
@@ -18,8 +19,11 @@ const int
     WsScreen::kWidth = 5,
     WsScreen::kHeight = 2;
 
-const int LoadingWidget::zIndex = 1;
-const int StateNotiWidget::zIndex = 0;
+const int
+    LoadingWidget::zIndex = 2,
+    ProgressWidget::zIndex = 1,
+    StateNotiWidget::zIndex = 0;
+
 }
 
 namespace Config {

@@ -72,6 +72,7 @@ void UpperApp::run() {
 
     ota->onError += [=](auto e, auto desc) {
         cloud->emitOtaProgress((int)e, desc, "default");
+        state->progress = std::nullopt;
     };
 
     cloud->onTimer += [=]() {
@@ -84,9 +85,11 @@ void UpperApp::run() {
     ota->oProgress += [=](auto value) {
         rt_kprintf("%d\n", value);
         cloud->emitOtaProgress(value < 99 ? value : 99, "download", "default");
+        state->progress = value;
     };
 
     ota->onDone += [=]{
+        rt_kprintf("OTA REBOOTING...\n");
         rebooter->reboot();
     };
 
@@ -126,14 +129,3 @@ void reset_config(int argc, char** argv) {
 MSH_CMD_EXPORT(reset_config, );
 #endif
 
-#if defined(RUN_APP) && defined(UPPER_END)
-static int ota_app_vtor_reconfig(void)
-{
-    #define NVIC_VTOR_MASK   0x3FFFFF80
-    /* Set the Vector Table base location by user application firmware definition */
-    SCB->VTOR = 0x08009000 & NVIC_VTOR_MASK;
-
-    return 0;
-}
-INIT_BOARD_EXPORT(ota_app_vtor_reconfig);
-#endif

@@ -13,6 +13,7 @@ class Air724;
 
 class AirHttpClient: public HttpClient, public AirComponent<AirHttpClient> {
     friend class Air724;
+    using p_t = AirComponent<AirHttpClient>;
 private:
     AirHttpClient(std::shared_ptr<Air724> owner);
 public:
@@ -39,7 +40,7 @@ public:
 protected:
     virtual std::vector<at_urc> onUrcTableInit() override;
 private:
-    Session sendInternal(std::shared_ptr<HttpRequest> request);
+    Session sendInternal(std::shared_ptr<HttpRequest> request, int timeout = p_t::kTimeout);
 private:
     struct Events {
         enum Value {

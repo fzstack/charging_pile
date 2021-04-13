@@ -24,8 +24,8 @@ void AirComponentBase::initState(std::shared_ptr<State> state) {
     }
 }
 
-std::shared_ptr<at_response> AirComponentBase::createResp() {
-    return std::shared_ptr<at_response>(at_create_resp(owner->kDefaultAtRespBuffSize, 0, owner->kTimeoutMs), [](auto p) {
+std::shared_ptr<at_response> AirComponentBase::createResp(int timeout) {
+    return std::shared_ptr<at_response>(at_create_resp(owner->kDefaultAtRespBuffSize, 0, timeout), [](auto p) {
         at_delete_resp(p);
     });
 }

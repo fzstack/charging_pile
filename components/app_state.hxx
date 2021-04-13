@@ -19,6 +19,7 @@
 #include <devices/air724.hxx>
 #include <string>
 #include <devices/dht11.hxx>
+#include <optional>
 
 //TODO: do not use remote store
 class AppState {
@@ -29,6 +30,7 @@ public:
 
     Observable<bool> cloudConnected = {false};
     Observable<int> signal = {17};
+    Observable<std::optional<int>> progress;
     std::string iccid = {}, imei = {};
     std::shared_ptr<Dht11> dht11;
 

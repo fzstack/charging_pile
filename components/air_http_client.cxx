@@ -27,7 +27,7 @@ string AirHttpClient::send(shared_ptr<HttpRequest> request) {
 
 std::shared_ptr<IStream> AirHttpClient::stream(std::shared_ptr<HttpRequest> request) {
     //自己使用weak_ptr保存stream的指针
-    auto sess = sendInternal(request);
+    auto sess = sendInternal(request, 3000);
     return std::make_shared<Stream>(this, sess);
 }
 
@@ -49,8 +49,8 @@ int AirHttpClient::Stream::readData(rt_uint8_t* data, int len) {
     return readLen;
 }
 
-AirHttpClient::Session AirHttpClient::sendInternal(std::shared_ptr<HttpRequest> request) {
-    auto resp = createResp();
+AirHttpClient::Session AirHttpClient::sendInternal(std::shared_ptr<HttpRequest> request, int timeout) {
+    auto resp = createResp(timeout);
     auto sess = Session{
         resp: resp,
         termGuard: shared_ptr<void>(nullptr, [this, resp](auto) {

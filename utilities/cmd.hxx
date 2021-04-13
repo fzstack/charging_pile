@@ -52,7 +52,7 @@ public:
         return getFrom(name);
     }
 
-    template<class T>
+    template<class T = std::string>
     auto select(std::unordered_map<T, std::function<void()>>&& sel) {
         select(nullptr, std::move(sel));
     }
