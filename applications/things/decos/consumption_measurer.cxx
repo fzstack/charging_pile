@@ -25,7 +25,11 @@ void ConsumptionMeasurer::onStateChanged(InnerPort port, State::Value state) {
     auto guard = getLock();
     switch(state) {
     case State::Charging: //开始充电后耗电量清零，开启定时器
-        info.consumption = 0;
+        if(isFirstCharge) {
+            isFirstCharge = false;
+        } else {
+            info.consumption = 0;
+        }
         spec.tick = rt_tick_get();
         spec.prevCurr = info.charger->multimeterChannel->current.value().value_or(0);
         spec.prevVol = info.charger->multimeterChannel->voltage.value().value_or(0);

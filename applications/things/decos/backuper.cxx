@@ -28,7 +28,7 @@ Backuper::Backuper(outer_t* outer): Base(outer) {
                 timerId: info.timerId,
                 consumption: info.consumption,
             });
-            rt_kprintf("backup port%d, {left: %d}\n", NatPort{port}.get(), info.leftSeconds);
+            rt_kprintf("backup port%d, {ls: %d, it: %d, cs: %d}\n", NatPort{port}.get(), info.leftSeconds, info.timerId, (int)info.consumption);
         }
     };
 }
@@ -69,9 +69,9 @@ void Backuper::resume(InnerPort port) {
         spec.stateHasTransitioned = true;
         info.timerId = backup->timerId;
         if(backup->leftSeconds != 0) {
-            rt_kprintf("port%d state resumed\n", NatPort{port}.get());
             info.leftSeconds = backup->leftSeconds;
             info.consumption = backup->consumption;
+            rt_kprintf("resumed port%d, {ls: %d, it: %d, cs: %d}\n", NatPort{port}.get(), info.leftSeconds, info.timerId, (int)info.consumption);
             charger->start();
         } else {
             info.leftSeconds = 0;

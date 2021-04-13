@@ -31,6 +31,8 @@ public:
 private:
     struct Spec {
         int prevCurrMiA = 0;
+        State::Value prevState;
+        float prevConsumption;
         CountDown<> count = {1};
     };
 

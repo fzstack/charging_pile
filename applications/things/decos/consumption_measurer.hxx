@@ -28,6 +28,8 @@ class ConsumptionMeasurer: public Base {
 
     void update(ChargerInfo& info, ChargerSpec& spec);
 
+    bool isFirstCharge = true;
+
     std::array<ChargerSpec, Config::Bsp::kPortNum> specs;
     Timer timer = {kDuration, kTimer};
 
