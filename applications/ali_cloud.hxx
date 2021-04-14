@@ -38,7 +38,6 @@ protected:
     virtual void setSignalInterval() override;
 
 private:
-
     struct Spec {
         CountDown<> fPlugged = {};
         CountDown<> fUnpluged = {};

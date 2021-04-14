@@ -9,6 +9,7 @@ public:
     using rtthread::Thread::Thread;
 
     int maxUsed();
+    bool isCurrent();
 protected:
     virtual void run(void *p) override;
 public:

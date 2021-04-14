@@ -18,3 +18,7 @@ int Thread::maxUsed() {
     return (_thread->stack_size - ((rt_ubase_t) ptr - (rt_ubase_t) _thread->stack_addr)) * 100 / _thread->stack_size;
 }
 
+bool Thread::isCurrent() {
+    return rt_thread_self() == _thread;
+}
+

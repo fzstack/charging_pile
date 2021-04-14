@@ -11,10 +11,16 @@ class SharedThread: public ::Thread {
 public:
     template<class... Args>
     void exec(Args&&... args) {
-        runOn(post(std::forward<Args>(args)...));
+        if(isCurrent()){
+            execInternal(std::forward<Args>(args)...);
+        } else {
+            runOn(post(std::forward<Args>(args)...));
+        }
     }
 protected:
     virtual void run(void *p) override;
+private:
+    void execInternal(std::function<void()> cb);
 public:
     Post post;
 };
