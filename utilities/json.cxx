@@ -312,6 +312,13 @@ void Json::toArray(std::initializer_list<Json> obj) {
     }
 }
 
+bool Json::contains(const char* itemName) const {
+    if(extra->self->type != cJSON_Object)
+        throw json_type_error{"not a object"};
+    auto item = cJSON_GetObjectItem(extra->self, itemName);
+    return item != nullptr;
+}
+
 Json Json::getItem(const char* itemName) const {
     if(extra->self->type != cJSON_Object)
         throw json_type_error{"not a object"};

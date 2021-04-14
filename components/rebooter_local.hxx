@@ -17,6 +17,7 @@ class RebooterLocal: public Rebooter {
 public:
     RebooterLocal(std::shared_ptr<Air724> air724, std::shared_ptr<Packet> packet);
     virtual void reboot() override;
+    virtual void rebootAll() override;
 
     std::shared_ptr<Air724> air724;
     std::shared_ptr<Packet> packet;

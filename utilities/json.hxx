@@ -95,6 +95,8 @@ public:
     Json& operator=(Json&& other);
     Json& operator=(const Json& other);
 
+    bool contains(const char* itemName) const;
+
 private:
     void reset(int newType = cJSON_NULL); //重置为Null对象
     void moveNode(cJSON* dest, cJSON* source);

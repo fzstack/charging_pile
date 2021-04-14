@@ -17,8 +17,10 @@ RebooterLocal::RebooterLocal(std::shared_ptr<Air724> air724, std::shared_ptr<Pac
 }
 
 void RebooterLocal::reboot() {
-    air724->reset();
-    packet->emit<Packets::Reboot>({});
     rt_hw_cpu_reset();
 }
 
+void RebooterLocal::rebootAll() {
+    air724->reset();
+    packet->emit<Packets::Reboot>({});
+}

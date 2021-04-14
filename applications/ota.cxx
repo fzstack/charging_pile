@@ -12,64 +12,30 @@
 extern "C" {
 #include <fal.h>
 }
+#include <components/ota_upper_module.hxx>
 
 using namespace std;
 
 Ota::Ota(shared_ptr<SharedThread> thread): thread(thread) {
-    timer.onRun += [=]{
-        if(*progress != innerProgress) {
-            progress = innerProgress;
-        }
-    };
 
-    timer.start();
 }
 
-void Ota::start(string_view version, string_view module, shared_ptr<IStream> stream, int size) {
-    thread->exec([this, stream, size]{
-        try {
-            rt_kprintf("OTA RUNNING...\n");
-            innerProgress = 0;
-            progress = 0;
-            running = true;
-            auto guard = shared_ptr<void>(nullptr, [this](auto) {
-                running = false;
-            });
-            auto parti = fal_partition_find(kPartiName);
-            if(parti == nullptr) {
-                onError(Error::UpdateFailed, "分区不存在");
-                return;
-            }
-            rt_kprintf("erasing parti...\n");
-            if(fal_partition_erase(parti, 0, size) < 0) {
-                onError(Error::UpdateFailed, "分区擦除失败");
-                return;
-            }
-
-            vector<rt_uint8_t> buf(kBufSize);
-            int recvedLen, currPos = 0;
-
-            rt_kprintf("downloading...\n");
-            while((recvedLen = stream->readData(&buf[0], kBufSize)) != 0) {
-                fal_partition_write(parti, currPos, &buf[0], recvedLen);
-                currPos += recvedLen;
-                innerProgress = 100 * currPos / size;
-            }
-            if(currPos == size) {
-                onDone();
-            } else {
-                onError(Error::DownloadFailed, "下载失败");
-            }
-        } catch(const exception& e) {
-            onError(Error::DownloadFailed, "下载失败");
-        }
-
-    });
+void Ota::start(std::string_view version, std::string_view module, std::shared_ptr<IStream> stream, int size) {
+    auto mod = getModule(module);
+    if(mod != nullptr)
+        mod->start(version, stream, size);
 }
 
-bool Ota::isRunning() {
-    return running;
+shared_ptr<OtaModule> Ota::getModule(string_view module) {
+    if(module == "upper") {
+        return make_shared<OtaUpperModule>(this);
+    } else if(module == "lower") {
+
+    }
+    rt_kprintf("module not found\n");
+    return nullptr;
 }
+
 
 const char* Ota::kPartiName = "download";
 

@@ -5,14 +5,13 @@
  *
  * Change Logs:
  * Date           Author       Notes
- * 2021-04-08     imgcr       the first version
+ * 2021-04-14     imgcr       the first version
  */
 #pragma once
 
-class Rebooter {
-public:
-    virtual void reboot() = 0;
-    virtual void rebootAll() {};
+enum class OtaError {
+    UpdateFailed = -1,
+    DownloadFailed = -2,
 };
 
 

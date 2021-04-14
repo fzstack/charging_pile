@@ -27,5 +27,4 @@ private:
     std::shared_ptr<AppState> state = Preset::AppState::get();
     std::shared_ptr<WatchDog> watchDog = Preset::WatchDog::get();
     std::shared_ptr<Ota> ota = Preset::Ota::get();
-    bool updated = false;
 };

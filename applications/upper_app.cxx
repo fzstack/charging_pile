@@ -14,12 +14,12 @@ UpperApp::UpperApp() {
         storage->write(ver);
     }
 
-    auto lastVer = storage->read<Config::LastVersion>();
-    if(lastVer.upper != Version::upper) {
-        updated = true;
-        lastVer.upper = Version::upper;
-        storage->write(lastVer);
-    }
+//    auto lastVer = storage->read<Config::LastVersion>();
+//    if(lastVer.upper != Version::upper) {
+//        updated = true;
+//        lastVer.upper = Version::upper;
+//        storage->write(lastVer);
+//    }
 }
 
 void UpperApp::run() {
@@ -50,7 +50,7 @@ void UpperApp::run() {
     };
 
     cloud->onReboot += [=]{
-        rebooter->reboot();
+        rebooter->rebootAll();
     };
 
     cloud->onReadConfig += [=] {
@@ -62,33 +62,23 @@ void UpperApp::run() {
     };
 
     cloud->onOta += [=](std::string version, std::string module, std::shared_ptr<IStream> stream, int size) {
-        if(version == Version::upper) {
-            cloud->emitOtaProgress(100, "done", "default");
-            updated = false;
+        if(version == Version::upper)
             return;
-        }
         ota->start(version, module, stream, size);
     };
 
-    ota->onError += [=](auto e, auto desc) {
-        cloud->emitOtaProgress((int)e, desc, "default");
+    ota->onError += [=](auto module, auto e, auto desc) {
+        cloud->emitOtaProgress((int)e, desc, module);
         state->progress = std::nullopt;
     };
 
-    cloud->onTimer += [=]() {
-        if(updated) {
-            cloud->emitOtaProgress(100, "done", "default");
-            updated = false;
-        }
-    };
-
-    ota->oProgress += [=](auto value) {
+    ota->onProgress += [=](auto module, auto value) {
         rt_kprintf("%d\n", value);
-        cloud->emitOtaProgress(value < 99 ? value : 99, "download", "default");
+        cloud->emitOtaProgress(value, "download", module);
         state->progress = value;
     };
 
-    ota->onDone += [=]{
+    ota->onDone += [=](auto module){
         rt_kprintf("OTA REBOOTING...\n");
         rebooter->reboot();
     };

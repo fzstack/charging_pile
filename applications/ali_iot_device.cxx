@@ -55,8 +55,11 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
                 ->setUrl(d["url"_s])
                 ->setMethod(HttpMethod::Get));
             rt_kprintf("invoking ota cb...\n");
-            //d["module"_s]
-            ota(d["version"_s], "default", stream, d["size"_i]);
+            auto module = "default"s;
+            if(d.contains("module")) {
+                module = d["module"_s];
+            }
+            ota(d["version"_s], module, stream, d["size"_i]);
             rt_kprintf("ota cb returned\n");
             return;
         }

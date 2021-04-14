@@ -7,7 +7,7 @@ const int
     Packet::kThreadPrio = 5,
     Packet::kThreadTick = 2;
 
-template<> const int SharedThread<Priority::Middle>::kThreadStack = 2304;
+template<> const int SharedThread<Priority::Middle>::kThreadStack = 2500;
 template<> const int SharedThread<Priority::Middle>::kThreadTick = 8;
 }
 
