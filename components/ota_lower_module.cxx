@@ -18,6 +18,8 @@ void OtaLowerModule::start(std::string_view version, std::shared_ptr<IStream> st
 
         vector<rt_uint8_t> buf(kBufSize);
         int recvedLen, currPos = 0;
+        rt_kprintf("erasing parti...\n");
+        rpc->invoke<Rpcs::Ota::Erase>({size});
         rt_kprintf("downloading...\n");
         while((recvedLen = stream->readData(&buf[0], kBufSize)) != 0) {
             //TODO: 发送数据给lower单片机
@@ -42,4 +44,8 @@ void OtaLowerModule::start(std::string_view version, std::shared_ptr<IStream> st
 
 std::string OtaLowerModule::getName() {
     return "lower";
+}
+
+std::string OtaLowerModule::getVersion() {
+    return rpc->invoke<Rpcs::Ota::GetVersion>({});;
 }

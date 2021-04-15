@@ -18,8 +18,16 @@ OtaLower::OtaLower(std::shared_ptr<Fal> fal, std::shared_ptr<Rpc> rpc): fal(fal)
         throw not_implemented{"ota parti not found"};
     }
 
+    rpc->def<Rpcs::Ota::Erase>([this](auto p) {
+        fal_partition_erase(parti, 0, p->size);
+    });
+
     rpc->def<Rpcs::Ota::Write>([this](auto p) {
         fal_partition_write(parti, p->addr, &p->data[0], p->data.size());
+    });
+
+    rpc->def<Rpcs::Ota::GetVersion>([](auto p){
+        return ::moduleVersion;
     });
 }
 

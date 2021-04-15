@@ -10,9 +10,12 @@
 using namespace Config;
 using namespace std;
 
-const char
-    *::Version::lower = "0.2.5",
-    *::Version::upper = "0.2.6";
+#ifdef UPPER_END
+const char* moduleVersion = "0.2.5";
+#endif
+#ifdef LOWER_END
+const char* moduleVersion = "0.2.5";
+#endif
 
 namespace Preset {
 const int

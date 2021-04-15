@@ -11,6 +11,7 @@
 extern "C" {
 #include <fal.h>
 }
+#include <config/app.hxx>
 
 using namespace std;
 
@@ -52,6 +53,10 @@ void OtaUpperModule::start(std::string_view version, std::shared_ptr<IStream> st
 
 std::string OtaUpperModule::getName() {
     return "upper";
+}
+
+std::string OtaUpperModule::getVersion() {
+    return ::moduleVersion;
 }
 
 const char* OtaUpperModule::kPartiName = "download";

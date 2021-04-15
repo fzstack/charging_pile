@@ -24,6 +24,7 @@ public:
     OtaModule(outer_t* outer);
     virtual void start(std::string_view version, std::shared_ptr<IStream> stream, int size) = 0;
     virtual std::string getName() = 0;
+    virtual std::string getVersion() = 0;
 protected:
     void setProgress(int value);
     std::shared_ptr<SharedThread> getThread();

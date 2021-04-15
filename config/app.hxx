@@ -3,9 +3,7 @@
 #include <string>
 #include <utilities/nat_port.hxx>
 
-struct Version {
-    static const char *lower, *upper;
-};
+extern const char* moduleVersion;
 
 namespace Config {
 struct Cloud {

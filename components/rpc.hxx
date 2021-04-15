@@ -15,6 +15,7 @@
 #include <utilities/serialize_utilities.hxx>
 #include <utilities/shared_thread.hxx>
 #include <utilities/tiny_type_id.hxx>
+#include <components/timer.hxx>
 
 struct Void {
 
@@ -74,14 +75,22 @@ private:
     using def_cb_param_t = std::variant<result_t<T>, std::exception_ptr>;
 
     struct Pending {
-    protected:
-        virtual void v() {}
+    public:
+        virtual void timeout() = 0;
+    public:
+        const rt_tick_t createdTick = rt_tick_get();
     };
 
     template<class T>
     struct PendingImpl: public Pending {
         PendingImpl(std::function<void(ivk_cb_param_t<T>)> r): r(r) {}
-
+        virtual void timeout() override {
+            try {
+                throw timeout_error{"rpc invoke timeout"};
+            } catch(std::exception& e) {
+                r(std::current_exception());
+            }
+        }
         std::function<void(ivk_cb_param_t<T>)> r;
     };
 
@@ -277,8 +286,9 @@ private:
     std::map<id_t, std::shared_ptr<void>> ptrHolds;
     id_t curId = 0;
     rtthread::Mutex mutex = {kMutex};
+    Timer timer = {100, "rpc"};
     static constexpr int kMaxParallel = 2;
-    static constexpr int kTimeout = 1000;
+    static constexpr int kTimeout = 10 * 1000;
     static const char* kMutex;
 };
 

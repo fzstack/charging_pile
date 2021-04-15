@@ -160,7 +160,7 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
                 if(!firstBeated) {
                     firstBeated = true;
                     setIccid(this->appState->iccid);
-                    emitModuleVersion(Version::upper, "upper"); //TODO: 这边需要重构
+                    //emitModuleVersion(Version::upper, "upper"); //TODO: 这边需要重构
                 }
                 auto hb = Heartbeat {
                     signal: *this->appState->signal,

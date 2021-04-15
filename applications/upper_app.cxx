@@ -13,13 +13,6 @@ UpperApp::UpperApp() {
         rt_kprintf("old conf cleared\n");
         storage->write(ver);
     }
-
-//    auto lastVer = storage->read<Config::LastVersion>();
-//    if(lastVer.upper != Version::upper) {
-//        updated = true;
-//        lastVer.upper = Version::upper;
-//        storage->write(lastVer);
-//    }
 }
 
 void UpperApp::run() {
@@ -62,8 +55,6 @@ void UpperApp::run() {
     };
 
     cloud->onOta += [=](std::string version, std::string module, std::shared_ptr<IStream> stream, int size) {
-        if(version == Version::upper)
-            return;
         ota->start(version, module, stream, size);
     };
 
@@ -102,6 +93,11 @@ void UpperApp::run() {
     };
     state->cloudConnected.onChanged += [this](auto value) {
         watchDog->cancel();
+        for(auto& modName: {"upper", "lower"}) {
+            auto version = ota->getModule(modName)->getVersion();
+            rt_kprintf("%s: %s\n", modName, version.c_str());
+            cloud->emitModuleVersion(version, modName);
+        }
     };
     watchDog->resetAfter(60);
     handshake->hello();

@@ -22,6 +22,7 @@ Ota::Ota(shared_ptr<SharedThread> thread): thread(thread) {
 
 void Ota::start(std::string_view version, std::string_view module, std::shared_ptr<IStream> stream, int size) {
     auto mod = getModule(module);
+    if(mod->getVersion() == version) return;
     if(mod != nullptr)
         mod->start(version, stream, size);
 }

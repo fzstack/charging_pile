@@ -113,12 +113,17 @@ struct Write {
 }
 
 namespace Ota {
+struct Erase {
+    int size;
+};
+
 struct Write {
     int addr;
     std::vector<rt_uint8_t> data;
 };
-}
 
+struct GetVersion { };
+}
 }
 
 template<class T>
@@ -134,6 +139,11 @@ struct RpcTrait<Rpcs::PersistentStorage::Read<T>> {
 template<>
 struct RpcTrait<Rpcs::BackupMan::Read> {
     using result_t = Backup;
+};
+
+template<>
+struct RpcTrait<Rpcs::Ota::GetVersion> {
+    using result_t = std::string;
 };
 
 #endif /* CONFIG_CO_HXX_ */

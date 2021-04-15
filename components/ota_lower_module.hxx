@@ -16,6 +16,7 @@ class OtaLowerModule: public OtaModule {
 public:
     virtual void start(std::string_view version, std::shared_ptr<IStream> stream, int size) override;
     virtual std::string getName() override;
+    virtual std::string getVersion() override;
 private:
     std::shared_ptr<Rpc> rpc = Preset::Rpc::get();
     static constexpr int kBufSize = 100;
