@@ -112,6 +112,13 @@ struct Write {
 };
 }
 
+namespace Ota {
+struct Write {
+    int addr;
+    std::vector<rt_uint8_t> data;
+};
+}
+
 }
 
 template<class T>

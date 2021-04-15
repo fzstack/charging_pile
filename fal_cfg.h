@@ -43,6 +43,8 @@ extern struct fal_flash_dev nor_flash0;
 /* ====================== Partition Configuration ========================== */
 #ifdef FAL_PART_HAS_TABLE_CFG
 /* partition table */
+
+#ifdef UPPER_END
 #define FAL_PART_TABLE                                                               \
 {                                                                                    \
     {FAL_PART_MAGIC_WORD,        "bl",     "onchip_flash",         0,   36*1024, 0}, \
@@ -50,6 +52,19 @@ extern struct fal_flash_dev nor_flash0;
     {FAL_PART_MAGIC_WORD, "fdb_kvdb", NOR_FLASH_DEV_NAME,         0, 1024*1024, 0}, \
     {FAL_PART_MAGIC_WORD,  "download", NOR_FLASH_DEV_NAME, 1024*1024, 1024*1024, 0}, \
 }
+#endif
+
+#ifdef LOWER_END
+#define FAL_PART_TABLE                                                               \
+{                                                                                    \
+    {FAL_PART_MAGIC_WORD,        "bl",     "onchip_flash",         0,   36*1024, 0}, \
+    {FAL_PART_MAGIC_WORD,       "app",     "onchip_flash",   36*1024,  256*1024, 0}, \
+    {FAL_PART_MAGIC_WORD,  "download",     "onchip_flash",   292*1024,  220*1024, 0}, \
+}
+#endif
+
 #endif /* FAL_PART_HAS_TABLE_CFG */
+
+
 
 #endif /* _FAL_CFG_H_ */

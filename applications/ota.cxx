@@ -13,7 +13,7 @@ extern "C" {
 #include <fal.h>
 }
 #include <components/ota_upper_module.hxx>
-
+#include <components/ota_lower_module.hxx>
 using namespace std;
 
 Ota::Ota(shared_ptr<SharedThread> thread): thread(thread) {
@@ -30,7 +30,7 @@ shared_ptr<OtaModule> Ota::getModule(string_view module) {
     if(module == "upper") {
         return make_shared<OtaUpperModule>(this);
     } else if(module == "lower") {
-
+        return make_shared<OtaLowerModule>(this);
     }
     rt_kprintf("module not found\n");
     return nullptr;

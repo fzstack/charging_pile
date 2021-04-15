@@ -101,25 +101,20 @@ DevConfig Thing::readConfig() {
 
 #ifdef LOWER_END
 #include <things/decos/counter.hxx>
-#include <things/decos/event_emitter.hxx>
 #include <things/decos/current_limiter.hxx>
 #include <things/decos/backuper.hxx>
 #include <things/decos/data_setter.hxx>
 #include <things/decos/consumption_measurer.hxx>
-#include <things/decos/fuse_detecter.hxx>
 #include <things/decos/noload_detecter.hxx>
 using namespace Things::Decos;
 namespace Preset {
 ThingPre::ThingPre(): ::Thing(Chargers::get()) {
-    //addDeco<EventEmitter>(); //TODO: 使用count down //重构: 统一的port时钟回调
     addDeco<Counter>();
     addDeco<CurrentLimiter>();
     addDeco<NoloadDetecter>();
     addDeco<Backuper>();
     addDeco<DataSetter>();
-    addDeco<ConsumptionMeasurer>(); //在上报完成之后清零
-//    //addDeco<FuseDetecter>();
-
+    addDeco<ConsumptionMeasurer>();
 }
 }
 #endif

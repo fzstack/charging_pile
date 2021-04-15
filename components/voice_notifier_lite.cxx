@@ -19,6 +19,11 @@ using namespace std;
 //2. 声音可以由片段合成
 
 VoiceNotifierLite::VoiceNotifierLite(std::shared_ptr<Player> player, std::shared_ptr<AppState> state, std::shared_ptr<UserInput> userInput, std::shared_ptr<Keyboard> keybaord): player(player) {
+    state->cloudConnected.onChanged += [this, player](auto value) {
+        if(!value) return;
+        player->play(std::move(Voice{}.fragm(VoiceFragment::Welcome)));
+    };
+
     state->portStateChanged += [this, player](auto port, auto state) {
         switch(state) {
         case State::Charging:
@@ -33,11 +38,11 @@ VoiceNotifierLite::VoiceNotifierLite(std::shared_ptr<Player> player, std::shared
     };
 
     userInput->onConfirm += [player](auto port, auto cardId){
-        player->play(std::move(Voice{}.fragm(VoiceFragment::Welcome)), Player::Level::Important);
+        player->play(std::move(Voice{}.fragm(VoiceFragment::CardSwipeOk)), Player::Level::Important);
     };
 
     userInput->onCardSwipe += [player](auto cardId) {
-        player->play(std::move(Voice{}.fragm(VoiceFragment::CardSwipeOk)), Player::Level::Important);
+        player->play(std::move(Voice{}.fragm(VoiceFragment::PortSelectRequired)), Player::Level::Important);
     };
 
     userInput->onError += [player](auto error) {
