@@ -122,7 +122,7 @@ public:
     template<class T>
     void emit(T&& t, std::function<void(std::shared_ptr<void>, rt_uint8_t index)> holder = nullptr) {
 #ifdef LOG_PKG_EMIT
-        rt_kprintf("emit %s => %08x\n", typeid(T).name(), typeid(T).hash_code());
+        rt_kprintf("emit %08x\n", TypeId<T>::get());
 #endif
         auto emitter = std::make_shared<Emitter>(this, TypeId<T>::get());
         //序列化器序列化到指针的时候，需要通知outter持有指针的引用
@@ -177,7 +177,7 @@ class Packet: public Singleton<Packet>, public ::Packet {
 
     static serial_configure* getConf() {
         static serial_configure conf = RT_SERIAL_CONFIG_DEFAULT;
-        conf.baud_rate = BAUD_RATE_4800;
+        conf.baud_rate = BAUD_RATE_9600;
         //conf.parity = PARITY_ODD;
         conf.bufsz = 1024;
         return &conf;

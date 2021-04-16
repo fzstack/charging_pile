@@ -4,6 +4,9 @@
 #include <rtthread.h>
 #include <utilities/cmd.hxx>
 #include <string>
+#include <utilities/shared_thread.hxx>
+#include <utilities/mp.hxx>
+#include <cstdlib>
 
 #define LOG_TAG "test.packet"
 #define LOG_LVL LOG_LVL_DBG
@@ -36,6 +39,11 @@ struct TestMap {
 
 struct TestArray {
     std::array<int, 2> values;
+};
+
+template<int N>
+struct TestMess {
+    vector<rt_uint8_t> data;
 };
 
 }
@@ -78,6 +86,37 @@ static void test_packet_array(int argc, char** argv) {
     packet->emit<Packets::TestArray>({{atoi(argv[1]), atoi(argv[2])}});
 }
 
+static constexpr int kThrCnt = 5, kDataLen = 1024;
+
+struct Mess {
+    std::shared_ptr<SharedThread> thread = std::make_shared<SharedThread>(1024, 22, 1);
+};
+
+auto messes = array<Mess, kThrCnt>{};
+
+static void test_packet_mess() {
+    auto packet = Preset::Packet::get();
+    for(auto i = 0u; i < messes.size(); i++) {
+        messes[i].thread->exec([=]{
+            for(auto j = 0; j < 100; j++) {
+
+                auto data = vector<rt_uint8_t>{};
+                auto len = rand() % kDataLen;
+                for(auto k = 0; k < len; k++) {
+                    data.push_back((rt_uint8_t)rand());
+                }
+
+                rt_thread_mdelay(rand() % 1000);
+
+                rt_kprintf("[======================================================t%d======================================================]\n", i);
+                magic_switch<kThrCnt>{}([&](auto v) {
+                    packet->emit<Packets::TestMess<decltype(v)::value>>({std::move(data)});
+                }, i);
+            }
+        });
+    }
+}
+
 static int init_test_packet() {
     auto packet = Preset::Packet::get();
 
@@ -117,6 +156,25 @@ static int init_test_packet() {
         rt_kprintf("\n");
     });
 
+    for(auto i = 0; i < kThrCnt; i++) {
+        magic_switch<kThrCnt>{}([&](auto v){
+            packet->on<Packets::TestMess<decltype(v)::value>>([=](auto p) {
+                //DO NOTHING
+                messes[0].thread->exec([=]{
+                    rt_thread_mdelay(100);
+                    rt_kprintf("[%08x]{%d} %d\n", rt_tick_get(), i, p->data.size());
+                });
+
+            });
+        }, i);
+    }
+
+
+
+    for(auto& mess: messes) {
+        mess.thread->start();
+    }
+
     return RT_EOK;
 }
 
@@ -126,4 +184,5 @@ MSH_CMD_EXPORT(test_packet_opt, );
 MSH_CMD_EXPORT(test_packet_scores, );
 MSH_CMD_EXPORT(test_packet_map, );
 MSH_CMD_EXPORT(test_packet_array, );
+MSH_CMD_EXPORT(test_packet_mess, );
 #endif
