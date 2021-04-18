@@ -11,5 +11,5 @@ void CloudTimer::start() {
 }
 
 void CloudTimer::run() {
-    outer->setSignalInterval();
+    outer->onHeartbeat();
 }

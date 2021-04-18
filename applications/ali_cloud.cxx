@@ -153,32 +153,6 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
         rt_kprintf("try login device...\n");
         this->device->login(this->appState->imei, Config::Cloud::productKey, Config::Cloud::productSecret);
 
-        this->device->thread->exec([=]{
-            auto imei = this->appState->imei;
-            imei = imei.substr(imei.size() - 12);
-            heartbeat += this->device->thread->post([=](){
-                if(!firstBeated) {
-                    firstBeated = true;
-                    setIccid(this->appState->iccid);
-                    //emitModuleVersion(Version::upper, "upper"); //TODO: 这边需要重构
-                }
-                auto hb = Heartbeat {
-                    signal: *this->appState->signal,
-                    imeiSuff: imei,
-                    temperature: (int)this->appState->dht11->oTemperature,
-                    humidity: (int)this->appState->dht11->oHumidity,
-                    smoke: 0,
-                    timestamp: (int)rt_tick_get(),
-                };
-                emitHeartbeat(std::move(hb));
-
-                rt_uint32_t total, maxUsed;
-                rt_memory_info(&total, nullptr, &maxUsed);
-                this->device->log("mem: "s + to_string(100 * maxUsed / total) + "%, middle: " + to_string(this->device->thread->maxUsed()) + "%");
-                onTimer();
-            });
-        });
-
         psTimer.start();
         Cloud::init();
         initDone = true;
@@ -274,9 +248,5 @@ void AliCloud::emitOtaProgress(int step, std::string_view desc, std::string_view
     device->thread->exec([this, step, desc = string{desc}, module = string{module}]{
         device->otaEmitProgress(step, desc, module);
     });
-}
-
-void AliCloud::setSignalInterval() {
-    heartbeat();
 }
 

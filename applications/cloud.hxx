@@ -31,7 +31,6 @@ public:
 
     Signals<void()> onQuery = {};
     Signals<void()> onReboot = {};
-    Signals<void()> onTimer = {};
 
     struct ServiceResult {
         enum Value {
@@ -44,10 +43,8 @@ public:
     Signals<void(DevConfig conf)> onConfig = {};
     Signals<DevConfig()> onReadConfig = {};
     Signals<void(int balance, BroadcastType type)> onBroadcast = {};
-    Signals<void(std::string version, std::string module, std::shared_ptr<IStream>, int size)> onOta;
-
-protected:
-    virtual void setSignalInterval() = 0;
+    Signals<void(std::string version, std::string module, std::shared_ptr<IStream>, int size)> onOta = {};
+    Signals<void()> onHeartbeat = {};
 
 private:
     std::shared_ptr<CloudTimer> timer;

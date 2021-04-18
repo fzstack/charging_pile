@@ -34,9 +34,6 @@ public:
         return device->thread->post(std::forward<Args>(args)...);
     }
 
-protected:
-    virtual void setSignalInterval() override;
-
 private:
     struct Spec {
         CountDown<> fPlugged = {};
@@ -52,10 +49,8 @@ private:
     std::shared_ptr<AliIotDevice> device;
     std::shared_ptr<Air724> air;
     std::shared_ptr<AppState> appState;
-    Signals<void()> heartbeat = {};
     Observable<bool> inited = {false};
     rt_tick_t lastSetTick = 0;
-    bool firstBeated = false;
 };
 
 #include <utilities/singleton.hxx>

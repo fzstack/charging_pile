@@ -58,6 +58,18 @@ void UpperApp::run() {
         ota->start(version, module, stream, size);
     };
 
+    cloud->onHeartbeat += [=] {
+        if(ota->isRunning()) return;
+        cloud->emitHeartbeat(std::move(Heartbeat {
+            signal: state->signal,
+            imeiSuff: state->imei,
+            temperature: (int)state->dht11->oTemperature,
+            humidity: (int)state->dht11->oHumidity,
+            smoke: 0,
+            timestamp: (int)rt_tick_get(),
+        }));
+    };
+
     ota->onError += [=](auto module, auto e, auto desc) {
         cloud->emitOtaProgress((int)e, desc, module);
         state->progress = std::nullopt;
@@ -93,10 +105,16 @@ void UpperApp::run() {
     };
     state->cloudConnected.onChanged += [this](auto value) {
         watchDog->cancel();
+        cloud->setIccid(state->iccid);
         for(auto& modName: {"upper", "lower"}) {
-            auto version = ota->getModule(modName)->getVersion();
-            rt_kprintf("%s: %s\n", modName, version.c_str());
-            cloud->emitModuleVersion(version, modName);
+            ota->getModule(modName)->getVersion([this, modName](auto v) {
+                auto version = std::get_if<std::string>(&v);
+                if(version != nullptr) {
+                    rt_kprintf("%s: %s\n", modName, version->c_str());
+                    cloud->emitModuleVersion(*version, modName);
+                }
+            });
+
         }
     };
     watchDog->resetAfter(60);
