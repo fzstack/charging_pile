@@ -11,22 +11,31 @@ using namespace Packets;
 LocalThing::LocalThing(
     std::shared_ptr<Thing> thing,
     std::shared_ptr<Packet> packet,
-    std::shared_ptr<Rpc> rpc
-): thing(thing), packet(packet), rpc(rpc) {
+    std::shared_ptr<Rpc> rpc,
+    std::shared_ptr<SharedThread> thread
+): thing(thing), packet(packet), rpc(rpc), thread(thread) {
     packet->on<Services::Control>([this](auto p) {
-        control(p->port, p->timerId, p->minutes);
+        this->thread->exec([=]{
+            control(p->port, p->timerId, p->minutes);
+        });
     });
     packet->on<Services::Stop>([this](auto p) {
-        stop(p->port, p->timerId);
+        this->thread->exec([=]{
+            stop(p->port, p->timerId);
+        });
     });
     packet->on<Services::Config>([this](auto p){
-        config(p->conf);
+        this->thread->exec([=]{
+            config(p->conf);
+        });
     });
     packet->on<Services::Query>([this](auto p) {
+        this->thread->exec([=]{
 #ifdef LOG_LT_INVOKE
-        rt_kprintf("on remote query\n");
+            rt_kprintf("on remote query\n");
 #endif
-        query();
+            query();
+        });
     });
 
     thing->onPortAccess += [this](auto port) {
