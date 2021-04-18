@@ -15,7 +15,7 @@ class OtaUpperModule: public OtaModule {
 public:
     virtual void start(std::string_view version, std::shared_ptr<IStream> stream, int size) override;
     virtual std::string getName() override;
-    virtual std::string getVersion() override;
+    virtual void getVersion(std::function<void(std::variant<std::string, std::exception_ptr>)> cb) override;
 private:
     static const char* kPartiName;
     static constexpr int kBufSize = 100;

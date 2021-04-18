@@ -13,13 +13,15 @@ extern "C" {
 #include <fal.h>
 }
 #include <components/fal.hxx>
+#include <utilities/shared_thread.hxx>
 
 class OtaLower {
 public:
-    OtaLower(std::shared_ptr<Fal> fal, std::shared_ptr<Rpc> rpc);
+    OtaLower(std::shared_ptr<Fal> fal, std::shared_ptr<Rpc> rpc, std::shared_ptr<SharedThread> thread);
 private:
     std::shared_ptr<Fal> fal;
     std::shared_ptr<Rpc> rpc;
+    std::shared_ptr<SharedThread> thread;
     const fal_partition *parti;
     static const char* kPartiName;
 };
@@ -28,7 +30,7 @@ private:
 namespace Preset {
 class OtaLower: public Singleton<OtaLower>, public ::OtaLower {
     friend singleton_t;
-    OtaLower(): ::OtaLower(Fal::get(), Rpc::get()) {}
+    OtaLower(): ::OtaLower(Fal::get(), Rpc::get(), SharedThread<Priority::Low>::get()) {}
 };
 }
 

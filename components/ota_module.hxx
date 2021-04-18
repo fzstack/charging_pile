@@ -16,6 +16,8 @@
 #include <memory>
 #include <utilities/istream.hxx>
 #include <components/timer.hxx>
+#include <functional>
+#include <variant>
 
 class Ota;
 
@@ -24,7 +26,7 @@ public:
     OtaModule(outer_t* outer);
     virtual void start(std::string_view version, std::shared_ptr<IStream> stream, int size) = 0;
     virtual std::string getName() = 0;
-    virtual std::string getVersion() = 0;
+    virtual void getVersion(std::function<void(std::variant<std::string, std::exception_ptr>)> cb) = 0;
 protected:
     void setProgress(int value);
     std::shared_ptr<SharedThread> getThread();

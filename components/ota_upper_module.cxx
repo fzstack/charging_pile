@@ -55,8 +55,8 @@ std::string OtaUpperModule::getName() {
     return "upper";
 }
 
-std::string OtaUpperModule::getVersion() {
-    return ::moduleVersion;
+void OtaUpperModule::getVersion(std::function<void(std::variant<std::string, std::exception_ptr>)> cb) {
+    cb(::moduleVersion);
 }
 
 const char* OtaUpperModule::kPartiName = "download";

@@ -1,43 +1,73 @@
 #include <components/ota_lower_module.hxx>
-#include <vector>
 #include <config/co.hxx>
 
 using namespace std;
 
 void OtaLowerModule::start(std::string_view version, std::shared_ptr<IStream> stream, int size) {
+    currPos = 0;
+    recvedLen = 0;
+
+    cb = [this, self = shared_from_this(), stream, size](variant<Void, exception_ptr> rv){
+        getThread()->exec([this, self, stream, size, rv]{ //low线程
+            auto err = get_if<exception_ptr>(&rv);
+            if(err) {
+                //重新写入数据
+                rt_uint32_t memUsed;
+                rt_memory_info(nullptr, &memUsed, nullptr);
+                rt_kprintf("r@%d, m:%d\n", currPos, memUsed);
+//                dog->feed();
+//                rt_thread_mdelay(200);
+                rpc->invoke<Rpcs::Ota::Write>({currPos, buf}, cb, 1000); //low线程返回
+//                auto middle = Preset::SharedThread<Priority::Middle>::get();
+//                middle->exec([this](){
+//                    this->cb(Void{});
+//                });
+            } else {
+                //读取下一个数据
+                currPos += recvedLen;
+                setProgress(100 * currPos / size);
+                try {
+                    buf.resize(kBufSize);
+                    recvedLen = stream->readData(&buf[0], kBufSize);
+                    buf.resize(recvedLen);
+//                    if(testRemain >= kBufSize) {
+//                        recvedLen = kBufSize;
+//                        testRemain -= kBufSize;
+//                    } else {
+//                        recvedLen = testRemain;
+//                        testRemain = 0;
+//                    }
+                } catch(exception& e) {
+                    emitError(OtaError::DownloadFailed, "下载失败");
+                    return;
+                }
+                if(recvedLen == 0) {
+                    if(currPos == size) {
+                        //emitDone(); //TODO: 完成
+                    } else {
+                        emitError(OtaError::DownloadFailed, "下载失败");
+                    }
+                    return;
+                }
+                cb(make_exception_ptr(not_implemented{"write"})); //low线程
+            }
+        });
+    };
+
     getThread()->exec([this, self = shared_from_this(), stream, size]() mutable {
         rt_kprintf("LOWER OTA RUNNING\n");
-
-        //发送方：create stream
-        //接收方：onCreate
-
-        //接收方：read
-        //发送方：onRead
-
-        //开始发送数据
-
-        vector<rt_uint8_t> buf(kBufSize);
-        int recvedLen, currPos = 0;
         rt_kprintf("erasing parti...\n");
-        rpc->invoke<Rpcs::Ota::Erase>({size});
-        rt_kprintf("downloading...\n");
-        while((recvedLen = stream->readData(&buf[0], kBufSize)) != 0) {
-            //TODO: 发送数据给lower单片机
-            rpc->invoke<Rpcs::Ota::Write>({currPos, std::move(buf)});
-            currPos += recvedLen;
-            setProgress(100 * currPos / size);
-        }
-
-        //封包：
-        //..数据流(upper -> lower): id + 部分数据
-        //..数据接收Ack(lower -> upper): id
-        //..数据写入完成(lower -> upper): id
-
-
-        //1.[数据流]
-        //2.upper等待lower接收数据，如果x秒后无[数据接收Ack]，则重发数据, 如果x秒内有[数据接收Ack]则等待[数据写入完成]
-        //3.lower接收到[数据流]时, 发送每隔y秒发送[数据接收Ack],
-
+        rpc->invoke<Rpcs::Ota::Erase>({size}, [this, self, stream, size](auto r) {
+            getThread()->exec([=]{
+                auto err = get_if<exception_ptr>(&r);
+                if(err != nullptr) {
+                    emitError(OtaError::UpdateFailed, "分区擦除失败");
+                    return;
+                }
+                rt_kprintf("downloading...\n");
+                cb(Void{});
+            });
+        });
     });
 
 }
@@ -46,6 +76,7 @@ std::string OtaLowerModule::getName() {
     return "lower";
 }
 
-std::string OtaLowerModule::getVersion() {
-    return rpc->invoke<Rpcs::Ota::GetVersion>({});;
+void OtaLowerModule::getVersion(std::function<void(std::variant<std::string, std::exception_ptr>)> cb) {
+    rpc->invoke<Rpcs::Ota::GetVersion>({}, cb);
 }
+

@@ -25,12 +25,14 @@ public:
     Ota(std::shared_ptr<SharedThread> thread);
     std::shared_ptr<OtaModule> getModule(std::string_view module);
     void start(std::string_view version, std::string_view module, std::shared_ptr<IStream> stream, int size);
+    bool isRunning();
 public:
-    Signals<void(std::string_view module)> onDone;
-    Signals<void(std::string_view module, int value)> onProgress;
-    Signals<void(std::string_view module, OtaError e, std::string_view desc)> onError;
+    Signals<void(std::string_view module)> onDone = {};
+    Signals<void(std::string_view module, int value)> onProgress = {};
+    Signals<void(std::string_view module, OtaError e, std::string_view desc)> onError = {};
 private:
     std::shared_ptr<SharedThread> thread;
+    bool running = false;
     static const char* kPartiName;
     static constexpr int kBufSize = 100;
 
