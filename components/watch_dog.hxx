@@ -17,6 +17,7 @@ public:
     WatchDog(uint32_t timeout);
     void resetAfter(rt_uint8_t durationS);
     void cancel();
+    void feed();
 private:
     Timer timer = {1000, "wdt"};
     bool feedCond = true;

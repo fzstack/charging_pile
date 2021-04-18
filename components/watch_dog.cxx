@@ -16,9 +16,7 @@ WatchDog::WatchDog(uint32_t timeout): wdtDev(rt_device_find("wdt")) {
     rt_device_control(wdtDev, RT_DEVICE_CTRL_WDT_START, RT_NULL);
     rt_thread_idle_sethook([](){
         auto self = Preset::WatchDog::get();
-        if(self->feedCond) {
-            rt_device_control(self->wdtDev, RT_DEVICE_CTRL_WDT_KEEPALIVE, NULL);
-        }
+        self->feed();
     });
 
     timer.onRun += [this]{
@@ -39,4 +37,10 @@ void WatchDog::resetAfter(rt_uint8_t durationS) {
 
 void WatchDog::cancel() {
     f.reset();
+}
+
+void WatchDog::feed() {
+    if(feedCond) {
+        rt_device_control(wdtDev, RT_DEVICE_CTRL_WDT_KEEPALIVE, NULL);
+    }
 }
