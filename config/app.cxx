@@ -14,7 +14,7 @@ using namespace std;
 const char* moduleVersion = "0.2.5";
 #endif
 #ifdef LOWER_END
-const char* moduleVersion = "0.2.5";
+const char* moduleVersion = "0.2.7";
 #endif
 
 namespace Preset {

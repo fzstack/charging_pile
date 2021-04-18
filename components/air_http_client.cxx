@@ -27,7 +27,7 @@ string AirHttpClient::send(shared_ptr<HttpRequest> request) {
 
 std::shared_ptr<IStream> AirHttpClient::stream(std::shared_ptr<HttpRequest> request) {
     //自己使用weak_ptr保存stream的指针
-    auto sess = sendInternal(request, 3000);
+    auto sess = sendInternal(request, 10000);
     return std::make_shared<Stream>(this, sess);
 }
 
@@ -58,8 +58,15 @@ AirHttpClient::Session AirHttpClient::sendInternal(std::shared_ptr<HttpRequest> 
             at_obj_exec_cmd(getAtClient(), resp.get(), "AT+HTTPTERM");
         }),
     };
-    if(at_obj_exec_cmd(getAtClient(), resp.get(), "AT+HTTPINIT") != RT_EOK)
-        throw runtime_error{"timeout when initing http"};
+    int res;
+    do {
+        res = at_obj_exec_cmd(getAtClient(), resp.get(), "AT+HTTPINIT");
+        if(res == -2)
+            throw runtime_error{"timeout when initing http"};
+        if(res == -1) {
+            at_obj_exec_cmd(getAtClient(), resp.get(), "AT+HTTPTERM");
+        }
+    } while(res != RT_EOK);
     if(at_obj_exec_cmd(getAtClient(), resp.get(), "AT+HTTPPARA=\"CID\",1") != RT_EOK)
         throw runtime_error{"timeout when setting cid"};
     if(at_obj_exec_cmd(getAtClient(), resp.get(), "AT+HTTPPARA=\"URL\",\"%s\"", request->getUrl().data()) != RT_EOK)

@@ -8,11 +8,12 @@
 #include <config/co.hxx>
 #include <co/local.hxx>
 #include <optional>
+#include <utilities/shared_thread.hxx>
 
 //代理模式
 class LocalFalPersistentStorage: public Local {
 public:
-    LocalFalPersistentStorage(std::shared_ptr<FalPersistentStorage> storage, std::shared_ptr<Rpc> rpc, std::shared_ptr<Packet> packet);
+    LocalFalPersistentStorage(std::shared_ptr<FalPersistentStorage> storage, std::shared_ptr<Rpc> rpc, std::shared_ptr<Packet> packet, std::shared_ptr<SharedThread> thread);
 
 //    template<class T>
 //    auto make() {
@@ -41,12 +42,16 @@ public:
 
     template<class T>
     void def() { //请在预设类中调用，定义可远程访问的配置
-        rpc->def<Rpcs::PersistentStorage::Read<T>>([this](auto p) {
-            return read<T>();
+        rpc->def<Rpcs::PersistentStorage::Read<T>>([this](auto p, auto r) {
+            thread->exec([this, r]{
+                r(read<T>());
+            });
         });
 
         packet->on<Rpcs::PersistentStorage::Write<T>>([this](auto p) {
-            write<T>(std::move(p->data));
+            thread->exec([=]{
+                write<T>(std::move(p->data));
+            });
         });
     }
 
@@ -58,6 +63,7 @@ private:
     std::shared_ptr<FalPersistentStorage> storage;
     std::shared_ptr<Rpc> rpc;
     std::shared_ptr<Packet> packet;
+    std::shared_ptr<SharedThread> thread;
 };
 
 #include <utilities/singleton.hxx>
@@ -69,7 +75,7 @@ private:
 namespace Preset {
 class LocalFalPersistentStorage: public Singleton<LocalFalPersistentStorage>, public ::LocalFalPersistentStorage {
     friend singleton_t;
-    LocalFalPersistentStorage(): ::LocalFalPersistentStorage(FalPersistentStorage::get(), Rpc::get(), Packet::get()) {
+    LocalFalPersistentStorage(): ::LocalFalPersistentStorage(FalPersistentStorage::get(), Rpc::get(), Packet::get(), SharedThread<Priority::Middle>::get()) {
         using namespace Things::Decos;
 
         def<Params::CurrentLimiter>(); //0.64kB per config
