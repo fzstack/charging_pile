@@ -10,6 +10,7 @@
 
 #include <rtthread.h>
 #include "crt.h"
+#include <cstring>
 
 void *operator new(size_t size)
 {
