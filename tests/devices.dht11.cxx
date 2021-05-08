@@ -22,10 +22,10 @@ void test_dht11(int argc, char** argv) {
                 auto dht11 = Preset::Dht11::get();
                 cmd.select<string>({
                     {"humi", [&]{
-                        rt_kprintf("humi: %d%%\n", int(dht11->getHumidity()));
+                        rt_kprintf("humi: %d%%\n", int(dht11->oHumidity.value()));
                     }},
                     {"temp", [&]{
-                        rt_kprintf("temp: %d℃\n", int(dht11->getTemperature()));
+                        rt_kprintf("temp: %d℃\n", int(dht11->oTemperature.value()));
                     }}
                 });
             }}

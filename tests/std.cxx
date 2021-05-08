@@ -44,11 +44,11 @@ void test_stl_array() {
     rt_kprintf("size of v: %d\n", sizeof(v));
 }
 
-#include <config/app.hxx>
-void test_stl_rtti_enum() {
-    auto& t = typeid(State::Value);
-    rt_kprintf("name: %s, hash: %08x\n", t.name(), t.hash_code());
-}
+//#include <config/app.hxx>
+//void test_stl_rtti_enum() {
+//    auto& t = typeid(State::Value);
+//    rt_kprintf("name: %s, hash: %08x\n", t.name(), t.hash_code());
+//}
 
 #include <optional>
 void test_optional() {
@@ -63,25 +63,42 @@ struct Response {
     U data;
 };
 
-void test_stl_rtti_unused_temp() {
-    struct Req1 {
-
-    };
-
-    struct Req2 {
-
-    };
-
-    using Res1 = Response<Req1, int>;
-    using Res2 = Response<Req2, int>;
-    rt_kprintf("[Res1] type name: %s, hash code: %08x\n", typeid(Res1).name(), typeid(Res1).hash_code());
-    rt_kprintf("[Res2] type name: %s, hash code: %08x\n", typeid(Res2).name(), typeid(Res2).hash_code());
-}
+//void test_stl_rtti_unused_temp() {
+//    struct Req1 {
+//
+//    };
+//
+//    struct Req2 {
+//
+//    };
+//
+//    using Res1 = Response<Req1, int>;
+//    using Res2 = Response<Req2, int>;
+//    rt_kprintf("[Res1] type name: %s, hash code: %08x\n", typeid(Res1).name(), typeid(Res1).hash_code());
+//    rt_kprintf("[Res2] type name: %s, hash code: %08x\n", typeid(Res2).name(), typeid(Res2).hash_code());
+//}
 
 MSH_CMD_EXPORT(test_stl_vector, );
 MSH_CMD_EXPORT(test_stl_array, );
-MSH_CMD_EXPORT(test_stl_rtti_enum, );
+//MSH_CMD_EXPORT(test_stl_rtti_enum, );
 MSH_CMD_EXPORT(test_optional, );
-MSH_CMD_EXPORT(test_stl_rtti_unused_temp, );
+//MSH_CMD_EXPORT(test_stl_rtti_unused_temp, );
+
+
+void test_mutable_cb() {
+    auto x = 5;
+    auto lbd = [x]() mutable {
+        rt_kprintf("%d\n", x--);
+    };
+
+    for(auto i = 0; i < x; i++) {
+        lbd();
+    }
+
+    rt_kprintf("x: %d\n", x);
+}
+
+MSH_CMD_EXPORT(test_mutable_cb,);
+
 #endif
 

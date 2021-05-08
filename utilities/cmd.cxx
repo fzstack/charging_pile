@@ -44,13 +44,13 @@ void Cmd::operator()(std::function<void(Cmd& cmd)> cb) {
     }
 }
 
-void Cmd::assert(bool predict, string msg) {
+void Cmd::assertV(bool predict, string msg) {
     if(!predict) {
         throw out_of_range{msg};
     }
 }
 
-void Cmd::assert(bool predict, std::function<std::string()> gen) {
+void Cmd::assertV(bool predict, std::function<std::string()> gen) {
     if(!predict) {
         throw out_of_range{gen()};
     }
@@ -67,7 +67,7 @@ char* Cmd::getFromPos() {
 
 char* Cmd::getFromName(const char* name) {
     auto found = m.find(name);
-    assert(found != m.end() && found->second != nullptr, "named arg "s + name + " required");
+    assertV(found != m.end() && found->second != nullptr, "named arg "s + name + " required");
     return found->second;
 }
 

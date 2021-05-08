@@ -6,7 +6,7 @@ using namespace std;
 
 UpperApp::UpperApp() {
     auto storage = Preset::PersistentStorage::get(); //~15.4k RAM
-    auto ver = storage->read<Config::Version<>>();
+    auto ver = storage->read<Config::Version<4>>();
     if(ver.updated == false) {
         ver.updated = true;
         storage->reset();

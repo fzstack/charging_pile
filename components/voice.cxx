@@ -56,7 +56,7 @@ Voice& Voice::integer(int number) {
     return *this;
 }
 
-Voice& Voice::port(NatPort port) {
+Voice& Voice::port(const NatPort port) {
     return integer(port.get()).fragm(VoiceFragment::No).fragm(VoiceFragment::Port);
 }
 

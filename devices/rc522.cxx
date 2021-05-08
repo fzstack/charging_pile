@@ -22,7 +22,7 @@ Rc522::Rc522(const char* spiBus, const char* spiDev, rt_base_t ssPin) {
 
     conf.data_width = 8;
     conf.mode = RT_SPI_MASTER | RT_SPI_MODE_3 | RT_SPI_MSB;
-    conf.max_hz = 1 * 1000 * 1000;
+    conf.max_hz = 100;
     rt_spi_configure(spi_dev, &conf);
 
     inited.onChanged += [this](auto value) {
@@ -31,15 +31,15 @@ Rc522::Rc522(const char* spiBus, const char* spiDev, rt_base_t ssPin) {
                 auto self = (Rc522*)p;
                 auto retVal = self->pcdRequest(Rc522::Piccs::ReqAll);
                 if(retVal != 0 && retVal != 8) { //值未知，发生错误，需要重新复位
-//#ifdef TEST_RC522
-//                    LOG_W("unknown value");
-//#endif
+#ifdef TEST_RC522
+                    LOG_W("unknown value");
+#endif
                     self->pcdReset();
                     return;
                 }
-//#ifdef TEST_RC522
-//                    LOG_D("pcd req: %d", retVal);
-//#endif
+#ifdef TEST_RC522
+                    LOG_D("pcd req: %d", retVal);
+#endif
                 if(retVal != RT_EOK) {
                     self->contiReqFailedCnt++;
                     if(self->contiReqFailedCnt > 1)

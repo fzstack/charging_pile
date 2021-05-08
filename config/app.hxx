@@ -15,7 +15,7 @@ struct LastVersion {
     std::string upper = "";
 };
 
-template<int N = 1>
+template<int N = 3>
 struct Version {
     bool updated = false;
 };

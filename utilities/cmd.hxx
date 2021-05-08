@@ -61,7 +61,7 @@ public:
     auto select(const char* name, std::unordered_map<T, std::function<void()>>&& sel) {
         auto key = get<T>(name);
         auto found = sel.find(key);
-        assert(found != sel.end(), [&](){
+        assertV(found != sel.end(), [&](){
             auto valid = std::string{};
             auto size = sel.size();
             auto count = 0u;
@@ -77,8 +77,8 @@ public:
         found->second();
     }
 
-    void assert(bool predict, std::string msg);
-    void assert(bool predict, std::function<std::string()> gen);
+    void assertV(bool predict, std::string msg);
+    void assertV(bool predict, std::function<std::string()> gen);
 
 private:
     char* getFromPos();

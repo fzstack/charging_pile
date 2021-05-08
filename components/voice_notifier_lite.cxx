@@ -45,21 +45,42 @@ VoiceNotifierLite::VoiceNotifierLite(std::shared_ptr<Player> player, std::shared
         player->play(std::move(Voice{}.fragm(VoiceFragment::PortSelectRequired)), Player::Level::Important);
     };
 
-    userInput->onError += [player](auto error) {
+    userInput->onAdminOp += [player](auto op) {
         auto voice = Voice{};
-        switch(error) {
-        case UserInput::Error::CardRequired:
-            voice.fragm(VoiceFragment::CardSwipeOrQRRequired);
-            break;
-        case UserInput::Error::PortInvalid:
-            voice.fragm(VoiceFragment::PortInvalid);
-            break;
-        case UserInput::Error::PortSelectRequired:
-            voice.fragm(VoiceFragment::PortSelectRequired);
+        switch(op) {
+        case UserInput::AdminOp::ClearConf:
+            voice.fragm(VoiceFragment::Reserved2);
             break;
         default:
             break;
         }
+        player->play(std::move(voice), Player::Level::Important);
+    };
+
+    userInput->onError += [player](auto error) {
+        auto voice = Voice{};
+
+        try {
+            rethrow_exception(error);
+        } catch(UserInput::PortInUseError& e) {
+            voice.port(e.port).fragm(VoiceFragment::Reserved1);
+        } catch(UserInput::Error& e) {
+            switch(e.code) {
+            case UserInput::ErrorCode::CardRequired:
+                voice.fragm(VoiceFragment::CardSwipeOrQRRequired);
+                break;
+            case UserInput::ErrorCode::PortInvalid:
+                voice.fragm(VoiceFragment::PortInvalid);
+                break;
+            case UserInput::ErrorCode::PortSelectRequired:
+                voice.fragm(VoiceFragment::PortSelectRequired);
+                break;
+            default:
+                break;
+            }
+        }
+
+
         player->play(std::move(voice), Player::Level::Important);
     };
 

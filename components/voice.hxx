@@ -29,6 +29,9 @@ enum class VoiceFragment: rt_uint8_t {
     Balance, CardNotActivated, BalanceInsufficient, PortInvalid, DeviceAbnormal,
     KeyEmpty, KeyConfirm, Beep,
     Welcome2,
+    Reserved1,
+    Reserved2,
+    Reserved3,
 };
 
 
@@ -41,7 +44,7 @@ class Voice {
 public:
     Voice& amount(int cents); //余额单位为分
     Voice& integer(int number);
-    Voice& port(NatPort port);
+    Voice& port(const NatPort port);
     Voice& fragm(VoiceFragment fragm);
 private:
     static int msb10(int n);

@@ -4,6 +4,10 @@
 
 using namespace std;
 
+UserInput::UserInput(std::shared_ptr<AppState> appState): appState(appState) {
+
+}
+
 void UserInput::watch(std::shared_ptr<Rc522Base> rc522) {
     rc522->oCardId += [this](auto value) {
         if(!value) return;
@@ -29,20 +33,36 @@ void UserInput::watch(std::shared_ptr<Keyboard> keyboard) {
             currPort = std::nullopt;
             break;
         case Keyboard::Keys::Ok: {
-            if(lastCard.empty()) {
-                onError(Error::CardRequired);
-                break;
+            auto adminCond = false;
+            if(currPort) {
+                auto op = (AdminOp)*currPort;
+                if(kKnownAdminOp.count(op)) {
+                    adminCond = true;
+                    rt_kprintf("admin op\n");
+                    onAdminOp(op);
+                }
             }
-            if(!currPort) {
-                onError(Error::PortSelectRequired);
-                break;
+
+            if(!adminCond) {
+                if(lastCard.empty()) {
+                    onError(make_exception_ptr<Error>(ErrorCode::CardRequired));
+                    break;
+                }
+                if(!currPort) {
+                    onError(make_exception_ptr<Error>(ErrorCode::PortSelectRequired));
+                    break;
+                }
+
+                auto port = NatPort{(rt_uint8_t)*currPort};
+                if(*currPort > numeric_limits<rt_uint8_t>::max() || !port.validate()) {
+                    onError(make_exception_ptr<Error>(ErrorCode::PortInvalid));
+                } else if(appState->getPortState(port) == State::Charging) {
+                    onError(make_exception_ptr<PortInUseError>(port));
+                } else {
+                    onConfirm(port, lastCard);
+                }
             }
-            auto port = NatPort{(rt_uint8_t)*currPort};
-            if(*currPort > numeric_limits<rt_uint8_t>::max() || !port.validate()) {
-                onError(Error::PortInvalid);
-            } else {
-                onConfirm(port, lastCard);
-            }
+
             lastCard.clear();
             cardInvalid.reset();
             currPort = std::nullopt;
@@ -63,3 +83,5 @@ void UserInput::watch(std::shared_ptr<Keyboard> keyboard) {
         }
     };
 }
+
+const std::set<UserInput::AdminOp> UserInput::kKnownAdminOp = {AdminOp::ClearConf};

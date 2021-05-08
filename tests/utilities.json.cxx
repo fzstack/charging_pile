@@ -278,6 +278,7 @@ static void test_json_iterator() {
 static void test_json_parse() {
     try {
         auto json = Json::parse("{\"test\": \"hello\"}");
+
         auto tJson = Json();
         tJson["data"] = move(json);
         rt_kprintf("cJson %s\n", to_string(json).c_str());

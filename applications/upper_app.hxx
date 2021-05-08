@@ -11,6 +11,7 @@
 #include <components/app_state.hxx>
 #include <components/watch_dog.hxx>
 #include <applications/ota.hxx>
+#include "admin.hxx"
 
 class App;
 class UpperApp: public App {
@@ -21,6 +22,7 @@ private:
     std::shared_ptr<ThingBase> thing = Preset::Thing::get(); //~6.4k RAM
     std::shared_ptr<Cloud> cloud = Preset::AliCloud::get(); //~11k RAM
     std::shared_ptr<User> user = Preset::User::get(); //~12k RAM
+    std::shared_ptr<Admin> admin = Preset::Admin::get();
     std::shared_ptr<Handshake> handshake = Preset::Handshake::get(); //~5k RAMA
     std::shared_ptr<BackupMan> man = Preset::BackupMan::get();
     std::shared_ptr<Rebooter> rebooter = Preset::Rebooter::get();
