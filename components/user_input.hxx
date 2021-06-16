@@ -44,6 +44,12 @@ public:
         const NatPort port;
     };
 
+    class PortInvalidError: public Error {
+    public:
+        PortInvalidError(NatPort port): Error(ErrorCode::PortInvalid), port(port) {}
+        const NatPort port;
+    };
+
     Signals<void(std::exception_ptr)> onError = {};
 
 private:

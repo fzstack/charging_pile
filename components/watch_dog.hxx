@@ -30,6 +30,6 @@ namespace Preset {
 class WatchDog: public Singleton<WatchDog>, public ::WatchDog {
     friend singleton_t;
     WatchDog(): ::WatchDog(kTimeoutS) {}
-    static constexpr int kTimeoutS = 5;
+    static constexpr int kTimeoutS = 25;
 };
 }

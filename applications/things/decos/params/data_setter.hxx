@@ -11,7 +11,7 @@
 
 namespace Things::Decos::Params {
     struct DataSetter {
-        int currDiffThrMiA = 10; //电流变化阈值
+        int currDiffThrMiA = 25; //电流变化阈值
     };
 }
 

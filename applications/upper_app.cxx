@@ -5,6 +5,7 @@
 using namespace std;
 
 UpperApp::UpperApp() {
+    rt_kprintf("new FW3\r\n");
     auto storage = Preset::PersistentStorage::get(); //~15.4k RAM
     auto ver = storage->read<Config::Version<4>>();
     if(ver.updated == false) {
@@ -83,7 +84,7 @@ void UpperApp::run() {
 
     ota->onDone += [=](auto module){
         rt_kprintf("OTA REBOOTING...\n");
-        rebooter->reboot();
+        rebooter->rebootAll();
     };
 
     user->onInputConfirm += [=](auto port, auto icNumber) {
@@ -104,7 +105,7 @@ void UpperApp::run() {
         cloud->emitCurrentData(std::move(data));
     };
     state->cloudConnected.onChanged += [this](auto value) {
-        watchDog->cancel();
+        //watchDog->cancel();
         cloud->setIccid(state->iccid);
         for(auto& modName: {"upper", "lower"}) {
             ota->getModule(modName)->getVersion([this, modName](auto v) {
@@ -114,10 +115,9 @@ void UpperApp::run() {
                     cloud->emitModuleVersion(*version, modName);
                 }
             });
-
         }
     };
-    watchDog->resetAfter(60);
+    //watchDog->resetAfter(60);
     handshake->hello();
     thing->init();
 

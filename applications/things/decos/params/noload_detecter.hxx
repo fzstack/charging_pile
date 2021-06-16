@@ -11,8 +11,8 @@
 
 namespace Things::Decos::Params {
     struct NoloadDetecter {
-        int noloadCurrThr = 10; //空载电流阈值
-        int doneCurrThr = 25; //充电完成电流阈值
+        int noloadCurrThr = 40; //空载电流阈值
+        int doneCurrThr = 88; //充电完成电流阈值
     };
 }
 

@@ -23,4 +23,5 @@ void RebooterLocal::reboot() {
 void RebooterLocal::rebootAll() {
     air724->reset();
     packet->emit<Packets::Reboot>({});
+    reboot();
 }

@@ -11,10 +11,10 @@ using namespace Config;
 using namespace std;
 
 #ifdef UPPER_END
-const char* moduleVersion = "0.2.5";
+const char* moduleVersion = "0.2.8";
 #endif
 #ifdef LOWER_END
-const char* moduleVersion = "0.2.7";
+const char* moduleVersion = "0.2.14";
 #endif
 
 namespace Preset {
@@ -31,8 +31,8 @@ const int
 
 namespace Config {
 const char
-    *Cloud::productKey = "a1SvHKhmFbS",
-    *Cloud::productSecret = "eNVvWlHUTCInHPIq";
+    *Cloud::productKey = "g8smgnhaYeu",
+    *Cloud::productSecret = "rr7HU7OTPL5mNdfx";
 }
 
 string getStateStr(State::Value state) {

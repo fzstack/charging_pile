@@ -28,10 +28,12 @@ enum class VoiceFragment: rt_uint8_t {
     PortSelectRequired, CardSwipeOrQRRequired, CardSwipeOk,
     Balance, CardNotActivated, BalanceInsufficient, PortInvalid, DeviceAbnormal,
     KeyEmpty, KeyConfirm, Beep,
-    Welcome2,
     Reserved1,
     Reserved2,
     Reserved3,
+    Port2,
+    Using,
+    PleaseSelectOtherAvaliblePort,
 };
 
 

@@ -63,14 +63,13 @@ VoiceNotifierLite::VoiceNotifierLite(std::shared_ptr<Player> player, std::shared
         try {
             rethrow_exception(error);
         } catch(UserInput::PortInUseError& e) {
-            voice.port(e.port).fragm(VoiceFragment::Reserved1);
+            voice.port(e.port).fragm(VoiceFragment::Using).fragm(VoiceFragment::PleaseSelectOtherAvaliblePort);
+        } catch(UserInput::PortInvalidError& e) {
+            voice.fragm(VoiceFragment::PortInvalid).port(e.port);
         } catch(UserInput::Error& e) {
             switch(e.code) {
             case UserInput::ErrorCode::CardRequired:
                 voice.fragm(VoiceFragment::CardSwipeOrQRRequired);
-                break;
-            case UserInput::ErrorCode::PortInvalid:
-                voice.fragm(VoiceFragment::PortInvalid);
                 break;
             case UserInput::ErrorCode::PortSelectRequired:
                 voice.fragm(VoiceFragment::PortSelectRequired);

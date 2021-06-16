@@ -11,8 +11,16 @@
 
 namespace Things::Decos::Params {
     struct CurrentLimiter {
-        int maxCurrentMiA = 150; //电流变化阈值
+        int maxCurrentMiA = 2000; //电流变化阈值
     };
 }
 
-
+/*
+{
+    "current_limit": 2000,
+    "upload_thr": 200,
+    "fused_thr": 0,
+    "noload_curr_thr": 20,
+    "done_curr_thr": 88
+}
+*/

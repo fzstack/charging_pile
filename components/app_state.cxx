@@ -13,7 +13,7 @@
 #include <config/co.hxx>
 #include <components/air_components.hxx>
 
-AppState::AppState(std::shared_ptr<Packet> packet, std::shared_ptr<Air724> air, std::shared_ptr<Dht11> dht11): dht11(dht11) {
+AppState::AppState(std::shared_ptr<Packet> packet, std::shared_ptr<Air724> air, std::shared_ptr<Dht11> dht11, std::shared_ptr<Rpc> rpc): dht11(dht11), rpc(rpc) {
     packet->on<Packets::State>([this](auto p) {
         portStates[p->port.get()].state = p->value;
         portStateChanged(p->port, p->value);

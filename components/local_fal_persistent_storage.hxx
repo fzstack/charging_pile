@@ -32,26 +32,27 @@ public:
 
     template<class T>
     void read(std::function<void(std::optional<T>)> cb) {
-        cb(read<T>());
+        thread->exec([this, cb]{
+            cb(read<T>());
+        });
     }
 
     template<class T>
     void write(T&& t) {
-        storage->write<T>(std::forward<T>(t));
+        T x = t;
+        thread->exec([this, x]{
+            storage->write<T>((T&&)std::move(x));
+        });
     }
 
     template<class T>
     void def() { //请在预设类中调用，定义可远程访问的配置
         rpc->def<Rpcs::PersistentStorage::Read<T>>([this](auto p, auto r) {
-            thread->exec([this, r]{
-                r(read<T>());
-            });
+            r(read<T>());
         });
 
         packet->on<Rpcs::PersistentStorage::Write<T>>([this](auto p) {
-            thread->exec([=]{
-                write<T>(std::move(p->data));
-            });
+            write<T>(std::move(p->data));
         });
     }
 

@@ -9,27 +9,38 @@ using namespace Things::Decos;
 
 Backuper::Backuper(outer_t* outer): Base(outer) {
     timer.onRun += [this]{ //每10秒保存一次端口的剩余时间
-        auto port = InnerPort{currPort};
-        currPort++;
-        currPort %= Config::Bsp::kPortNum;
-        auto& info = getInfo(port);
-        auto& spec = specs[port.get()];
-        auto charger = info.charger;
-        auto guard = getLock();
-        if(spec.fResume.updateAndCheck()) {
-            resume(port);
-        }
-        if(spec.count.updateAndCheck()) {
-            if(charger->stateStore->oState.value() == State::Charging) {
-                spec.count.retrigger();
+        {
+            auto port = InnerPort{currResumePort};
+            currResumePort++;
+            currResumePort %= Config::Bsp::kPortNum;
+            auto& spec = specs[port.get()];
+            auto guard = getLock();
+            if(spec.fResume.updateAndCheck()) {
+                resume(port);
             }
-            man->write(port, Backup {
-                leftSeconds: info.leftSeconds,
-                timerId: info.timerId,
-                consumption: info.consumption,
-            });
-            rt_kprintf("backup port%d, {ls: %d, it: %d, cs: %d}\n", NatPort{port}.get(), info.leftSeconds, info.timerId, (int)info.consumption);
         }
+
+        {
+            auto port = InnerPort{currBackupPort};
+            auto& info = getInfo(port);
+            auto& spec = specs[port.get()];
+            if(spec.count.updateAndCheck()) {
+                currBackupPort++;
+                currBackupPort %= Config::Bsp::kPortNum;
+                auto charger = info.charger;
+                auto guard = getLock();
+                if(charger->stateStore->oState.value() == State::Charging) {
+                    spec.count.retrigger();
+                }
+                man->write(port, Backup {
+                    leftSeconds: info.leftSeconds,
+                    timerId: info.timerId,
+                    consumption: info.consumption,
+                });
+                rt_kprintf("backup port%d, {ls: %d, it: %d, cs: %d}\n", NatPort{port}.get(), info.leftSeconds, info.timerId, (int)info.consumption);
+            }
+        }
+
     };
 }
 

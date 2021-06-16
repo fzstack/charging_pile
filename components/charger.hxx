@@ -61,10 +61,7 @@ class Charger: public Singleton<Charger<R>>, public ::Charger {
     ) {
         MultiMeterChannel<R>::Owner::get()->init();
         VirtualLoadDetector<R>::get()->init();
-
     }
-
-
 };
 
 class Chargers {

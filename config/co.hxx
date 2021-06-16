@@ -77,6 +77,11 @@ struct Read {
 };
 }
 
+struct State {
+    InnerPort port;
+    ::State::Value value;
+};
+
 
 namespace Services {
 struct Query {

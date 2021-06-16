@@ -114,7 +114,6 @@ std::vector<at_urc> AirHttpClient::onUrcTableInit() {
             auto inst = urc(client);
             if(!inst) return;
 
-            //LOG_D("on http read");
             int recvSize;
             sscanf(data, "+HTTPREAD: %d", &recvSize);
             vector<char> buf(recvSize);

@@ -24,6 +24,7 @@ WatchDog::WatchDog(uint32_t timeout): wdtDev(rt_device_find("wdt")) {
             rt_kprintf("STOP WDT\n");
             feedCond = false;
         }
+        feed();
     };
 
     timer.start();

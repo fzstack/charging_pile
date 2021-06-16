@@ -18,7 +18,6 @@ class Backuper: public Base {
     virtual void onStateChanged(InnerPort port, State::Value state) override;
     void resume(InnerPort port);
 
-
 private:
     struct PortSpec {
         bool stateHasTransitioned = false;
@@ -28,10 +27,11 @@ private:
 
     std::shared_ptr<BackupMan> man = Preset::BackupMan::get();
     Timer timer = {kDuration, kTimer};
-    rt_uint8_t currPort = 0;
+    rt_uint8_t currResumePort = 0;
+    rt_uint8_t currBackupPort = 0;
     std::array<PortSpec, Config::Bsp::kPortNum> specs;
-    static constexpr int kCnt = 5;
-    static constexpr int kAutoBackupDur = 10 * 1000;
+    static constexpr int kCnt = 150;
+    static constexpr int kAutoBackupDur = 1800 * 1000;
     static constexpr int kDuration = kAutoBackupDur / kCnt / Config::Bsp::kPortNum;
     static const char* kTimer;
 

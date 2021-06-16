@@ -31,15 +31,15 @@ Rc522::Rc522(const char* spiBus, const char* spiDev, rt_base_t ssPin) {
                 auto self = (Rc522*)p;
                 auto retVal = self->pcdRequest(Rc522::Piccs::ReqAll);
                 if(retVal != 0 && retVal != 8) { //值未知，发生错误，需要重新复位
-#ifdef TEST_RC522
-                    LOG_W("unknown value");
-#endif
+//#ifdef TEST_RC522
+//                    LOG_W("unknown value");
+//#endif
                     self->pcdReset();
                     return;
                 }
-#ifdef TEST_RC522
-                    LOG_D("pcd req: %d", retVal);
-#endif
+//#ifdef TEST_RC522
+//                    LOG_D("pcd req: %d", retVal);
+//#endif
                 if(retVal != RT_EOK) {
                     self->contiReqFailedCnt++;
                     if(self->contiReqFailedCnt > 1)
@@ -217,8 +217,9 @@ auto Rc522::pcdAntiColl() -> std::variant<rt_err_t, std::string> {
     if(checksum != data[4])
         return RT_ERROR;
 
-    auto buff = std::shared_ptr<char[]>(new char[9]);
-    sprintf(buff.get(), "%02x%02x%02x%02x", data[0], data[1], data[2], data[3]);
+    auto buff = std::shared_ptr<char[]>(new char[11]);
+    memset(buff.get(), '\0', 11);
+    sprintf(buff.get(), "%010u", *(rt_uint32_t*)&data[0]);
 
     return std::string(buff.get());
 }

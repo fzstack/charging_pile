@@ -14,6 +14,7 @@ void UserInput::watch(std::shared_ptr<Rc522Base> rc522) {
         onCardSwipe(*value);
         lastCard = *value;
         cardInvalid.retrigger();
+        currPort = std::nullopt;
     };
 
     timer.onRun += [this]{
@@ -28,6 +29,11 @@ void UserInput::watch(std::shared_ptr<Rc522Base> rc522) {
 void UserInput::watch(std::shared_ptr<Keyboard> keyboard) {
     keyboard->oValue += [this](auto value) {
         if(!value) return;
+        if(lastCard.empty()) {
+            onError(make_exception_ptr<Error>(ErrorCode::CardRequired));
+            return;
+        }
+
         switch(*value) {
         case Keyboard::Keys::Ret:
             currPort = std::nullopt;
@@ -50,21 +56,23 @@ void UserInput::watch(std::shared_ptr<Keyboard> keyboard) {
                 }
                 if(!currPort) {
                     onError(make_exception_ptr<Error>(ErrorCode::PortSelectRequired));
+                    cardInvalid.retrigger();
                     break;
                 }
 
                 auto port = NatPort{(rt_uint8_t)*currPort};
                 if(*currPort > numeric_limits<rt_uint8_t>::max() || !port.validate()) {
-                    onError(make_exception_ptr<Error>(ErrorCode::PortInvalid));
+                    onError(make_exception_ptr<PortInvalidError>(port));
+                    cardInvalid.retrigger();
                 } else if(appState->getPortState(port) == State::Charging) {
                     onError(make_exception_ptr<PortInUseError>(port));
+                    cardInvalid.retrigger();
                 } else {
                     onConfirm(port, lastCard);
+                    cardInvalid.forceTrigger();
                 }
             }
 
-            lastCard.clear();
-            cardInvalid.reset();
             currPort = std::nullopt;
             break;
         }

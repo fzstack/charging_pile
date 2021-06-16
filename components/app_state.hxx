@@ -14,6 +14,7 @@
 #include <config/bsp.hxx>
 #include <array>
 #include <components/packet.hxx>
+#include <components/rpc.hxx>
 #include <utilities/observable.hxx>
 #include <components/timer.hxx>
 #include <devices/air724.hxx>
@@ -24,7 +25,7 @@
 //TODO: do not use remote store
 class AppState {
 public:
-    AppState(std::shared_ptr<Packet> packet, std::shared_ptr<Air724> air, std::shared_ptr<Dht11> dht11);
+    AppState(std::shared_ptr<Packet> packet, std::shared_ptr<Air724> air, std::shared_ptr<Dht11> dht11, std::shared_ptr<Rpc> rpc);
     Signals<void(InnerPort, State::Value)> portStateChanged;
     State::Value getPortState(InnerPort port);
 
@@ -33,6 +34,7 @@ public:
     Observable<std::optional<int>> progress;
     std::string iccid = {}, imei = {};
     std::shared_ptr<Dht11> dht11;
+    std::shared_ptr<Rpc> rpc;
 
 private:
     struct Wrapper {
@@ -46,6 +48,6 @@ private:
 namespace Preset {
 class AppState: public Singleton<AppState>, public ::AppState {
     friend singleton_t;
-    AppState(): ::AppState(Packet::get(), Air724::get(), Dht11::get()) { }
+    AppState(): ::AppState(Packet::get(), Air724::get(), Dht11::get(), Rpc::get()) { }
 };
 }

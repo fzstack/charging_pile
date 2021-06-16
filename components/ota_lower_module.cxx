@@ -14,14 +14,7 @@ void OtaLowerModule::start(std::string_view version, std::shared_ptr<IStream> st
                 //重新写入数据
                 rt_uint32_t memUsed;
                 rt_memory_info(nullptr, &memUsed, nullptr);
-                rt_kprintf("r@%d, m:%d\n", currPos, memUsed);
-//                dog->feed();
-//                rt_thread_mdelay(200);
                 rpc->invoke<Rpcs::Ota::Write>({currPos, buf}, cb, 1000); //low线程返回
-//                auto middle = Preset::SharedThread<Priority::Middle>::get();
-//                middle->exec([this](){
-//                    this->cb(Void{});
-//                });
             } else {
                 //读取下一个数据
                 currPos += recvedLen;
@@ -30,20 +23,13 @@ void OtaLowerModule::start(std::string_view version, std::shared_ptr<IStream> st
                     buf.resize(kBufSize);
                     recvedLen = stream->readData(&buf[0], kBufSize);
                     buf.resize(recvedLen);
-//                    if(testRemain >= kBufSize) {
-//                        recvedLen = kBufSize;
-//                        testRemain -= kBufSize;
-//                    } else {
-//                        recvedLen = testRemain;
-//                        testRemain = 0;
-//                    }
                 } catch(exception& e) {
                     emitError(OtaError::DownloadFailed, "下载失败");
                     return;
                 }
                 if(recvedLen == 0) {
                     if(currPos == size) {
-                        //emitDone(); //TODO: 完成
+                        emitDone();
                     } else {
                         emitError(OtaError::DownloadFailed, "下载失败");
                     }
@@ -69,7 +55,6 @@ void OtaLowerModule::start(std::string_view version, std::shared_ptr<IStream> st
             });
         });
     });
-
 }
 
 std::string OtaLowerModule::getName() {
