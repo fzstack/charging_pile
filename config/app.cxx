@@ -11,7 +11,7 @@ using namespace Config;
 using namespace std;
 
 #ifdef UPPER_END
-const char* moduleVersion = "0.2.8";
+const char* moduleVersion = "0.2.b9";
 #endif
 #ifdef LOWER_END
 const char* moduleVersion = "0.2.14";

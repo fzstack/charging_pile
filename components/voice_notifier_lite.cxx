@@ -69,7 +69,7 @@ VoiceNotifierLite::VoiceNotifierLite(std::shared_ptr<Player> player, std::shared
         } catch(UserInput::Error& e) {
             switch(e.code) {
             case UserInput::ErrorCode::CardRequired:
-                voice.fragm(VoiceFragment::CardSwipeOrQRRequired);
+                //voice.fragm(VoiceFragment::CardSwipeOrQRRequired);
                 break;
             case UserInput::ErrorCode::PortSelectRequired:
                 voice.fragm(VoiceFragment::PortSelectRequired);

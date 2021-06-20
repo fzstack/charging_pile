@@ -115,6 +115,7 @@ public:
                     auto found = pendings.find(p->id);
                     if(found == pendings.end()) {
                         rt_kprintf("W: wild resp\n");
+                        mutex.unlock();
                         return;
                     }
 
@@ -131,6 +132,7 @@ public:
                     auto found = pendings.find(p->id);
                     if(found == pendings.end()) {
                         rt_kprintf("W: wild resp\n");
+                        mutex.unlock();
                         return;
                     }
                     auto pending = std::static_pointer_cast<PendingImpl<T>>(found->second);

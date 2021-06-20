@@ -30,8 +30,8 @@ private:
     rt_uint8_t currResumePort = 0;
     rt_uint8_t currBackupPort = 0;
     std::array<PortSpec, Config::Bsp::kPortNum> specs;
-    static constexpr int kCnt = 150;
-    static constexpr int kAutoBackupDur = 1800 * 1000;
+    static constexpr int kCnt = 25;
+    static constexpr int kAutoBackupDur = 300 * 1000;
     static constexpr int kDuration = kAutoBackupDur / kCnt / Config::Bsp::kPortNum;
     static const char* kTimer;
 
