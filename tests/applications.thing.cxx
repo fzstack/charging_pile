@@ -21,28 +21,26 @@
 using namespace std;
 
 //test_thing control [port] [timer_id] [minutes]
-#if !defined(ENABLE_REMOTE) || (defined(ENABLE_REMOTE) && defined(UPPER_END))
-void test_thing(int argc, char** argv) {
-    Cmd{argc, argv}([](Cmd& cmd) {
-        auto thing = Preset::Thing::get();
-        cmd.select<string>({
-            {"query", [&]{
-                thing->query();
-            }},
-            {"control", [&]{
-                thing->control(NatPort{cmd.get<rt_uint8_t>()}, cmd.get<int>(), cmd.get<int>());
-            }},
-            {"stop", [&]{
-                thing->stop(NatPort{cmd.get<rt_uint8_t>()}, cmd.get<int>());
-            }},
-            {"config", [&]{
-                thing->config(cmd.get<int>(), cmd.get<int>(), cmd.get<int>(), cmd.get<int>());
-            }},
-        });
-    });
-}
-MSH_CMD_EXPORT(test_thing, );
-#endif
+//void test_thing(int argc, char** argv) {
+//    Cmd{argc, argv}([](Cmd& cmd) {
+//        auto thing = Preset::Thing::get();
+//        cmd.select<string>({
+//            {"query", [&]{
+//                thing->query();
+//            }},
+//            {"control", [&]{
+//                thing->control(NatPort{cmd.get<rt_uint8_t>()}, cmd.get<int>(), cmd.get<int>());
+//            }},
+//            {"stop", [&]{
+//                thing->stop(NatPort{cmd.get<rt_uint8_t>()}, cmd.get<int>());
+//            }},
+//            {"config", [&]{
+//                thing->config({cmd.get<int>(), cmd.get<int>(), cmd.get<int>(), cmd.get<int>()});
+//            }},
+//        });
+//    });
+//}
+//MSH_CMD_EXPORT(test_thing, );
 
 #if !defined(ENABLE_REMOTE) || (defined(ENABLE_REMOTE) && defined(UPPER_END))
 void reset_config(int argc, char** argv) {

@@ -2,6 +2,7 @@
 #define COMPONENTS_HTTP_REQUEST_HXX_
 
 #include <string_view>
+#include <string>
 #include <map>
 #include <vector>
 #include <memory>

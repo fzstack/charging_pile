@@ -4,6 +4,8 @@
 #include <utilities/cmd.hxx>
 #include <config/bsp.hxx>
 #include <utilities/mp.hxx>
+#include <utilities/inner_port.hxx>
+#include <utilities/nat_port.hxx>
 
 #define LOG_TAG "test.multimeter"
 #define LOG_LVL LOG_LVL_DBG
@@ -19,7 +21,7 @@ static int init_test_multimeter() {
             auto chn = Preset::MultiMeterChannel<decltype(v)::value>::get();
             chn->current += [i](auto value) {
                 if(!value) return;
-                rt_kprintf("[%d] %dmA\n", i, *value);
+                rt_kprintf("[%d] %dmA\n", NatPort(InnerPort(i)).get(), *value);
             };
         }, i);
     }

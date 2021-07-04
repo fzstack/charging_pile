@@ -21,23 +21,36 @@ Backuper::Backuper(outer_t* outer): Base(outer) {
         }
 
         {
-            auto port = InnerPort{currBackupPort};
-            auto& info = getInfo(port);
-            auto& spec = specs[port.get()];
-            if(spec.count.updateAndCheck()) {
-                currBackupPort++;
-                currBackupPort %= Config::Bsp::kPortNum;
-                auto charger = info.charger;
-                auto guard = getLock();
-                if(charger->stateStore->oState.value() == State::Charging) {
-                    spec.count.retrigger();
+            auto guard = getLock();
+            if(nextCount.updateAndCheck()) {
+                nextCount.retrigger();
+                auto ingore = false;
+                auto nextBackupPort = currBackupPort;
+                for(auto i = 0; i < Config::Bsp::kPortNum; i++) {
+                    auto handlingPort = rt_uint8_t((currBackupPort + i) % Config::Bsp::kPortNum);
+                    auto port = InnerPort{handlingPort};
+                    auto& info = getInfo(port);
+                    auto charger = info.charger;
+                    auto& spec = specs[port.get()];
+                    if(spec.backupCount.updateAndCheck()) {
+                        if(!ingore) {
+                            ingore = true;
+                            nextBackupPort = (handlingPort + 1) % Config::Bsp::kPortNum;
+                            if(charger->stateStore->oState.value() == State::Charging) {
+                                spec.backupCount.retrigger();
+                            }
+                            man->write(port, Backup {
+                                leftSeconds: info.leftSeconds,
+                                timerId: info.timerId,
+                                consumption: info.consumption,
+                            });
+                            rt_kprintf("backup port%d, {ls: %d, it: %d, cs: %d}\n", NatPort{port}.get(), info.leftSeconds, info.timerId, (int)info.consumption);
+                        } else  {
+                            spec.backupCount.forceTrigger();
+                        }
+                    }
                 }
-                man->write(port, Backup {
-                    leftSeconds: info.leftSeconds,
-                    timerId: info.timerId,
-                    consumption: info.consumption,
-                });
-                rt_kprintf("backup port%d, {ls: %d, it: %d, cs: %d}\n", NatPort{port}.get(), info.leftSeconds, info.timerId, (int)info.consumption);
+                currBackupPort = nextBackupPort;
             }
         }
 
@@ -45,6 +58,7 @@ Backuper::Backuper(outer_t* outer): Base(outer) {
 }
 
 void Backuper::init() {
+    nextCount.retrigger();
     timer.start();
 }
 
@@ -58,7 +72,7 @@ void Backuper::onStateChanged(InnerPort port, State::Value state) {
     } else {
         if(state == State::Charging || state == State::LoadWaitRemove) {
             rt_kprintf("backup port%d (state transition)\n", NatPort{port}.get());
-            spec.count.forceTrigger();
+            spec.backupCount.forceTrigger();
         }
     }
 }
@@ -87,7 +101,7 @@ void Backuper::resume(InnerPort port) {
         } else {
             info.leftSeconds = 0;
             info.consumption = 0;
-            spec.count.trigger();
+            spec.backupCount.trigger();
         }
     });
 }

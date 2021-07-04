@@ -21,7 +21,7 @@ class Backuper: public Base {
 private:
     struct PortSpec {
         bool stateHasTransitioned = false;
-        CountDown<> count = {kCnt};
+        CountDown<> backupCount = {kBackupCnt};
         CountDown<> fResume = {};
     };
 
@@ -30,9 +30,16 @@ private:
     rt_uint8_t currResumePort = 0;
     rt_uint8_t currBackupPort = 0;
     std::array<PortSpec, Config::Bsp::kPortNum> specs;
-    static constexpr int kCnt = 25;
+    //CountDown<> backupCount = {kBackupCnt};
+    CountDown<> nextCount = {kNextCnt};
+
     static constexpr int kAutoBackupDur = 300 * 1000;
-    static constexpr int kDuration = kAutoBackupDur / kCnt / Config::Bsp::kPortNum;
+    static constexpr int kNextPortDur = 5 * 1000;
+    static constexpr int kDuration = 1000;
+
+    static constexpr int kNextCnt = kNextPortDur / kDuration; //没计数这么多次触发下一个端口的备份
+    static constexpr int kBackupCnt = kAutoBackupDur / kNextCnt / kDuration; //没计数这么多次触发一次备份
+//    static constexpr int kDuration = kAutoBackupDur / kCnt / Config::Bsp::kPortNum;
     static const char* kTimer;
 
 };

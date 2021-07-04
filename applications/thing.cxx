@@ -110,11 +110,11 @@ using namespace Things::Decos;
 namespace Preset {
 ThingPre::ThingPre(): ::Thing(Chargers::get()) {
     addDeco<Counter>(); //定时断电功能
-    addDeco<CurrentLimiter>(); //限流功能
-    addDeco<NoloadDetecter>(); //空载检测功能
-    addDeco<Backuper>(); //端口状态备份功能
+    addDeco<CurrentLimiter>(); //限流功能 √
+    addDeco<NoloadDetecter>(); //空载检测功能 T √
+    addDeco<Backuper>(); //端口状态备份功能 T
     addDeco<DataSetter>(); //端口状态上报功能
-    addDeco<ConsumptionMeasurer>(); //功耗测量功能
+    addDeco<ConsumptionMeasurer>(); //功耗测量功能 T
 }
 }
 #endif

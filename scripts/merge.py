@@ -8,8 +8,8 @@
 def main():
     length = 1024
     bl_size = 36 * 1024
-    version = '0.2.b9'
-    module = 'upper'
+    version = '0.2.17t'
+    module = 'lower'
     with open(f'../Upper/rtboot_f1_{module}.bin', 'rb') as rtboot, open(f'../Upper/rtthread.{module}.{version}.bin', 'rb') as rtt, open(f'../Upper/x.{module}.{version}.bin', 'wb+') as x:
         while True:
             buf = rtboot.read(length)
