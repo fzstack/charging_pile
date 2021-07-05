@@ -4,7 +4,13 @@ Import('RTT_ROOT')
 from building import *
 
 cwd = GetCurrentDir()
-objs = []
+
+src = Glob('*.c')
+path = [
+    cwd
+]
+
+objs = [DefineGroup('Root', src, depend = [''], CPPPATH = path)]
 list = os.listdir(cwd)
 
 for d in list:

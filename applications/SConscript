@@ -1,0 +1,19 @@
+Import('RTT_ROOT')
+Import('rtconfig')
+from building import *
+
+cwd = GetCurrentDir()
+src = Glob('*.c')
+src += Glob('*.cxx')
+src += Glob('decos/*.cxx')
+src += Glob('decos/params/*.cxx')
+
+CPPPATH = [
+    cwd,
+    cwd + '/things/decos',
+    cwd + '/things/decos/params',
+]
+
+group = DefineGroup('Applications', src, depend = [''], CPPPATH = CPPPATH)
+
+Return('group')

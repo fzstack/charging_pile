@@ -1,0 +1,13 @@
+Import('RTT_ROOT')
+Import('rtconfig')
+from building import *
+
+cwd = GetCurrentDir()
+src = Glob('*.cxx')
+CPPPATH = [
+    cwd,
+]
+
+group = DefineGroup('Ui', src, depend = [''], CPPPATH = CPPPATH)
+
+Return('group')

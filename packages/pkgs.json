@@ -1,37 +1,37 @@
 [
  {
-  "path": "/packages/iot/cJSON", 
-  "ver": "v1.0.2", 
-  "name": "CJSON"
- }, 
+  "name": "CJSON",
+  "path": "/packages/iot/cJSON",
+  "ver": "v1.0.2"
+ },
  {
-  "path": "/packages/security/tinycrypt", 
-  "ver": "v1.0.0", 
-  "name": "TINYCRYPT"
- }, 
+  "name": "TINYCRYPT",
+  "path": "/packages/security/tinycrypt",
+  "ver": "v1.0.0"
+ },
  {
-  "path": "/packages/system/fal", 
-  "ver": "v0.5.0", 
-  "name": "FAL"
- }, 
+  "name": "FAL",
+  "path": "/packages/system/fal",
+  "ver": "v0.5.0"
+ },
  {
-  "path": "/packages/system/FlashDB", 
-  "ver": "v1.0.0", 
-  "name": "FLASHDB"
- }, 
+  "name": "FLASHDB",
+  "path": "/packages/system/FlashDB",
+  "ver": "v1.0.0"
+ },
  {
-  "path": "/packages/peripherals/sensors/dhtxx", 
-  "ver": "latest", 
-  "name": "DHTXX"
- }, 
+  "name": "DHTXX",
+  "path": "/packages/peripherals/sensors/dhtxx",
+  "ver": "latest"
+ },
  {
-  "path": "/packages/peripherals/at24cxx", 
-  "ver": "latest", 
-  "name": "AT24CXX"
- }, 
+  "name": "AT24CXX",
+  "path": "/packages/peripherals/at24cxx",
+  "ver": "latest"
+ },
  {
-  "path": "/packages/misc/crclib", 
-  "ver": "v1.00", 
-  "name": "CRCLIB"
+  "name": "CRCLIB",
+  "path": "/packages/misc/crclib",
+  "ver": "v1.00"
  }
 ]

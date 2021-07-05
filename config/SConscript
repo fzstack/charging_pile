@@ -1,0 +1,17 @@
+Import('RTT_ROOT')
+Import('rtconfig')
+from building import *
+
+cwd = GetCurrentDir()
+src = Glob('*.cxx')
+src += Glob('lower_end/*.cxx')
+src += Glob('upper_end/*.cxx')
+CPPPATH = [
+    cwd,
+    cwd + '/lower_end',
+    cwd + '/upper_end',
+]
+
+group = DefineGroup('Config', src, depend = [''], CPPPATH = CPPPATH)
+
+Return('group')

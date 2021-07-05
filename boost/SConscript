@@ -1,0 +1,16 @@
+Import('RTT_ROOT')
+Import('rtconfig')
+from building import *
+
+cwd = GetCurrentDir()
+src = []
+
+CPPPATH = [
+    cwd,
+    cwd + '/pfr',
+    cwd + '/pfr/detail',
+]
+
+group = DefineGroup('Boost', src, depend = [''], CPPPATH = CPPPATH)
+
+Return('group')
