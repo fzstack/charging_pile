@@ -1,5 +1,3 @@
-#ifdef TEST_WIDGET
-
 #include <rtthread.h>
 #include <ui/widget.hxx>
 #include <ui/ws_screen.hxx>
@@ -60,5 +58,3 @@ int init_test_widget() {
 
 MSH_CMD_EXPORT(test_widget, );
 INIT_APP_EXPORT(init_test_widget);
-
-#endif

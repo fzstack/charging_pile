@@ -1,4 +1,3 @@
-#ifdef TEST_PERSISTENT_STORAGE
 #include <components/persistent_storage_preset.hxx>
 #include <stdexcept>
 #include <co/remote.hxx>
@@ -65,8 +64,4 @@ static void test_persistent_storage_str(int argc, char** argv) {
 
 //INIT_APP_EXPORT(init_test_persistent_storage_str);
 MSH_CMD_EXPORT(test_persistent_storage_str, );
-
-
-#endif
-
 

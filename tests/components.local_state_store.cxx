@@ -1,5 +1,3 @@
-#ifdef TEST_LOCAL_STATE_STORE
-
 #ifndef LOWER_END
 #error "this test is only for lower end"
 #endif
@@ -47,4 +45,3 @@ int init_test_local_state_store() {
 
 MSH_CMD_EXPORT(test_local_state_store, )
 INIT_APP_EXPORT(init_test_local_state_store);
-#endif

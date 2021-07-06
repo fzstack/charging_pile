@@ -1,4 +1,5 @@
 #pragma once
+#include <rtthread.h>
 
 #ifdef ENABLE_REMOTE
 #include "local_thing.hxx"

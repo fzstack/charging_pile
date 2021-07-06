@@ -1,4 +1,3 @@
-#ifdef TEST_LOADING_WIDGET
 #include <ui/loading_widget.hxx>
 #include <rtthread.h>
 
@@ -14,6 +13,3 @@ static int init_test_loading_widget() {
 }
 
 INIT_APP_EXPORT(init_test_loading_widget);
-
-#endif
-

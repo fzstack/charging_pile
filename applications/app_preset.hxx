@@ -4,6 +4,7 @@
 #include "app.hxx"
 #include "upper_app.hxx"
 #include "lower_app.hxx"
+#include <rtthread.h>
 
 namespace Preset {
 

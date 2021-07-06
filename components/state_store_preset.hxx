@@ -1,5 +1,5 @@
 #pragma once
-
+#include <rtconfig.h>
 #include "local_state_store.hxx"
 #include "remote_state_store.hxx"
 

@@ -10,7 +10,16 @@ path = [
     cwd
 ]
 
-objs = [DefineGroup('Root', src, depend = [''], CPPPATH = path)]
+# USE_UPPER_END
+CPPDEFINES = [ ]
+
+if GetDepend(['USE_UPPER_END']):
+    CPPDEFINES += ['UPPER_END']
+
+if GetDepend(['USE_LOWER_END']):
+    CPPDEFINES += ['LOWER_END']
+
+objs = [DefineGroup('Root', src, depend = [''], CPPPATH = path, CPPDEFINES = CPPDEFINES)]
 list = os.listdir(cwd)
 
 for d in list:

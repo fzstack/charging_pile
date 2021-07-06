@@ -1,3 +1,4 @@
+#include <rtconfig.h>
 #ifdef UPPER_END
 
 #include <rtthread.h>

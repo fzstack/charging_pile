@@ -1,4 +1,3 @@
-#ifdef TEST_IDX
 #include <array>
 #include <rtthread.h>
 #include <utilities/idx.hxx>
@@ -73,5 +72,3 @@ static void test_idx() {
 }
 
 MSH_CMD_EXPORT(test_idx, );
-
-#endif

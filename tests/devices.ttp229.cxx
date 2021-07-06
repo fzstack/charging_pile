@@ -1,4 +1,3 @@
-#ifdef TEST_TTP229
 #include <devices/ttp229.hxx>
 #include <rtthread.h>
 
@@ -17,5 +16,3 @@ void test_x() {
 
 INIT_APP_EXPORT(init_test_ttp229);
 MSH_CMD_EXPORT(test_x, );
-
-#endif

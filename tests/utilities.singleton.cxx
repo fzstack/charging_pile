@@ -1,4 +1,3 @@
-#ifdef TEST_SINGLETON
 #include <utilities/singleton.hxx>
 #include <rtthread.h>
 #include <utilities/cmd.hxx>
@@ -23,5 +22,3 @@ void test_singleton(int argc, char** argv) {
 }
 
 MSH_CMD_EXPORT(test_singleton, );
-#endif
-

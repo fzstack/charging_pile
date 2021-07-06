@@ -1,14 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2021-04-09     imgcr       the first version
- */
-
-#ifdef TEST_VOICE
 #include <utilities/f.hxx>
 #include <utilities/cmd.hxx>
 #include <components/voice.hxx>
@@ -55,5 +44,3 @@ void test_amount(int argc, char** argv) {
 }
 
 MSH_CMD_EXPORT(test_amount, );
-#endif
-

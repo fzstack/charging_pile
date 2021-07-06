@@ -8,8 +8,6 @@
  * 2021-04-01     imgcr       the first version
  */
 
-
-#ifdef TEST_USER
 #include <rtthread.h>
 #include <applications/user.hxx>
 
@@ -20,6 +18,4 @@ int init_test_user() {
 }
 
 INIT_APP_EXPORT(init_test_user);
-
-#endif
 

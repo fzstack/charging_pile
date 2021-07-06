@@ -1,5 +1,5 @@
 #pragma once
-
+#include <rtconfig.h>
 #include "local_fal_persistent_storage.hxx"
 #include "remote_fal_persistent_storage.hxx"
 

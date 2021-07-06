@@ -18,6 +18,8 @@ config PKGS_DIR
 source "$RTT_DIR/Kconfig"
 source "$PKGS_DIR/Kconfig"
 source "$PKGS_DIR/packages/misc/samples/Kconfig"
+source "config/Kconfig"
+source "tests/Kconfig"
 
 config RT_STUDIO_BUILT_IN
     bool

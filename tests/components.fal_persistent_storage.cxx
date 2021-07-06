@@ -1,5 +1,3 @@
-#ifdef TEST_FAL_PERSISTENT_STORAGE
-
 #include <components/fal_persistent_storage.hxx>
 #include <vector>
 #include <string>
@@ -56,6 +54,3 @@ static void test_fal_ps_str(int argc, char** argv) {
 MSH_CMD_EXPORT(test_fal_ps, );
 MSH_CMD_EXPORT(test_fal_ps_vec, );
 MSH_CMD_EXPORT(test_fal_ps_str, );
-
-#endif
-

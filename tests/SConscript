@@ -3,10 +3,14 @@ Import('rtconfig')
 from building import *
 
 cwd = GetCurrentDir()
-src = Glob('*.cxx')
-CPPPATH = [
-    cwd,
-]
+src = []
+CPPPATH = [cwd, str(Dir('#'))]
+
+def filter_func(node):
+    macro = '_'.join(['TEST', *[part.upper() for part in node.rstr().split('/')[-1].split('.')[:-1]]])
+    return GetDepend([macro])
+
+src += list(filter(filter_func, Glob('*.cxx')))
 
 group = DefineGroup('Tests', src, depend = [''], CPPPATH = CPPPATH)
 

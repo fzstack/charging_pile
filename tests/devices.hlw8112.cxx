@@ -1,4 +1,3 @@
-#ifdef TEST_HLW8112
 #include <rtthread.h>
 #include <devices/hlw8112.hxx>
 #include <utilities/cmd.hxx>
@@ -25,4 +24,4 @@ static int init_test_hlw8112() {
 
 MSH_CMD_EXPORT(test_hlw8112, );
 INIT_APP_EXPORT(init_test_hlw8112);
-#endif
+

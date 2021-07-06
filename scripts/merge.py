@@ -1,31 +1,31 @@
-# lower app size: 256
-# lower app download偏移地址：0x49000 download分区大小：220Kb
-
-# 2:
-# app: offset 0x9000 size: 260
-# download offset 0x4A000 size: 216
-
-def main():
-    length = 1024
-    bl_size = 36 * 1024
-    version = '0.2.17t'
-    module = 'lower'
-    with open(f'../Upper/rtboot_f1_{module}.bin', 'rb') as rtboot, open(f'../Upper/rtthread.{module}.{version}.bin', 'rb') as rtt, open(f'../Upper/x.{module}.{version}.bin', 'wb+') as x:
+import click
+K_BYTE = 1024
+def merge(module, input_file, output_file, blsize = 36):
+    with open(f'./boot/{module}.bin', 'rb') as rtboot, open(input_file, 'rb') as raw_bin, open(output_file, 'wb+') as merged_bin:
         while True:
-            buf = rtboot.read(length)
+            buf = rtboot.read(K_BYTE)
             if not buf:
                 break
-            x.write(buf)
+            merged_bin.write(buf)
 
-        btremain = bl_size - rtboot.tell()
-        x.write(('\0' * btremain).encode())
+        padding_zero_size = blsize * K_BYTE - rtboot.tell()
+        merged_bin.write(('\0' * padding_zero_size).encode())
 
         while True:
-            buf = rtt.read(length)
+            buf = raw_bin.read(K_BYTE)
             if not buf:
                 break
-            x.write(buf)
+            merged_bin.write(buf)
 
+@click.command()
+@click.option("--module", type=click.Choice(['upper', 'lower']), help="Module of system")
+@click.option("--blsize", type=int, default=36, help="Size of bootloader(KB)")
+@click.option("-i", "--input_file", required=True)
+@click.option("-o", "--output_file", required=True)
+def main(module, blsize, input_file, output_file):
+    merge(module, input_file, output_file, blsize)
 
 if __name__ == '__main__':
     main()
+
+# ./rt_ota_packaging_tool_cli-x64 -f ../rtthread.bin -v 0.2.18a -p app -c gzip

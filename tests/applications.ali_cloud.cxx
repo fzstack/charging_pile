@@ -1,4 +1,3 @@
-#ifdef TEST_ALI_CLOUD
 #include <rtthread.h>
 #include <applications/ali_cloud.hxx>
 #include <utilities/cmd.hxx>
@@ -96,4 +95,3 @@ static void test_ali_cloud(int argc, char** argv) {
 
 MSH_CMD_EXPORT(test_ali_cloud_init, );
 MSH_CMD_EXPORT(test_ali_cloud, );
-#endif

@@ -1,5 +1,3 @@
-#ifdef TEST_REMOTE_STATE_STORE
-
 #ifndef UPPER_END
 #error "this test is only for upper end"
 #endif
@@ -23,7 +21,3 @@ int init_test_remote_state_store() {
 }
 
 INIT_APP_EXPORT(init_test_remote_state_store);
-
-
-#endif
-

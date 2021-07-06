@@ -1,4 +1,3 @@
-#ifdef TEST_AIR_MQTT_CLIENT
 #include <devices/air724.hxx>
 #include <components/air_components.hxx>
 #include <utilities/err.hxx>
@@ -35,4 +34,3 @@ static int init_test_air_mqtt_client() {
 
 MSH_CMD_EXPORT(test_air_mqtt_client, );
 INIT_APP_EXPORT(init_test_air_mqtt_client);
-#endif

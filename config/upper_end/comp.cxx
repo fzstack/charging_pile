@@ -1,3 +1,4 @@
+#include <rtconfig.h>
 #ifdef UPPER_END
 
 #include <components/fal_persistent_storage.hxx>

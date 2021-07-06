@@ -1,4 +1,3 @@
-#ifdef TEST_RGB_STATE_NOTIFIER
 #include <components/rgb_state_notifier.hxx>
 #include <components/state_store_base.hxx>
 
@@ -63,4 +62,3 @@ static int init_test_rgb_state_notifier() {
 
 MSH_CMD_EXPORT(test_rgb_state_notifier, );
 INIT_APP_EXPORT(init_test_rgb_state_notifier);
-#endif

@@ -1,3 +1,4 @@
+#include <rtconfig.h>
 #ifdef LOWER_END
 #include <components/packet.hxx>
 #include <utilities/shared_thread.hxx>

@@ -1,4 +1,3 @@
-#ifdef TEST_CHARGER
 #include <components/charger.hxx>
 #include <utilities/cmd.hxx>
 #include <map>
@@ -58,5 +57,5 @@ static int init_test_charger() {
 
 MSH_CMD_EXPORT(test_charger, );
 INIT_APP_EXPORT(init_test_charger);
-#endif
+
 

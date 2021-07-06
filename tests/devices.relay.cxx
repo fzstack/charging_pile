@@ -1,4 +1,3 @@
-#ifdef TEST_RELAY
 #include <devices/relay.hxx>
 #include <utilities/cmd.hxx>
 #include <utilities/mp.hxx>
@@ -17,7 +16,7 @@ void test_relay(int argc, char** argv) {
     //test_relay R [on|off]
     ASSERT_MIN_NARGS(3);
 
-    auto r = InnerPort{NatPort{atoi(argv[1])}}.get();
+    auto r = InnerPort{NatPort{(rt_uint8_t)atoi(argv[1])}}.get();
     ASSERT_ARG(r, 0 <= r && r < Config::Bsp::kPortNum);
 
     auto vals = map<string, Relay::Value> {
@@ -36,4 +35,3 @@ void test_relay(int argc, char** argv) {
 }
 
 MSH_CMD_EXPORT(test_relay, );
-#endif

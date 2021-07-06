@@ -1,5 +1,3 @@
-#ifdef TEST_LOAD_DETECTOR
-
 #include <devices/load_detector.hxx>
 #include <utilities/cmd.hxx>
 #include <utilities/mp.hxx>
@@ -34,4 +32,3 @@ static int init_test_load_detector() {
 }
 
 INIT_APP_EXPORT(init_test_load_detector);
-#endif

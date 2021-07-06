@@ -1,5 +1,3 @@
-#ifdef TEST_RPC
-
 #include <components/rpc.hxx>
 #include <utilities/cmd.hxx>
 #include <optional>
@@ -248,6 +246,3 @@ int init_test_rpc_class() {
 
 MSH_CMD_EXPORT(test_rpc_class, );
 INIT_APP_EXPORT(init_test_rpc_class);
-
-#endif
-

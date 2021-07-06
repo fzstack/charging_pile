@@ -99,6 +99,7 @@ DevConfig Thing::readConfig() {
     throw not_implemented{"read conf in upper end pls"};
 }
 
+#include <rtconfig.h>
 #ifdef LOWER_END
 #include <things/decos/counter.hxx>
 #include <things/decos/current_limiter.hxx>

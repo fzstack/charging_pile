@@ -13,7 +13,7 @@
 #include <utilities/inner_port.hxx>
 #include "app.hxx"
 #include <config/app.hxx>
-
+#include <rtconfig.h>
 #if (defined(LOWER_END) && defined(UPPER_END)) || (!defined(LOWER_END) && !defined(UPPER_END))
 #error "Only one of LOWER_END or UPPER_END can be defined"
 #endif

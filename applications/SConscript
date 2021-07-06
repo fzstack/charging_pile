@@ -5,8 +5,8 @@ from building import *
 cwd = GetCurrentDir()
 src = Glob('*.c')
 src += Glob('*.cxx')
-src += Glob('decos/*.cxx')
-src += Glob('decos/params/*.cxx')
+src += Glob('things/decos/*.cxx')
+src += Glob('things/decos/params/*.cxx')
 
 CPPPATH = [
     cwd,

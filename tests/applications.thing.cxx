@@ -1,4 +1,3 @@
-#ifdef TEST_THING
 #include <applications/thing_preset.hxx>
 #include <map>
 #include <string>
@@ -13,6 +12,7 @@
 #include <utilities/mp.hxx>
 #include <components/handshake.hxx>
 #include <components/backup_man_preset.hxx>
+#include <rtthread.h>
 
 #define LOG_TAG "test.thing"
 #define LOG_LVL LOG_LVL_DBG
@@ -101,4 +101,3 @@ int init_test_thing() {
 
 
 INIT_APP_EXPORT(init_test_thing);
-#endif

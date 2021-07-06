@@ -71,7 +71,8 @@ static constexpr rt_uint32_t crc_table[256] = {
 template<size_t idx>
 constexpr uint32_t crc32(const char * str)
 {
-    return (crc32<idx-1>(str) >> 8) ^ crc_table[(crc32<idx-1>(str) ^ str[idx]) & 0x000000FF];
+    auto nextCrc = crc32<idx-1>(str);
+    return (nextCrc >> 8) ^ crc_table[(nextCrc ^ str[idx]) & 0x000000FF];
 }
 
 template<>

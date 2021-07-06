@@ -1,4 +1,3 @@
-#ifdef TEST_RC522
 #include <devices/rc522.hxx>
 #include <rtthread.h>
 
@@ -29,4 +28,3 @@ static int init_test_rc522() {
 
 MSH_CMD_EXPORT(test_rc522, );
 INIT_APP_EXPORT(init_test_rc522);
-#endif

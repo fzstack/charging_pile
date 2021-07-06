@@ -1,4 +1,3 @@
-#ifdef TEST_PFR
 #include <stdexcept>
 #include <boost/pfr.hpp>
 #include <memory>
@@ -64,5 +63,3 @@ static void test_pfr() {
 }
 
 MSH_CMD_EXPORT(test_pfr, );
-#endif
-

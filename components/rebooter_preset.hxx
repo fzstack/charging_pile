@@ -8,7 +8,7 @@
  * 2021-04-08     imgcr       the first version
  */
 #pragma once
-
+#include <rtconfig.h>
 #ifdef UPPER_END
 #include "rebooter_local.hxx"
 namespace Preset {

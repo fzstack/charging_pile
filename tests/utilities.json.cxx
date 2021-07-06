@@ -1,4 +1,3 @@
-#ifdef TEST_JSON
 #include <utilities/json.hxx>
 #include <rtthread.h>
 #include <stdexcept>
@@ -302,4 +301,3 @@ MSH_CMD_EXPORT(test_json_index, );
 MSH_CMD_EXPORT(test_json_iterator, );
 MSH_CMD_EXPORT(test_json_parse, );
 INIT_APP_EXPORT(init_test_json);
-#endif

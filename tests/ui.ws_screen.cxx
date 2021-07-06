@@ -1,4 +1,3 @@
-#ifdef TEST_WS_SCREEN
 #include <ui/ws_screen.hxx>
 #include <utilities/cmd.hxx>
 
@@ -28,5 +27,3 @@ int init_test_ws_screen() {
 
 MSH_CMD_EXPORT(test_ws_screen, );
 INIT_APP_EXPORT(init_test_ws_screen);
-
-#endif

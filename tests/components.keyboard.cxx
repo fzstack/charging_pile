@@ -1,4 +1,3 @@
-#ifdef TEST_KEYBOARD
 #include <rtthread.h>
 #include <components/keyboard.hxx>
 #include <map>
@@ -35,5 +34,3 @@ int init_test_keyboard() {
 }
 
 INIT_APP_EXPORT(init_test_keyboard);
-
-#endif

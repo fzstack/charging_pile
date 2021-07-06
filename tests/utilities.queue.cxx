@@ -1,4 +1,3 @@
-#ifdef TEST_QUEUE
 #include <utilities/queue.hxx>
 #include <rtthread.h>
 #include <Thread.h>
@@ -44,5 +43,3 @@ static int init_test_queue() {
 
 MSH_CMD_EXPORT(test_queue_int, );
 INIT_APP_EXPORT(init_test_queue);
-#endif
-

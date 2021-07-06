@@ -1,4 +1,3 @@
-#ifdef TEST_VIRTUAL_LOAD_DETECTOR
 #include <components/virtual_load_detector.hxx>
 #include <components/multimeter.hxx>
 #include <rtthread.h>
@@ -28,4 +27,3 @@ int test_virual_load_detector_init() {
 }
 
 INIT_APP_EXPORT(test_virual_load_detector_init);
-#endif

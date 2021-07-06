@@ -1,4 +1,3 @@
-#ifdef TEST_REAL_RGB_LIGHT
 #include <rtthread.h>
 #include <devices/real_rgb_light.hxx>
 #include <utilities/cmd.hxx>
@@ -33,4 +32,3 @@ static void test_real_rgb_light(int argc, char** argv) {
 
 
 MSH_CMD_EXPORT(test_real_rgb_light, );
-#endif

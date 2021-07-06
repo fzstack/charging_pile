@@ -8,7 +8,7 @@
  * 2021-04-02     imgcr       the first version
  */
 #pragma once
-
+#include <rtconfig.h>
 #include "local_backup_man.hxx"
 #include "remote_backup_man.hxx"
 

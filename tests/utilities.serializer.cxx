@@ -1,5 +1,3 @@
-#ifdef TEST_SERIALIZER
-
 #include <utilities/serializer.hxx>
 #include <utilities/deserializer.hxx>
 #include <utilities/memory_iostream.hxx>
@@ -66,6 +64,3 @@ static void test_ser_graph() {
 MSH_CMD_EXPORT(test_ser_graph, );
 
 MSH_CMD_EXPORT(test_ser_tree, );
-
-
-#endif

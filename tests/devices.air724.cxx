@@ -1,4 +1,3 @@
-#ifdef TEST_AIR724
 #include <utilities/cmd.hxx>
 #include <rtthread.h>
 #include <devices/air724.hxx>
@@ -47,6 +46,3 @@ static int test_air724_init() {
 MSH_CMD_EXPORT(test_air724, );
 MSH_CMD_EXPORT(test_air724_reset, );
 MSH_CMD_EXPORT(test_air724_init,);
-#endif
-
-

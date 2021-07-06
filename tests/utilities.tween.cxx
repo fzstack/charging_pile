@@ -1,4 +1,3 @@
-#ifdef TEST_TWEEN
 #include <rtthread.h>
 #include <utilities/tween.hxx>
 #include <utilities/cmd.hxx>
@@ -31,4 +30,3 @@ static int init_test_tween() {
 
 MSH_CMD_EXPORT(test_tween, );
 INIT_APP_EXPORT(init_test_tween);
-#endif

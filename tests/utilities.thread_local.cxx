@@ -1,4 +1,3 @@
-#ifdef TEST_THREAD_LOCAL
 #include <utilities/thread_local.hxx>
 
 #include <rtthread.h>
@@ -109,4 +108,3 @@ void test_thread_local_init()
 MSH_CMD_EXPORT(test_thread_local_global, );
 MSH_CMD_EXPORT(test_thread_local_member, );
 MSH_CMD_EXPORT(test_thread_local_init, );
-#endif

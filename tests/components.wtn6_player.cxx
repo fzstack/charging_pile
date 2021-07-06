@@ -1,13 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2021-04-11     imgcr       the first version
- */
-#ifdef TEST_PLAYER
 #include <components/wtn6_player.hxx>
 #include <rtthread.h>
 #include <utilities/cmd.hxx>
@@ -36,6 +26,3 @@ void test_wtn6_player(int argc, char** argv) {
 }
 
 MSH_CMD_EXPORT(test_wtn6_player,);
-
-#endif
-

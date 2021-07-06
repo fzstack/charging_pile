@@ -241,19 +241,44 @@
 
 /* samples: kernel and components samples */
 
-/* Hardware Drivers Config */
+/* App Config */
 
-#define SOC_STM32F103RB
+#define ENABLE_REMOTE
+#define USE_LOWER_END
+#define UPPER_VERSION "0.2.10a"
+#define LOWER_VERSION "0.2.18a"
 
-/* Onboard Peripheral Drivers */
+/* Test Config */
 
-/* On-chip Peripheral Drivers */
+#define USING_TESTS
 
-#define BSP_USING_GPIO
-#define BSP_USING_UART
-#define BSP_USING_UART1
+/* Applications */
 
-/* Board extended module Drivers */
+
+/* Boost */
+
+
+/* Components */
+
+#define TEST_COMPONENTS_MULTIMETER
+
+/* Devices */
+
+#define TEST_DEVICES_RELAY
+
+/* Pkgs */
+
+
+/* Ui */
+
+
+/* Utilities */
+
+
+/* Fal */
+
+
+/* Std */
 
 #define RT_STUDIO_BUILT_IN
 

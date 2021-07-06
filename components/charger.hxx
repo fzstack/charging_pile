@@ -45,6 +45,7 @@ struct charger_error: public std::runtime_error {
     using std::runtime_error::runtime_error;
 };
 
+#include <rtconfig.h>
 #ifdef LOWER_END
 #include <utilities/singleton.hxx>
 #include "state_store_preset.hxx"

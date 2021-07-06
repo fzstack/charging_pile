@@ -1,4 +1,3 @@
-#ifdef TEST_WS2812
 #include <devices/ws2812.hxx>
 #include <rtthread.h>
 #include <utilities/cmd.hxx>
@@ -168,4 +167,3 @@ int init_test_ws2812() {
 MSH_CMD_EXPORT(test_ws2812_at, );
 MSH_CMD_EXPORT(test_ws2812_animate, );
 INIT_APP_EXPORT(init_test_ws2812);
-#endif

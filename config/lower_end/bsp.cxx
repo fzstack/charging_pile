@@ -1,3 +1,4 @@
+#include <rtconfig.h>
 #ifdef LOWER_END
 #include <board.h>
 #include <devices/relay.hxx>

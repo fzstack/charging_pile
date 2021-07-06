@@ -1,0 +1,27 @@
+menu "App Config"
+    config RUN_APP
+        bool "Run application"
+        default n
+
+    config ENABLE_REMOTE
+        bool "Enable remote"
+        default y
+
+    choice
+        prompt "Part of system"
+        default USE_UPPER_END
+        config USE_UPPER_END
+            bool "Upper end"
+        config USE_LOWER_END
+            bool "Lower end"        
+    endchoice
+
+    config UPPER_VERSION
+        string "Upper version"
+        default "0.1.0"
+
+    config LOWER_VERSION
+        string "Lower version"
+        default "0.1.0"
+
+endmenu

@@ -1,4 +1,3 @@
-#ifdef TEST_ALI_IOT_DEVICE
 #include <applications/ali_iot_device.hxx>
 
 #define LOG_TAG "test.ali_iot"
@@ -41,4 +40,3 @@ static int test_ali_iot_device_init() {
 }
 
 MSH_CMD_EXPORT(test_ali_iot_device_init,);
-#endif

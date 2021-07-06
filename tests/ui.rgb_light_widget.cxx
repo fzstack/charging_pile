@@ -1,4 +1,3 @@
-#ifdef TEST_RGB_LIGHT_WIDGET
 #include <ui/rgb_light_widget.hxx>
 #include <utilities/cmd.hxx>
 #include <rtthread.h>
@@ -20,4 +19,3 @@ void test_rgb_light_widget(int argc, char** argv) {
 }
 
 MSH_CMD_EXPORT(test_rgb_light_widget, );
-#endif

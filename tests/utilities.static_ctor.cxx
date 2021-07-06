@@ -1,4 +1,3 @@
-#ifdef TEST_STATIC_CTOR
 #include <utilities/static_ctor.hxx>
 #include <rtthread.h>
 #include <memory>
@@ -27,4 +26,3 @@ static void test_static_ctor() {
 }
 
 MSH_CMD_EXPORT(test_static_ctor, )
-#endif

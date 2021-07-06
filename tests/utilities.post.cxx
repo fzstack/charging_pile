@@ -1,4 +1,3 @@
-#ifdef TEST_POST
 #include <utilities/post.hxx>
 #include <utilities/signals.hxx>
 #include <string>
@@ -303,5 +302,3 @@ MSH_CMD_EXPORT(test_post_json, );
 MSH_CMD_EXPORT(test_post_closure, );
 MSH_CMD_EXPORT(test_post_ret_same_thread, );
 INIT_APP_EXPORT(init_test_post);
-#endif
-

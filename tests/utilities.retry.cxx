@@ -1,14 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2021-04-19     imgcr       the first version
- */
-
-#ifdef TEST_RETRY
 #include <utilities/retry.hxx>
 #include <rtthread.h>
 #include <memory>
@@ -108,5 +97,3 @@ MSH_CMD_EXPORT(test_retry_same,);
 MSH_CMD_EXPORT(test_retry_lower,);
 MSH_CMD_EXPORT(test_retry_rpc,);
 INIT_APP_EXPORT(init_very_low);
-
-#endif

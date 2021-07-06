@@ -1,5 +1,3 @@
-#ifdef TEST_PORT
-
 #include <rtthread.h>
 
 #include <utilities/inner_port.hxx>
@@ -56,5 +54,3 @@ MSH_CMD_EXPORT(test_port_inner_to_nat, )
 MSH_CMD_EXPORT(test_port_nat_to_inner, )
 MSH_CMD_EXPORT(test_port_nat_ser, )
 MSH_CMD_EXPORT(test_port_inner_ser, )
-#endif
-

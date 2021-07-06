@@ -6,15 +6,16 @@
 #include <ui/loading_widget.hxx>
 #include <ui/state_noti_widget.hxx>
 #include <ui/progress_widget.hxx>
+#include <rtconfig.h>
 
 using namespace Config;
 using namespace std;
 
 #ifdef UPPER_END
-const char* moduleVersion = "0.2.9b";
+const char* moduleVersion = LOWER_VERSION;
 #endif
 #ifdef LOWER_END
-const char* moduleVersion = "0.2.16a";
+const char* moduleVersion = UPPER_VERSION;
 #endif
 
 namespace Preset {

@@ -1,5 +1,3 @@
-#ifdef TEST_USER_INPUT
-
 #include <components/user_input.hxx>
 #include <rtthread.h>
 #include <utilities/f.hxx>
@@ -18,5 +16,3 @@ int init_test_user_input() {
 }
 
 INIT_APP_EXPORT(init_test_user_input);
-
-#endif

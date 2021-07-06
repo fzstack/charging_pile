@@ -92,6 +92,16 @@ path = [cwd + '/CMSIS/Device/ST/STM32F1xx/Include',
 if rtconfig.CROSS_TOOL == 'gcc':
     src += ['CMSIS/Device/ST/STM32F1xx/Source/Templates/gcc/startup_stm32f103xe.S']
 
-group = DefineGroup('Libraries', src, depend = [''], CPPPATH = path)
+CPPDEFINES = [
+    'HAVE_SIGVAL',
+    'HAVE_SIGEVENT',
+    'HAVE_SIGINFO',
+    'SOC_FAMILY_STM32',
+    'SOC_SERIES_STM32F1',
+    'USE_HAL_DRIVER',
+    'STM32F103xE'
+]
+
+group = DefineGroup('Libraries', src, depend = [''], CPPPATH = path, CPPDEFINES = CPPDEFINES)
 
 Return('group')

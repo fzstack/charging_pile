@@ -1,0 +1,190 @@
+
+
+menu "Test Config"
+    menuconfig USING_TESTS
+        bool "Enable Tests"
+        default n
+        if USING_TESTS
+            menu "Applications"
+                config TEST_APPLICATIONS_ALI_CLOUD
+                    bool "Enable AliCloud test"
+                    default n
+                config TEST_APPLICATIONS_ALI_IOT_DEVICE
+                    bool "Enable AliIotDevice test"
+                    default n
+                config TEST_APPLICATIONS_THING
+                    bool "Enable Thing test"
+                    default n
+                config TEST_APPLICATIONS_USER
+                    bool "Enable User test"
+                    default n
+            endmenu
+            menu "Boost"
+                config TEST_BOOST_PFR
+                    bool "Enable Pfr test"
+                    default n
+            endmenu
+            menu "Components"
+                config TEST_COMPONENTS_AIR_HTTP_CLIENT
+                    bool "Enable AirHttpClient test"
+                    default n
+                config TEST_COMPONENTS_AIR_MQTT_CLIENT
+                    bool "Enable AirMqttClient test"
+                    default n
+                config TEST_COMPONENTS_CHARGER
+                    bool "Enable Charger test"
+                    default n
+                config TEST_COMPONENTS_FAL_PERSISTENT_STORAGE
+                    bool "Enable FalPersistentStorage test"
+                    default n
+                config TEST_COMPONENTS_KEYBOARD
+                    bool "Enable Keyboard test"
+                    default n
+                config TEST_COMPONENTS_LOCAL_STATE_STORE
+                    bool "Enable LocalStateStore test"
+                    default n
+                config TEST_COMPONENTS_MULTIMETER
+                    bool "Enable Multimeter test"
+                    default n
+                config TEST_COMPONENTS_PACKET
+                    bool "Enable Packet test"
+                    default n
+                config TEST_COMPONENTS_PERSISTENT_STORAGE
+                    bool "Enable PersistentStorage test"
+                    default n
+                config TEST_COMPONENTS_REMOTE_STATE_STORE
+                    bool "Enable RemoteStateStore test"
+                    default n
+                config TEST_COMPONENTS_RGB_STATE_NOTIFIER
+                    bool "Enable RgbStateNotifier test"
+                    default n
+                config TEST_COMPONENTS_RPC
+                    bool "Enable Rpc test"
+                    default n
+                config TEST_COMPONENTS_USER
+                    bool "Enable User test"
+                    default n
+                config TEST_COMPONENTS_VIRTUAL_LOAD_DETECTOR
+                    bool "Enable VirtualLoadDetector test"
+                    default n
+                config TEST_COMPONENTS_VOICE
+                    bool "Enable Voice test"
+                    default n
+                config TEST_COMPONENTS_WTN6_PLAYER
+                    bool "Enable Wtn6Player test"
+                    default n
+                config TEST_COMPONENTS_VOICE_NOTIFIER
+                    bool "Enable VoiceNotifier test"
+                    default n
+            endmenu
+            menu "Devices"
+                config TEST_DEVICES_AIR724
+                    bool "Enable Air724 test"
+                    default n
+                config TEST_DEVICES_DHT11
+                    bool "Enable Dht11 test"
+                    default n
+                config TEST_DEVICES_HLW8112
+                    bool "Enable Hlw8112 test"
+                    default n
+                config TEST_DEVICES_LOAD_DETECTOR
+                    bool "Enable LoadDetector test"
+                    default n
+                config TEST_DEVICES_RC522
+                    bool "Enable Rc522 test"
+                    default n
+                config TEST_DEVICES_REAL_RGB_LIGHT
+                    bool "Enable RealRgbLight test"
+                    default n
+                config TEST_DEVICES_RELAY
+                    bool "Enable Relay test"
+                    default n
+                config TEST_DEVICES_TTP229
+                    bool "Enable Ttp229 test"
+                    default n
+                config TEST_DEVICES_WS2812
+                    bool "Enable Ws2812 test"
+                    default n
+                config TEST_DEVICES_WTN6
+                    bool "Enable Wtn6 test"
+                    default n
+                config TEST_DEVICES_SPI_HLW8112
+                    bool "Enable SpiHlw8112 test"
+                    default n
+            endmenu
+            menu "Pkgs"
+                config TEST_PKGS_AT
+                    bool "Enable At test"
+                    default n
+            endmenu
+            menu "Ui"
+                config TEST_UI_LOADING_WIDGET
+                    bool "Enable LoadingWidget test"
+                    default n
+                config TEST_UI_PROGRESS_WIDGET
+                    bool "Enable ProgressWidget test"
+                    default n
+                config TEST_UI_RGB_LIGHT_WIDGET
+                    bool "Enable RgbLightWidget test"
+                    default n
+                config TEST_UI_WIDGET
+                    bool "Enable Widget test"
+                    default n
+                config TEST_UI_WS_SCREEN
+                    bool "Enable WsScreen test"
+                    default n
+            endmenu
+            menu "Utilities"
+                config TEST_UTILITIES_IDX
+                    bool "Enable Idx test"
+                    default n
+                config TEST_UTILITIES_JSON
+                    bool "Enable Json test"
+                    default n
+                config TEST_UTILITIES_PORT
+                    bool "Enable Port test"
+                    default n
+                config TEST_UTILITIES_POST
+                    bool "Enable Post test"
+                    default n
+                config TEST_UTILITIES_QUEUE
+                    bool "Enable Queue test"
+                    default n
+                config TEST_UTILITIES_RETRY
+                    bool "Enable Retry test"
+                    default n
+                config TEST_UTILITIES_SERIALIZER
+                    bool "Enable Serializer test"
+                    default n
+                config TEST_UTILITIES_SHARED_THREAD
+                    bool "Enable SharedThread test"
+                    default n
+                config TEST_UTILITIES_SINGLETON
+                    bool "Enable Singleton test"
+                    default n
+                config TEST_UTILITIES_STATIC_CTOR
+                    bool "Enable StaticCtor test"
+                    default n
+                config TEST_UTILITIES_THREAD_LOCAL
+                    bool "Enable ThreadLocal test"
+                    default n
+                config TEST_UTILITIES_TINY_TYPE_ID
+                    bool "Enable TinyTypeId test"
+                    default n
+                config TEST_UTILITIES_TWEEN
+                    bool "Enable Tween test"
+                    default n
+            endmenu
+            menu "Fal"
+                config TEST_FAL_FLASH
+                    bool "Enable Flash test"
+                    default n
+            endmenu
+            menu "Std"
+                config TEST_STD_STL
+                    bool "Enable Stl test"
+                    default n
+            endmenu
+        endif
+endmenu
+

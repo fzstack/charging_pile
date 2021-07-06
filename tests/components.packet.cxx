@@ -1,5 +1,3 @@
-#ifdef TEST_PACKET
-
 #include <components/packet.hxx>
 #include <rtthread.h>
 #include <utilities/cmd.hxx>
@@ -185,4 +183,3 @@ MSH_CMD_EXPORT(test_packet_scores, );
 MSH_CMD_EXPORT(test_packet_map, );
 MSH_CMD_EXPORT(test_packet_array, );
 MSH_CMD_EXPORT(test_packet_mess, );
-#endif

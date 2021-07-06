@@ -1,4 +1,3 @@
-#ifdef TEST_MULTIMETER
 #include <components/multimeter.hxx>
 #include <rtthread.h>
 #include <utilities/cmd.hxx>
@@ -30,7 +29,5 @@ static int init_test_multimeter() {
 
 MSH_CMD_EXPORT(test_multimeter, );
 INIT_APP_EXPORT(init_test_multimeter);
-#endif
-
 
 

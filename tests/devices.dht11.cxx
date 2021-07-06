@@ -1,14 +1,3 @@
-/*
- * Copyright (c) 2006-2020, RT-Thread Development Team
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * Change Logs:
- * Date           Author       Notes
- * 2021-04-11     imgcr       the first version
- */
-
-#ifdef TEST_DHT11
 #include <devices/dht11.hxx>
 #include <utilities/cmd.hxx>
 #include <string>
@@ -43,6 +32,3 @@ int init_test_dht11() {
     return RT_EOK;
 }
 INIT_APP_EXPORT(init_test_dht11);
-
-#endif
-

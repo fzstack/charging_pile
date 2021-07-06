@@ -1,4 +1,3 @@
-#ifdef TEST_WTN6
 #include <rtthread.h>
 #include <devices/wtn6.hxx>
 #include <utilities/cmd.hxx>
@@ -17,4 +16,3 @@ void test_wtn6(int argc, char** argv) {
 }
 
 MSH_CMD_EXPORT(test_wtn6,);
-#endif
