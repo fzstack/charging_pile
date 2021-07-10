@@ -17,6 +17,22 @@ AirMqttClient::AirMqttClient(std::shared_ptr<Air724> owner): AirComponent<AirMqt
     event = shared_ptr<rt_event>(rt_event_create("air_mqtt", RT_IPC_FLAG_FIFO), [](auto p) {
         rt_event_delete(p);
     });
+
+    timer.onRun += [=]{
+        auto resp = createResp();
+        if(at_obj_exec_cmd(getAtClient(), resp.get(), "AT+MQTTSTATU") != RT_EOK) {
+            return;
+        }
+
+        auto status = 0;
+        at_resp_parse_line_args_by_kw(resp.get(), "+MQTTSTATU", "+MQTTSTATU :%d", &status);
+        rt_kprintf("status is %d\n", status);
+        connected = status != 0;
+    };
+
+    connected.onChanged += [=](auto value) {
+        rt_kprintf("connected -> %d\n", value);
+    };
 }
 
 void AirMqttClient::login(std::string_view server, std::string_view clientId, std::string_view user, std::string_view password) {
@@ -34,7 +50,8 @@ void AirMqttClient::login(std::string_view server, std::string_view clientId, st
         rt_event_recv(event.get(), Events::ConnackOk, RT_EVENT_FLAG_AND | RT_EVENT_FLAG_CLEAR, RT_WAITING_FOREVER, RT_NULL);
     }
 
-    onConnected();
+    connected = true;
+    timer.start();
 }
 
 void AirMqttClient::subscribe(std::string_view topic) {

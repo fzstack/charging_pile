@@ -26,7 +26,13 @@ struct Observable {
 
     void operator=(Observable<T>& other) {
         other.onChanged += [this](const auto& v) {
-            (*this) = value;
+            (*this) = v;
+        };
+    }
+
+    void operator=(Observer<T>& other) {
+        other += [this](const auto& v) {
+            (*this) = v;
         };
     }
 

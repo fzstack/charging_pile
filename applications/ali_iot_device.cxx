@@ -20,10 +20,12 @@ using namespace rtthread;
 using namespace string_literals;
 using namespace json_literals;
 
-AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> mqtt, std::shared_ptr<SharedThread> thread):
+AliIotDevice::AliIotDevice(std::shared_ptr<CommDev> commDev, shared_ptr<HttpClient> http, shared_ptr<MqttClient> mqtt, std::shared_ptr<SharedThread> thread):
+  commDev(commDev),
   http(http),
   mqtt(mqtt),
-  thread(thread) {
+  thread(thread),
+  oConnected(mqtt->oConnected) {
     services["property"] += thread->post([this](Json params) -> Json {
         for(const auto& kvp: params) {
             auto& [key, value] = kvp;
@@ -116,15 +118,31 @@ AliIotDevice::AliIotDevice(shared_ptr<HttpClient> http, shared_ptr<MqttClient> m
         if(found != action.end()) found->second();
     });
     //thread->start();
+
+    oConnected += [=](auto value) {
+        if(!value) {
+            thread->exec([=] {
+                rt_kprintf("relogin due to disconnected\n");
+                loginInternal();
+            });
+        }
+    };
 }
 
 //TODO: Signal 转 function
 //TODO: 无返回值的Post无参数返回值回调
 void AliIotDevice::login(string_view deviceName, string_view productKey, string_view productSecret) {
     this->deviceName = deviceName;
+    rt_kprintf("device name: from %s to %s\n", deviceName.data(), this->deviceName.data());
     this->productKey = productKey;
+    this->productSecret = productSecret;
+    
+    loginInternal();
+}
 
-
+void AliIotDevice::loginInternal() {
+    rt_kprintf("initing ali cloud\n");
+    commDev->reinit();
     rt_kprintf("enter login...\n");
     //自动注册
     auto storage = Preset::PersistentStorage::get();

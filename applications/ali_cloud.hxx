@@ -41,9 +41,8 @@ private:
     };
 
     std::array<Spec, Config::Bsp::kPortNum> specs;
-    Timer psTimer = {97, "acp"};
+    //Timer psTimer = {97, "acp"};
     rt_uint8_t psCnt = 0;
-    bool initDone = false;
     static constexpr rt_uint8_t kPsActionsNum = 2;
 
     std::shared_ptr<AliIotDevice> device;

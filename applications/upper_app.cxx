@@ -60,6 +60,7 @@ void UpperApp::run() {
     };
 
     cloud->onHeartbeat += [=] {
+        if(!state->cloudConnected) return;
         if(ota->isRunning()) return;
         cloud->emitHeartbeat(std::move(Heartbeat {
             signal: state->signal,

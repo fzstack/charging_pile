@@ -16,10 +16,12 @@
 #include <components/air_components.hxx>
 #include <utilities/shared_thread.hxx>
 #include <utilities/istream.hxx>
+#include <components/comm_dev.hxx>
+#include <utilities/observer.hxx>
 
 class AliIotDevice {
 public:
-    AliIotDevice(std::shared_ptr<HttpClient> http, std::shared_ptr<MqttClient> mqtt, std::shared_ptr<SharedThread> thread);
+    AliIotDevice(std::shared_ptr<CommDev> commDev, std::shared_ptr<HttpClient> http, std::shared_ptr<MqttClient> mqtt, std::shared_ptr<SharedThread> thread);
     void login(std::string_view deviceName, std::string_view productKey, std::string_view productSecret);
     void emit(std::string_view event, Json params);
     void set(std::string_view property, Json value);
@@ -27,6 +29,7 @@ public:
     void otaEmitVersion(std::string_view version, std::string_view module);
     void otaEmitProgress(int step, std::string_view desc, std::string_view module);
 private:
+    void loginInternal();
     std::string genTopic(std::initializer_list<std::string_view> suffixes);
     std::string genTopic(std::initializer_list<std::string_view> prefixes, std::initializer_list<std::string_view> suffixes);
     static std::string getRegisterSign(std::string_view deviceName, std::string_view productKey, std::string_view productSecret, int random);
@@ -64,17 +67,19 @@ private:
         };
     };
 
+    std::shared_ptr<CommDev> commDev;
     std::shared_ptr<HttpClient> http;
     std::shared_ptr<MqttClient> mqtt;
 public:
     std::shared_ptr<SharedThread> thread;
 private:
-    std::string deviceName, productKey;
+    std::string deviceName, productKey, productSecret;
 
 public:
     std::unordered_map<std::string, Signals<Json(const Json)>> services = {};
     std::unordered_map<std::string, Signals<void(const Json)>> properties = {};
     Signals<void(std::string version, std::string module, std::shared_ptr<IStream>, int size)> ota;
+    Observer<bool> oConnected;
 
 private:
     static const char* kApiAuth;
@@ -95,10 +100,11 @@ class ali_iot_do_not_reply: public ali_iot_error {
 };
 
 #include <utilities/singleton.hxx>
+#include <components/air_comm_dev.hxx>
 namespace Preset {
 class AliIotDevice: public Singleton<AliIotDevice>, public ::AliIotDevice {
     friend class Singleton<AliIotDevice>;
-    AliIotDevice(): ::AliIotDevice(Air724::get()->make<HttpClient>(), Air724::get()->make<MqttClient>(), SharedThread<Priority::Middle>::get()) {}
+    AliIotDevice(): ::AliIotDevice(std::make_shared<AirCommDev>(Air724::get()), Air724::get()->make<HttpClient>(), Air724::get()->make<MqttClient>(), SharedThread<Priority::Middle>::get()) {}
 };
 }
 

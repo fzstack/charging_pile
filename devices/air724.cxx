@@ -23,22 +23,37 @@ Air724::Air724(const char* atUartDevice, rt_base_t resetPin): resetPin(resetPin)
 
     inited.onChanged += [this](auto value) {
         if(!value) return;
-        if(at_client_obj_wait_connect(atClient, kTimeoutMs) != RT_EOK) {
-            rt_kprintf("try init failed\n");
-            rt_thread_mdelay(10000);
-            if(at_client_obj_wait_connect(atClient, kTimeoutMs) != RT_EOK) {
-                throw runtime_error{"connect timeout"};
+        auto ess = make<AirEssential>();
+        while(1) {
+            auto hasError = false;
+            try {
+                if(at_client_obj_wait_connect(atClient, kTimeoutMs) != RT_EOK) {
+                    rt_kprintf("try init failed\n");
+                    rt_thread_mdelay(10000);
+                    if(at_client_obj_wait_connect(atClient, kTimeoutMs) != RT_EOK) {
+                        throw runtime_error{"connect timeout"};
+                    }
+                }
+                rt_kprintf("ess maked\n");
+                ess->closeEcho();
+                rt_kprintf("echo closed\n");
+                ess->attachGprs();
+                rt_kprintf("gprs attached\n");
+                ess->activatePdp();
+                rt_kprintf("pdpactivated\n");
+            } catch(exception& e) {
+                hasError = true;
+            }
+
+            if(hasError) {
+                reset();
+                rt_kprintf("retry air724 init\n");
+            } else {
+                break;
             }
         }
-
-        auto ess = make<AirEssential>();
-        rt_kprintf("ess maked\n");
-        ess->closeEcho();
-        rt_kprintf("echo closed\n");
-        ess->attachGprs();
-        rt_kprintf("gprs attached\n");
-        ess->activatePdp();
-        rt_kprintf("pdpactivated\n");
+        
+        
     };
 }
 
@@ -46,10 +61,14 @@ void Air724::reset(rt_base_t resetMs) {
     *resetPin = true;
     rt_thread_mdelay(resetMs);
     *resetPin = false;
-    inited = false; //TODO: 由谁调用init函数?
 }
 
 void Air724::init() {
     inited = true;
+}
+
+void Air724::reinit() {
+    inited = false;
+    init();
 }
 

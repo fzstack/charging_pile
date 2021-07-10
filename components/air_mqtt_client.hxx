@@ -6,6 +6,8 @@
 #include <components/air_component.hxx>
 #include <memory>
 #include <vector>
+#include <components/timer.hxx>
+#include <atomic>
 
 class Air724;
 
@@ -39,6 +41,7 @@ private:
 
 
     std::shared_ptr<rt_event> event;
+    Timer timer = {10000, "amc"};
 };
 
 

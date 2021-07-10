@@ -24,6 +24,7 @@ public:
     Air724(const char* atUartDevice, rt_base_t resetPin);
     void reset(rt_base_t resetMs = 1000);
     void init();
+    void reinit();
 
     using known_components = std::tuple<AirEssential, AirHttpClient, AirMqttClient>;
 private:

@@ -2,48 +2,49 @@
 #include <components/air_components.hxx>
 #include <config/app.hxx>
 #include <utilities/json.hxx>
+#include <components/air_components.hxx>
 
 using namespace std;
 using namespace json_literals;
 using namespace string_literals;
 
 AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724> air, std::shared_ptr<CloudTimer> timer, std::shared_ptr<AppState> appState): Cloud(timer), device(device), air(air), appState(appState) {
-    psTimer.onRun += [this, device] {
-        auto port = InnerPort{rt_uint8_t(psCnt / kPsActionsNum)};
-        auto& spec = specs[port.get()];
-        switch(psCnt % kPsActionsNum) {
-        case 0:
-            if(spec.fPlugged.updateAndCheck()) {
-                device->thread->exec([=]{
-                    device->emit("port_access", {
-                        {"port", NatPort{port}.get()},
-                    });
-                });
-            }
-            break;
-        case 1:
-            if(spec.fUnpluged.updateAndCheck()) {
-                device->thread->exec([=]{
-                    device->emit("port_unplug", {
-                        {"port", NatPort{port}.get()},
-                    });
-                });
-            }
-            break;
-        default:
-            break;
-        }
-        psCnt++;
-        psCnt %= Config::Bsp::kPortNum * kPsActionsNum;
+    // psTimer.onRun += [this, device] {
+    //     auto port = InnerPort{rt_uint8_t(psCnt / kPsActionsNum)};
+    //     auto& spec = specs[port.get()];
+    //     switch(psCnt % kPsActionsNum) {
+    //     case 0:
+    //         if(spec.fPlugged.updateAndCheck()) {
+    //             device->thread->exec([=]{
+    //                 device->emit("port_access", {
+    //                     {"port", NatPort{port}.get()},
+    //                 });
+    //             });
+    //         }
+    //         break;
+    //     case 1:
+    //         if(spec.fUnpluged.updateAndCheck()) {
+    //             device->thread->exec([=]{
+    //                 device->emit("port_unplug", {
+    //                     {"port", NatPort{port}.get()},
+    //                 });
+    //             });
+    //         }
+    //         break;
+    //     default:
+    //         break;
+    //     }
+    //     psCnt++;
+    //     psCnt %= Config::Bsp::kPortNum * kPsActionsNum;
 
-    };
+    // };
+
+    //可观测值绑定
+    this->appState->cloudConnected = device->oConnected;
 
     inited.onChanged += [this](auto value) {
         if(!value) return;
 
-        rt_kprintf("initing ali cloud\n");
-        this->air->init();
-        rt_kprintf("air init OK\n");
         this->device->services["query"] += [this](auto r, const auto params) {
           onQuery([r](auto e) mutable {
               if(e) {
@@ -150,13 +151,19 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
             onOta(version, module, stream, size);
         };
 
-        rt_kprintf("try login device...\n");
-        this->device->login(this->appState->imei, Config::Cloud::productKey, Config::Cloud::productSecret);
+        this->air->init();
+        string imei;
+        {
+            auto ess = this->air->make<AirEssential>();
+            imei = ess->getImei();
+            rt_kprintf("imei: %s\n", imei.data());
+        }
+        
 
-        psTimer.start();
+        this->device->login(imei, Config::Cloud::productKey, Config::Cloud::productSecret);
+
+        // psTimer.start();
         Cloud::init();
-        initDone = true;
-        this->appState->cloudConnected = true;
     };
 }
 
@@ -165,7 +172,7 @@ void AliCloud::init() {
 }
 
 void AliCloud::emitCurrentData(CurrentData&& data) {
-    if(!initDone) return;
+    if(!device->oConnected) return;
     auto value = Json {
         {"port", data.port.get()},
         {"timer_id", data.timerId},
@@ -186,14 +193,14 @@ void AliCloud::emitCurrentData(CurrentData&& data) {
 }
 
 void AliCloud::setIccid(std::string_view iccid) {
-    if(!initDone) return;
+    if(!device->oConnected) return;
     device->thread->exec([this, iccid = string{iccid}]{
         device->set("iccid", iccid);
     });
 }
 
 void AliCloud::emitHeartbeat(Heartbeat&& heartbeat) {
-    if(!initDone) return;
+    if(!device->oConnected) return;
     device->thread->exec([=]{
         device->emit("heartbeat", {
             {"signal", heartbeat.signal},
@@ -207,17 +214,17 @@ void AliCloud::emitHeartbeat(Heartbeat&& heartbeat) {
 }
 
 void AliCloud::emitPortAccess(NatPort port) {
-    if(!initDone) return;
+    if(!device->oConnected) return;
     specs[InnerPort{port}.get()].fPlugged.retrigger();
 }
 
 void AliCloud::emitPortUnplug(NatPort port) {
-    if(!initDone) return;
+    if(!device->oConnected) return;
     specs[InnerPort{port}.get()].fUnpluged.retrigger();
 }
 
 void AliCloud::emitIcNumber(NatPort port, std::string_view icNumber) {
-    if(!initDone) return;
+    if(!device->oConnected) return;
     auto icNumberS = string{icNumber.begin(), icNumber.end()};
     device->thread->exec([=]{
         device->emit("ic_number", {
@@ -228,7 +235,7 @@ void AliCloud::emitIcNumber(NatPort port, std::string_view icNumber) {
 }
 
 void AliCloud::emitCurrentLimit(NatPort port) {
-    if(!initDone) return;
+    if(!device->oConnected) return;
     device->thread->exec([=]{
         device->emit("current_limit", {
            {"port", port.get()},
@@ -237,14 +244,14 @@ void AliCloud::emitCurrentLimit(NatPort port) {
 }
 
 void AliCloud::emitModuleVersion(std::string_view version, std::string_view module) {
-    if(!initDone) return;
+    if(!device->oConnected) return;
     device->thread->exec([this, version = string{version}, module = string{module}]{
         device->otaEmitVersion(version, module);
     });
 }
 
 void AliCloud::emitOtaProgress(int step, std::string_view desc, std::string_view module) {
-    if(!initDone) return;
+    if(!device->oConnected) return;
     device->thread->exec([this, step, desc = string{desc}, module = string{module}]{
         device->otaEmitProgress(step, desc, module);
     });

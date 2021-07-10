@@ -11,6 +11,7 @@ template<class T>
 class Observer {
 public:
     Observer(Observable<T>& obs): obs(obs) { }
+    Observer(Observer<T>& ober): obs(ober.obs) { }
 
     void operator+=(std::function<void(const T& value)> cb) {
         obs.onChanged += cb;

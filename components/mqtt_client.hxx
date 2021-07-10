@@ -3,6 +3,8 @@
 
 #include <string_view>
 #include <utilities/signals.hxx>
+#include <utilities/observable.hxx>
+#include <utilities/observer.hxx>
 
 class MqttClient {
 public:
@@ -10,7 +12,10 @@ public:
     virtual void subscribe(std::string_view topic) = 0;
     virtual void publish(std::string_view topic, std::string_view data) = 0;
 
-    Signals<void()> onConnected, onDisconnected;
+protected:
+    Observable<bool> connected = {false};
+public:
+    Observer<bool> oConnected = {connected}; 
     Signals<void(std::string topic, std::string data)> onMessage;
 };
 
