@@ -3,8 +3,9 @@
 
 using namespace std;
 
-void OtaLowerModule::start(std::string_view version, std::shared_ptr<IStream> stream, int size) {
-    currPos = 0;
+void OtaLowerModule::start(std::string_view version, std::shared_ptr<IStream> stream, int size, int offset) {
+    OtaModule::start(version, stream, size, offset);
+    currPos = offset;
     recvedLen = 0;
 
     cb = [this, self = shared_from_this(), stream, size](variant<Void, exception_ptr> rv){
@@ -18,10 +19,10 @@ void OtaLowerModule::start(std::string_view version, std::shared_ptr<IStream> st
             } else {
                 //读取下一个数据
                 currPos += recvedLen;
-                setProgress(100 * currPos / size);
+                setProgress(currPos);
                 try {
                     buf.resize(kBufSize);
-                    recvedLen = stream->readData(&buf[0], kBufSize);
+                    recvedLen = this->retryFetch(stream, &buf[0], kBufSize, currPos);
                     buf.resize(recvedLen);
                 } catch(exception& e) {
                     emitError(OtaError::DownloadFailed, "下载失败");
@@ -40,10 +41,10 @@ void OtaLowerModule::start(std::string_view version, std::shared_ptr<IStream> st
         });
     };
 
-    getThread()->exec([this, self = shared_from_this(), stream, size]() mutable {
+    getThread()->exec([this, self = shared_from_this(), stream, size, offset]() mutable {
         rt_kprintf("LOWER OTA RUNNING\n");
         rt_kprintf("erasing parti...\n");
-        rpc->invoke<Rpcs::Ota::Erase>({size}, [this, self, stream, size](auto r) {
+        rpc->invoke<Rpcs::Ota::Erase>({size, offset}, [this, self, stream, size](auto r) {
             getThread()->exec([=]{
                 auto err = get_if<exception_ptr>(&r);
                 if(err != nullptr) {

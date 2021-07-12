@@ -78,14 +78,18 @@ void UpperApp::run() {
     };
 
     ota->onProgress += [=](auto module, auto value) {
-        rt_kprintf("%d\n", value);
-        cloud->emitOtaProgress(value, "download", module);
+        // cloud->emitOtaProgress(value, "download", module);
         state->progress = value;
+    };
+
+    state->progress.onChanged += [=](auto value) {
+        if(value == std::nullopt) return;
+        rt_kprintf("%d\n", *value);
     };
 
     ota->onDone += [=](auto module){
         rt_kprintf("OTA REBOOTING...\n");
-        rebooter->rebootAll();
+        rebooter->rebootModule(module);
     };
 
     user->onInputConfirm += [=](auto port, auto icNumber) {

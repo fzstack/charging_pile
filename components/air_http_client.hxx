@@ -29,6 +29,7 @@ private:
     public:
         Stream(outer_t* outer, Session sess);
         virtual int readData(rt_uint8_t* data, int len) override final;
+        virtual void seek(int pos) override;
     private:
         int currPos = 0;
         Session sess;

@@ -74,6 +74,7 @@ public:
     std::shared_ptr<SharedThread> thread;
 private:
     std::string deviceName, productKey, productSecret;
+    bool otaRunning = false;
 
 public:
     std::unordered_map<std::string, Signals<Json(const Json)>> services = {};

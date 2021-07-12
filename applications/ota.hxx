@@ -26,6 +26,10 @@ public:
     std::shared_ptr<OtaModule> getModule(std::string_view module);
     void start(std::string_view version, std::string_view module, std::shared_ptr<IStream> stream, int size);
     bool isRunning();
+private:
+    int getLastOffset(std::string_view module, std::string_view version);
+    void setLastOffset(std::string_view module, std::string_view version, int offset);
+    void updateProgress(std::shared_ptr<OtaModule> module, int pos);
 public:
     Signals<void(std::string_view module)> onDone = {};
     Signals<void(std::string_view module, int value)> onProgress = {};

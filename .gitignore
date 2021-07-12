@@ -28,7 +28,6 @@ Debug
 GPATH
 GRTAGS
 GTAGS
-.vscode
 JLinkLog.txt
 JLinkSettings.ini
 DebugConfig/

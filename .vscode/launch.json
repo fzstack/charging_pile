@@ -1,0 +1,38 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "RT debug",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/rt-thread.elf",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "${env:RTT_EXEC_PATH}/arm-none-eabi-gdb",
+            "targetArchitecture": "arm",
+            "setupCommands": [
+                {
+                    "description": "设置调试文件",
+                    "text": "file ${workspaceFolder}/rt-thread.elf"
+                }, {
+                    "description": "连接GDB Server",
+                    "text": "target remote ${env:DBG_SERVER}:${env:GDB_PORT}"
+                }, {
+                    "description": "Reset MCU",
+                    "text": "monitor reset"
+                }, {
+                    "description": "Halt",
+                    "text": "monitor halt"                                                  
+                }, {
+                    "description":"下载代码到MCU",
+                    "text": "load"                                  
+                }
+            ],
+            "preLaunchTask": "build"
+        }
+    ]
+}

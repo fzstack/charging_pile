@@ -1,0 +1,117 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "build",
+			"command": "scons",
+			"args": [
+				"-j42"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "none",
+			"dependsOn": [
+				// "sync_compiler_flags"
+			]
+		},
+        {
+			"type": "shell",
+			"label": "dist",
+			"command": "python",
+			"args": [
+				"scripts/dist.py"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"dependsOn": [
+				"build"
+			],
+			"group": "build",
+			"problemMatcher": []
+		},
+		{
+			"type": "shell",
+			"label": "gen_test_config",
+			"command": "python",
+			"args": [
+				"scripts/gen_test_config.py"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": "none",
+			"problemMatcher": []
+		},
+		{
+			"type": "shell",
+			"label": "menuconfig",
+			"command": "scons",
+			"args": [
+				"--menuconfig"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": "none",
+			"dependsOn": [
+				"gen_test_config"
+			],
+			"presentation": {
+				"panel": "shared",
+				"reveal": "always",
+				"focus": true
+			},
+			"problemMatcher": []
+		},
+		{
+			"type": "shell",
+			"label": "gen_vsc",
+			"command": "scons",
+			"args": [
+				"--target=vsc"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"dependsOn": [
+				"menuconfig"
+			],
+			"group": "none",
+			"problemMatcher": []
+		},
+		{
+			"type": "shell",
+			"label": "config",
+			"command": "python",
+			"args": [
+				"scripts/patch_settings.py"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"dependsOn": [
+				"gen_vsc"
+			],
+			"group": "build",
+			"problemMatcher": []
+		},
+		{
+			"type": "shell",
+			"label": "reset",
+			"command": "echo reset | telnet ${env:DBG_SERVER} ${env:TELNET_PORT}",
+			"problemMatcher": []
+		},
+		{
+			"type": "shell",
+			"label": "halt",
+			"command": "echo halt | telnet ${env:DBG_SERVER} ${env:TELNET_PORT}",
+			"problemMatcher": []
+		}
+	]
+}

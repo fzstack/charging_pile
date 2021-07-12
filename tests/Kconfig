@@ -18,6 +18,9 @@ menu "Test Config"
                 config TEST_APPLICATIONS_USER
                     bool "Enable User test"
                     default n
+                config TEST_APPLICATIONS_OTA
+                    bool "Enable Ota test"
+                    default n
             endmenu
             menu "Boost"
                 config TEST_BOOST_PFR
@@ -173,6 +176,9 @@ menu "Test Config"
                     default n
                 config TEST_UTILITIES_TWEEN
                     bool "Enable Tween test"
+                    default n
+                config TEST_UTILITIES_WEAK_SINGLETON
+                    bool "Enable WeakSingleton test"
                     default n
             endmenu
             menu "Fal"

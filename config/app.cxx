@@ -12,10 +12,10 @@ using namespace Config;
 using namespace std;
 
 #ifdef UPPER_END
-const char* moduleVersion = LOWER_VERSION;
+const char* moduleVersion = UPPER_VERSION;
 #endif
 #ifdef LOWER_END
-const char* moduleVersion = UPPER_VERSION;
+const char* moduleVersion = LOWER_VERSION;
 #endif
 
 namespace Preset {

@@ -2,6 +2,7 @@
 #define CONFIG_APP_HXX_
 #include <string>
 #include <utilities/nat_port.hxx>
+#include <map>
 
 extern const char* moduleVersion;
 
@@ -24,6 +25,15 @@ struct AliIotDevice {
     std::string deviceName = "";
     std::string productKey = "";
     std::string deviceSecret = "";
+};
+
+
+struct OTA {
+    struct ModuleSpec {
+        std::string version;
+        int offset;
+    };
+    std::map<std::string, ModuleSpec> offsets;
 };
 
 }

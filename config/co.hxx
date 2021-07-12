@@ -120,6 +120,7 @@ struct Write {
 namespace Ota {
 struct Erase {
     int size;
+    int offset;
 };
 
 struct Write {

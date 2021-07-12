@@ -22,22 +22,30 @@
 class Ota;
 
 class OtaModule: public Nested<Ota>, public std::enable_shared_from_this<OtaModule> {
+    friend class Ota;
 public:
     OtaModule(outer_t* outer);
-    virtual void start(std::string_view version, std::shared_ptr<IStream> stream, int size) = 0;
+    virtual void start(std::string_view version, std::shared_ptr<IStream> stream, int size, int offset);
     virtual std::string getName() = 0;
     virtual void getVersion(std::function<void(std::variant<std::string, std::exception_ptr>)> cb) = 0;
+
+    struct Target {
+        int size;
+        std::string version;
+    };
+
+    const Target& getTarget() const;
+
 protected:
     void setProgress(int value);
     std::shared_ptr<SharedThread> getThread();
     void emitError(OtaError e, std::string_view desc);
     void emitDone();
+
+    int retryFetch(std::shared_ptr<IStream> stream, rt_uint8_t* data, int len, int rollback);
 private:
-    void emitProgress(int value);
-private:
-    int progress = 0;
-    int lastProgress = 0;
-    Timer timer = {1000, "otam"};
+    Target target;
+    int lastProgress = 0; /* used by ota */
 };
 
 

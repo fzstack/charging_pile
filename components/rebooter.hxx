@@ -8,11 +8,13 @@
  * 2021-04-08     imgcr       the first version
  */
 #pragma once
+#include <string_view>
 
 class Rebooter {
 public:
     virtual void reboot() = 0;
     virtual void rebootAll() {};
+    virtual void rebootModule(std::string_view module) {};
 };
 
 

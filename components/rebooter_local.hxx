@@ -18,6 +18,7 @@ public:
     RebooterLocal(std::shared_ptr<Air724> air724, std::shared_ptr<Packet> packet);
     virtual void reboot() override;
     virtual void rebootAll() override;
+    virtual void rebootModule(std::string_view module) override;
 
     std::shared_ptr<Air724> air724;
     std::shared_ptr<Packet> packet;

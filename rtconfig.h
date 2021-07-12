@@ -52,7 +52,7 @@
 
 #define RT_USING_COMPONENTS_INIT
 #define RT_USING_USER_MAIN
-#define RT_MAIN_THREAD_STACK_SIZE 2048
+#define RT_MAIN_THREAD_STACK_SIZE 2400
 #define RT_MAIN_THREAD_PRIORITY 10
 
 /* C++ features */
@@ -61,6 +61,18 @@
 
 /* Command shell */
 
+#define RT_USING_FINSH
+#define FINSH_THREAD_NAME "tshell"
+#define FINSH_USING_HISTORY
+#define FINSH_HISTORY_LINES 5
+#define FINSH_USING_SYMTAB
+#define FINSH_USING_DESCRIPTION
+#define FINSH_THREAD_PRIORITY 20
+#define FINSH_THREAD_STACK_SIZE 2048
+#define FINSH_CMD_SIZE 80
+#define FINSH_USING_MSH
+#define FINSH_USING_MSH_DEFAULT
+#define FINSH_ARG_MAX 10
 
 /* Device virtual file system */
 
@@ -107,6 +119,7 @@
 #define RT_USING_AT
 #define AT_USING_CLIENT
 #define AT_CLIENT_NUM_MAX 1
+#define AT_USING_CLI
 #define AT_CMD_MAX_LEN 2048
 #define AT_SW_VERSION_NUM 0x10300
 
@@ -232,8 +245,8 @@
 
 #define RUN_APP
 #define ENABLE_REMOTE
-#define USE_UPPER_END
-#define UPPER_VERSION "0.2.10a"
+#define USE_LOWER_END
+#define UPPER_VERSION "0.2.20a"
 #define LOWER_VERSION "0.2.18a"
 
 /* Test Config */

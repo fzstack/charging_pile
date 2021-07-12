@@ -16,7 +16,7 @@
 class OtaLowerModule: public OtaModule {
     using OtaModule::OtaModule;
 public:
-    virtual void start(std::string_view version, std::shared_ptr<IStream> stream, int size) override;
+    virtual void start(std::string_view version, std::shared_ptr<IStream> stream, int size, int offset) override;
     virtual std::string getName() override;
     virtual void getVersion(std::function<void(std::variant<std::string, std::exception_ptr>)> cb) override;
 private:

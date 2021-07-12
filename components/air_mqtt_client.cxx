@@ -19,14 +19,16 @@ AirMqttClient::AirMqttClient(std::shared_ptr<Air724> owner): AirComponent<AirMqt
     });
 
     timer.onRun += [=]{
-        auto resp = createResp();
+        auto resp = std::shared_ptr<at_response>(at_create_resp(64, 0, 1000), [](auto p) {
+            at_delete_resp(p);
+        });
         if(at_obj_exec_cmd(getAtClient(), resp.get(), "AT+MQTTSTATU") != RT_EOK) {
             return;
         }
 
         auto status = 0;
         at_resp_parse_line_args_by_kw(resp.get(), "+MQTTSTATU", "+MQTTSTATU :%d", &status);
-        rt_kprintf("status is %d\n", status);
+        // rt_kprintf("status is %d\n", status);
         connected = status != 0;
     };
 

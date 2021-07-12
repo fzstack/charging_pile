@@ -49,6 +49,10 @@ int AirHttpClient::Stream::readData(rt_uint8_t* data, int len) {
     return readLen;
 }
 
+void AirHttpClient::Stream::seek(int pos) {
+    currPos = pos;
+}
+
 AirHttpClient::Session AirHttpClient::sendInternal(std::shared_ptr<HttpRequest> request, int timeout) {
     auto resp = createResp(timeout);
     auto sess = Session{

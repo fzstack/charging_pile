@@ -25,3 +25,13 @@ void RebooterLocal::rebootAll() {
     packet->emit<Packets::Reboot>({});
     reboot();
 }
+
+void RebooterLocal::rebootModule(std::string_view module) {
+    if(module == "upper") {
+        rt_kprintf("upper rebooting");
+        reboot();
+    } else if(module == "lower") {
+        rt_kprintf("lower rebooting");
+        packet->emit<Packets::Reboot>({});
+    }
+}

@@ -22,8 +22,8 @@ OtaLower::OtaLower(std::shared_ptr<Fal> fal, std::shared_ptr<Rpc> rpc, std::shar
 
     rpc->def<Rpcs::Ota::Erase>([this](auto p, auto r) {
         this->thread->exec([=]{
-            rt_kprintf("erasing..., size: %d\n", p->size);
-            auto res = fal_partition_erase(parti, 0, p->size);
+            rt_kprintf("erasing..., size: %d, offset: %d\n", p->size, p->offset);
+            auto res = fal_partition_erase(parti, p->offset, p->size - p->offset);
             if(res < 0) {
                 rt_kprintf("parti erase failed\n");
                 r(make_exception_ptr(runtime_error{"parti erase failed"}));

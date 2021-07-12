@@ -14,17 +14,30 @@
 using namespace std;
 
 OtaModule::OtaModule(outer_t* outer): nested_t(outer) {
-    timer.onRun += [=]{
-        if(lastProgress != progress) {
-            lastProgress = progress;
-            emitProgress(progress);
+
+}
+
+void OtaModule::start(std::string_view version, std::shared_ptr<IStream> stream, int size, int offset) {
+    target.version = string{version};
+    target.size = size;
+}
+
+const OtaModule::Target& OtaModule::getTarget() const {
+    return target;
+}
+
+int OtaModule::retryFetch(std::shared_ptr<IStream> stream, rt_uint8_t* data, int len, int rollback) {
+    do {
+        try {
+            return stream->readData(data, len);
+        } catch(exception& e) {
+            stream->seek(rollback);
         }
-    };
-    timer.start();
+    } while(true);
 }
 
 void OtaModule::setProgress(int value) {
-    progress = value;
+    outer->updateProgress(shared_from_this(), value);
 }
 
 std::shared_ptr<SharedThread> OtaModule::getThread() {
@@ -38,8 +51,3 @@ void OtaModule::emitError(OtaError e, std::string_view desc) {
 void OtaModule::emitDone() {
     outer->onDone(getName());
 }
-
-void OtaModule::emitProgress(int value) {
-    outer->onProgress(getName(), value);
-}
-

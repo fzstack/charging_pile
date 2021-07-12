@@ -61,6 +61,7 @@ AliIotDevice::AliIotDevice(std::shared_ptr<CommDev> commDev, shared_ptr<HttpClie
             if(d.contains("module")) {
                 module = d["module"_s];
             }
+            otaRunning = true;
             ota(d["version"_s], module, stream, d["size"_i]);
             rt_kprintf("ota cb returned\n");
             return;
@@ -121,6 +122,7 @@ AliIotDevice::AliIotDevice(std::shared_ptr<CommDev> commDev, shared_ptr<HttpClie
 
     oConnected += [=](auto value) {
         if(!value) {
+            if(otaRunning) return;
             thread->exec([=] {
                 rt_kprintf("relogin due to disconnected\n");
                 loginInternal();
