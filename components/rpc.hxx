@@ -88,11 +88,13 @@ private:
     struct PendingImpl: public Pending {
         PendingImpl(std::function<void(ivk_cb_param_t<T>)> r, rt_tick_t timeout): Pending(timeout), r(r) {}
         virtual void emitTimeout() override {
+#ifdef __cpp_exceptions
             try {
                 throw timeout_error{"rpc invoke timeout"};
             } catch(std::exception& e) {
                 r(std::current_exception());
             }
+#endif
         }
         std::function<void(ivk_cb_param_t<T>)> r;
     };
@@ -138,11 +140,13 @@ public:
                     auto pending = std::static_pointer_cast<PendingImpl<T>>(found->second);
                     pendings.erase(p->id);
                     mutex.unlock();
+#ifdef __cpp_exceptions
                     try {
                         throw std::runtime_error{p->msg};
                     } catch(std::exception& e) {
                         pending->r(std::current_exception());
                     }
+#endif
                 });
             });
         }
@@ -151,11 +155,13 @@ public:
 #ifdef LOG_RPC_E_MAX_PARALLEL
             rt_kprintf("exceed max parallel when invoke %08x\n", TypeId<T>::get());
 #endif
+#ifdef __cpp_exceptions
             try {
                 throw timeout_error{"timeout"};
             } catch(std::exception& e) {
                 r(std::current_exception());
             }
+#endif
             return;
         }
 
@@ -220,14 +226,18 @@ public:
                 auto p = std::make_shared<T>(r->data);
                 auto id = r->id;
                 auto f = [this, id](def_cb_param_t<T> result){
+#ifdef __cpp_exceptions
                     try {
+#endif
                         if(auto err = std::get_if<std::exception_ptr>(&result)) std::rethrow_exception(*err);
                         auto data = std::get_if<result_t<T>>(&result);
                         handleRespResult(*data, id);
                         packet->emit<Response<T>>({id, *data});
+#ifdef __cpp_exceptions
                     } catch(const std::exception& e) {
                         packet->emit<Failure<T>>({id, e.what()});
                     }
+#endif
                 };
                 cb(p, f); //可能会被packet堵塞，所以在不同于middle的回调线程执行
             });
@@ -238,11 +248,15 @@ public:
     template<class T>
     auto def(std::function<result_t<T>(std::shared_ptr<T>)> cb) -> std::enable_if_t<!std::is_same_v<result_t<T>, Void>> {
         def<T>([=](auto p, auto r){
+#ifdef __cpp_exceptions
             try {
+#endif
                 r(cb(p));
+#ifdef __cpp_exceptions
             } catch(const std::exception& e) {
                 r(std::current_exception());
             }
+#endif
         });
     }
 

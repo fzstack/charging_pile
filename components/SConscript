@@ -3,10 +3,40 @@ Import('rtconfig')
 from building import *
 
 cwd = GetCurrentDir()
-src = Glob('*.cxx')
+
 CPPPATH = [
     cwd,
 ]
+
+src = []
+
+if GetDepend(['USE_UPPER_END']):
+    src += Glob('*.cxx')
+
+if GetDepend(['USE_LOWER_END']):
+    src += [
+        'charger.cxx',
+        'handshake.cxx',
+        'multimeter.cxx',
+        'ota_lower.cxx',
+        'packet.cxx',
+        'rebooter_remote.cxx',
+        'remote_backup_man.cxx',
+        'remote_fal_persistent_storage.cxx',
+        'local_state_store.cxx',
+        'rpc.cxx',
+        'state_store_base.cxx',
+        'state_store.cxx',
+        'timer.cxx',
+        'watch_dog.cxx',
+        'fal.cxx',
+        'virtual_load_detector.cxx',
+    ]
+    src += Glob('lower/*.cxx')
+    CPPPATH += [
+        'lower'
+    ]
+    ...
 
 group = DefineGroup('Components', src, depend = [''], CPPPATH = CPPPATH)
 

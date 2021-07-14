@@ -120,12 +120,16 @@ struct Signals<void(P...)> {
 
     void operator+=(std::function<cb_f> cb) {
         (*this) += [=](ret_sig_t r, P ...p) {
+#ifdef __cpp_exceptions
             try {
+#endif
                 cb(p...);
                 r({});
+#ifdef __cpp_exceptions
             } catch(const std::exception& e) {
                 r({std::current_exception()});
             }
+#endif
         };
     }
 

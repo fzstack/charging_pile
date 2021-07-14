@@ -3,7 +3,11 @@ Import('rtconfig')
 from building import *
 
 cwd = GetCurrentDir()
-src = Glob('*.cxx')
+src = []
+
+if GetDepend(['USE_UPPER_END']):
+    src += Glob('*.cxx')
+
 CPPPATH = [
     cwd,
 ]

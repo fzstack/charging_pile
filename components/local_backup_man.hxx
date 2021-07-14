@@ -26,11 +26,11 @@ public:
     LocalBackupMan(std::shared_ptr<Packet> packet, std::shared_ptr<Rpc> rpc, std::shared_ptr<SharedThread> thread);
 
     virtual void read(InnerPort port, std::function<void(std::optional<Backup>)>) override {
-        throw not_implemented{};
+        // throw not_implemented{};
     }
 
     virtual void write(InnerPort port, Backup backup) override {
-        throw not_implemented{};
+        // throw not_implemented{};
     }
 
 private:

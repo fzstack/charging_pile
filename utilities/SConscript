@@ -3,10 +3,33 @@ Import('rtconfig')
 from building import *
 
 cwd = GetCurrentDir()
-src = Glob('*.cxx')
+src = []
 CPPPATH = [
     cwd,
 ]
+
+src = []
+
+if GetDepend(['USE_UPPER_END']):
+    src += Glob('*.cxx')
+
+if GetDepend(['USE_LOWER_END']):
+    src += [
+        'cmd.cxx',
+        'crc16.cxx',
+        'deserializer.cxx',
+        'inner_port.cxx',
+        'nat_port.cxx',
+        'port.cxx',
+        'serializer.cxx',
+        'tiny_type_id.cxx',
+        'shared_thread.cxx',
+        'event.cxx',
+        'thread.cxx',
+        'deliver_base.cxx',
+        'post.cxx',
+    ]
+    ...
 
 group = DefineGroup('Utilities', src, depend = [''], CPPPATH = CPPPATH)
 

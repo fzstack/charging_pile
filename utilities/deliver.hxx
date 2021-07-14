@@ -79,12 +79,16 @@ public:
     virtual void invoke() override {
         if(ctxQueue.empty()) return;
         auto [result, args, type] = ctxQueue.pop();
+#ifdef __cpp_exceptions
         try {
+#endif
             std::apply(f, args);
             result({});
+#ifdef __cpp_exceptions
         } catch(const std::exception& e) {
             result({std::current_exception()});
         }
+#endif
         if(type == DeliverType::ShortTerm)
             dispose();
     }

@@ -4,8 +4,12 @@ from building import *
 
 cwd = GetCurrentDir()
 src = Glob('*.cxx')
-src += Glob('lower_end/*.cxx')
-src += Glob('upper_end/*.cxx')
+
+if GetDepend(['USE_LOWER_END']):
+    src += Glob('lower_end/*.cxx')
+
+if GetDepend(['USE_UPPER_END']):
+    src += Glob('upper_end/*.cxx')
 CPPPATH = [
     cwd,
     cwd + '/lower_end',

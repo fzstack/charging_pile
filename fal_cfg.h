@@ -35,12 +35,22 @@ extern const struct fal_flash_dev stm32_onchip_flash;
 extern struct fal_flash_dev nor_flash0;
 
 /* flash device table */
+#ifdef UPPER_END
 #define FAL_FLASH_DEV_TABLE                                          \
 {                                                                    \
     &stm32_onchip_flash,                                           \
     &nor_flash0,                                                     \
 }
 /* ====================== Partition Configuration ========================== */
+#endif
+
+#ifdef LOWER_END
+#define FAL_FLASH_DEV_TABLE                                          \
+{                                                                    \
+    &stm32_onchip_flash,                                           \
+}
+#endif
+
 #ifdef FAL_PART_HAS_TABLE_CFG
 /* partition table */
 
@@ -58,7 +68,9 @@ extern struct fal_flash_dev nor_flash0;
 #define FAL_PART_TABLE                                                               \
 {                                                                                    \
     {FAL_PART_MAGIC_WORD,        "bl",     "onchip_flash",         0,   36*1024, 0}, \
-    {FAL_PART_MAGIC_WORD,       "app",     "onchip_flash",   36*1024,  260*1024, 0}, \
+    {FAL_PART_MAGIC_WORD,       "app",     "onchip_flash",   36*1024,  200*1024, 0}, \
+    {FAL_PART_MAGIC_WORD,       "backup",     "onchip_flash",   236*1024,  58*1024, 0}, \
+    {FAL_PART_MAGIC_WORD,       "conf",     "onchip_flash",   294*1024,  2*1024, 0}, \
     {FAL_PART_MAGIC_WORD,  "download",     "onchip_flash",   296*1024,  216*1024, 0}, \
 }
 #endif

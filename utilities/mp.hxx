@@ -30,8 +30,8 @@ struct magic_switch {
   using R=std::result_of_t<F(index_t<0>, Args...)>;
   template<class F, class...Args>
   R<F, Args...> operator()(F&& f, size_t i, Args&&...args)const{
-    if (i >= M)
-      throw i; // make a better way to return an error
+    // if (i >= M)
+    //   throw i; // make a better way to return an error
     return invoke(std::make_index_sequence<M>{}, std::forward<F>(f), i, std::forward<Args>(args)...);
   }
 private:

@@ -1,11 +1,6 @@
 #include "app.hxx"
 #include <map>
 #include <utilities/err.hxx>
-#include <ui/ws_screen.hxx>
-#include <ui/rgb_light_widget.hxx>
-#include <ui/loading_widget.hxx>
-#include <ui/state_noti_widget.hxx>
-#include <ui/progress_widget.hxx>
 #include <rtconfig.h>
 
 using namespace Config;
@@ -18,17 +13,6 @@ const char* moduleVersion = UPPER_VERSION;
 const char* moduleVersion = LOWER_VERSION;
 #endif
 
-namespace Preset {
-const int
-    WsScreen::kWidth = 5,
-    WsScreen::kHeight = 2;
-
-const int
-    LoadingWidget::zIndex = 2,
-    ProgressWidget::zIndex = 1,
-    StateNotiWidget::zIndex = 0;
-
-}
 
 namespace Config {
 const char
@@ -49,6 +33,7 @@ string getStateStr(State::Value state) {
     case State::Error:
         return "error";
     default:
-        throw not_implemented{"unknown_state"};
+        return "unknown";
+        // throw not_implemented{"unknown_state"};
     }
 }

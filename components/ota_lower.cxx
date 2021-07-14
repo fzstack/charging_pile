@@ -17,7 +17,9 @@ using namespace std;
 OtaLower::OtaLower(std::shared_ptr<Fal> fal, std::shared_ptr<Rpc> rpc, std::shared_ptr<SharedThread> thread): fal(fal), rpc(rpc), thread(thread), parti(fal_partition_find(kPartiName)) {
     if(parti == nullptr) {
         rt_kprintf("fal parti %s not found\n", kPartiName);
+#ifdef __cpp_exceptions
         throw not_implemented{"ota parti not found"};
+#endif
     }
 
     rpc->def<Rpcs::Ota::Erase>([this](auto p, auto r) {

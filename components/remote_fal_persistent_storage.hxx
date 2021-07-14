@@ -82,7 +82,7 @@ public:
     }
 
     void reset() {
-        throw not_implemented{""};
+        // throw not_implemented{""};
     }
 
 private:

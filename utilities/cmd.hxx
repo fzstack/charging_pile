@@ -10,22 +10,6 @@
 #include <unordered_map>
 #include <deque>
 
-#define ASSERT_MIN_NARGS(n) \
-    do { \
-        if(argc < n) { \
-            LOG_E("too few args"); \
-            return; \
-        } \
-    } while(0)\
-
-#define ASSERT_ARG(name, cond) \
-    do { \
-        if(!(cond)) { \
-            LOG_E("bad " #name " arg"); \
-            return; \
-        } \
-    } while(0) \
-
 class Cmd {
 public:
     Cmd(int argc, char** argv);

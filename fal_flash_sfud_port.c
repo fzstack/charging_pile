@@ -23,10 +23,10 @@
  */
 
 #include <fal.h>
-#include <sfud.h>
 
 #ifdef FAL_USING_SFUD_PORT
 #ifdef RT_USING_SFUD
+#include <sfud.h>
 #include <spi_flash_sfud.h>
 #endif
 

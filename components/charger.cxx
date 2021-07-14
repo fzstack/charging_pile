@@ -31,7 +31,9 @@ void Charger::stop() {
 }
 
 void Charger::assertState(State::Value expectedState, string action) {
+#ifdef __cpp_exceptions
     auto state = *stateStore->oState;
         if(state != expectedState)
             throw charger_error{"failed to " + action + ", reason: "s + (state ? getStateStr(*state): "null_state")};
+#endif
 }

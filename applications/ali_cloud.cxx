@@ -66,7 +66,9 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
         };
 
         this->device->services["control"] += [this](auto r, const auto params) {
+#ifdef __cpp_exceptions
             try {
+#endif
                 onControl([r](auto result) mutable {
                     if(auto state = get_if<ServiceResult::Value>(&result)) {
                         r(Json {
@@ -76,13 +78,17 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
                         r(*err);
                     }
                 }, NatPort{rt_uint8_t(params["port"_i])}, params["timer_id"], params["minutes"]);
+#ifdef __cpp_exceptions
             } catch(const exception& e) {
                 r(std::current_exception());
             }
+#endif
         };
 
         this->device->services["stop"] += [this](auto r, const auto params)  {
+#ifdef __cpp_exceptions
             try {
+#endif
                 onStop([r](auto result) mutable {
                     if(auto state = get_if<ServiceResult::Value>(&result)) {
                         r(Json {
@@ -92,13 +98,17 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
                         r(*err);
                     }
                 }, NatPort{rt_uint8_t(params["port"_i])}, params["timer_id"]);
+#ifdef __cpp_exceptions
             } catch(const exception& e) {
                 r(std::current_exception());
             }
+#endif
         };
 
         this->device->services["config"] += [this](auto r, const auto params)  {
+#ifdef __cpp_exceptions
             try {
+#endif
                 onConfig([r](auto err) mutable {
                     if(!err) {
                         r(Json {});
@@ -106,13 +116,17 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
                         r(*err);
                     }
                 }, DevConfig{params["current_limit"], params["upload_thr"], params["fused_thr"], params["noload_curr_thr"], params["done_curr_thr"]});
+#ifdef __cpp_exceptions
             } catch(const exception& e) {
                 r(std::current_exception());
             }
+#endif
         };
 
         this->device->services["rd_conf"] += [this](auto r, const auto params)  {
+#ifdef __cpp_exceptions
             try {
+#endif
                 onReadConfig([r](auto result) mutable {
                     if(auto conf = get_if<DevConfig>(&result)) {
                         r(Json {
@@ -126,13 +140,17 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
                         r(*err);
                     }
                 });
+#ifdef __cpp_exceptions
             } catch(const exception& e) {
                 r(std::current_exception());
             }
+#endif
         };
 
         this->device->services["broadcast"] += [this](auto r, const auto params)  {
+#ifdef __cpp_exceptions
             try {
+#endif
                 onBroadcast([r](auto e) mutable {
                     if(e) {
                         r(*e);
@@ -140,9 +158,11 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
                         r(Json {});
                     }
                 }, params["balance"_i], (BroadcastType)params["type"_i]);
+#ifdef __cpp_exceptions
             } catch(const exception& e) {
                 r(std::current_exception());
             }
+#endif
         };
 
         rt_kprintf("register ota callback\n");

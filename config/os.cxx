@@ -13,7 +13,7 @@
 #include <applications/things/decos/fuse_detecter.hxx>
 #include <applications/things/decos/noload_detecter.hxx>
 #include <applications/things/decos/data_setter.hxx>
-#include <components/persistent_storage.hxx>
+// #include <components/persistent_storage.hxx>
 #include <components/packet.hxx>
 #include <devices/ttp229.hxx>
 #include <utilities/shared_thread.hxx>
@@ -40,7 +40,7 @@ const char
     *ConsumptionMeasurer::kTimer = "cmtdec",
     *FuseDetecter::kTimer = "fdtdec",
     *NoloadDetecter::kTimer = "nltdec",
-    *PersistentStorage::kMutex = "persto",
+    // *PersistentStorage::kMutex = "persto",
     *Packet::kMutex = "packet",
     *RgbStateNotifier::kTimer = "rgbntf",
     *RgbStateNotifier::kMutex = "rgbntf",

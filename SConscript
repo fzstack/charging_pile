@@ -12,14 +12,18 @@ path = [
 
 # USE_UPPER_END
 CPPDEFINES = [ ]
+LINKFLAGS = ''
+CCFLAGS = ''
 
 if GetDepend(['USE_UPPER_END']):
     CPPDEFINES += ['UPPER_END']
 
 if GetDepend(['USE_LOWER_END']):
     CPPDEFINES += ['LOWER_END']
+    # LINKFLAGS += ' --specs=nano.specs'
+    CCFLAGS += ' -fno-exceptions'
 
-objs = [DefineGroup('Root', src, depend = [''], CPPPATH = path, CPPDEFINES = CPPDEFINES)]
+objs = [DefineGroup('Root', src, depend = [''], CPPPATH = path, CPPDEFINES = CPPDEFINES, CCFLAGS = CCFLAGS, LINKFLAGS = LINKFLAGS)]
 list = os.listdir(cwd)
 
 for d in list:

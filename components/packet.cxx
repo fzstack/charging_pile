@@ -9,11 +9,15 @@ using namespace string_literals;
 Packet::Packet(std::shared_ptr<QueuedUart> uart, std::shared_ptr<Thread> pktThread): uart(uart), pktThread(pktThread) {
     pktThread->onRun += [this](){
         while(true) {
+#ifdef __cpp_exceptions
             try {
+#endif
                 handleFrame();
+#ifdef __cpp_exceptions
             } catch(const exception& e) {
                 rt_kprintf("\033[33m[%s] %s\n\033[0m", rt_thread_self()->name, e.what());
             }
+#endif
         }
     };
     pktThread->start();
@@ -21,15 +25,33 @@ Packet::Packet(std::shared_ptr<QueuedUart> uart, std::shared_ptr<Thread> pktThre
 
 void Packet::handleFrame() {
     auto absorber = make_shared<Absorber>(this);
+    if(absorber->isInvalid()) {
+        rt_kprintf("type info not found");
+        return;
+    }
     auto hash = absorber->getHash();
 #ifdef LOG_PKG_ABSORB
     //rt_kprintf("h:%08x\n", hash);
 #endif
     auto found = typeInfos.find(hash);
-    if(found == typeInfos.end()) throw type_info_not_found_error{"type info not found"};
+    if(found == typeInfos.end()) {
+#ifdef __cpp_exceptions
+        throw type_info_not_found_error{"type info not found"};
+#else
+        rt_kprintf("type info not found");
+        return;
+#endif
+    }
     auto& info = found->second;
     auto p = info.parser->parse(absorber);
-    if(!absorber->check()) throw invalid_frame_error{"invalid frame"};
+    if(!absorber->check()) {
+#ifdef __cpp_exceptions
+        throw invalid_frame_error{"invalid frame"};
+#else
+        rt_kprintf("invalid frame");
+        return;
+#endif
+    }
 #ifdef LOG_PKG_ABSORB
     rt_kprintf("\n");
 #endif
@@ -93,8 +115,16 @@ void Packet::Emitter::writeAtom(rt_uint8_t b) {
 Packet::Absorber::Absorber(outer_t* outer): nested_t(outer) {
     auto b = readByte();
     auto head = get_if<ControlChar>(&b);
-    if(head == nullptr || *head != ControlChar::Head)
+    if(head == nullptr || *head != ControlChar::Head) {
+#ifdef __cpp_exceptions
         throw invalid_frame_error{""};
+#endif
+        invalidate();
+    }
+        
+    if(isInvalid()) {
+        return;
+    }
     hash = read<size_t>();
 }
 
@@ -103,21 +133,33 @@ std::size_t Packet::Absorber::getHash() {
 }
 
 int Packet::Absorber::readData(rt_uint8_t* data, int len) {
+    if(isInvalid())
+        return;
     for(auto i = 0; i < len; i++) {
-        data[i] = get<rt_uint8_t>(readByte());
+        auto d = readByte();
+        if(isInvalid()) //失败就返回
+            return;
+        data[i] = get<rt_uint8_t>(d);
     }
     return len;
 }
 
 std::variant<rt_uint8_t, Packet::ControlChar> Packet::Absorber::readByte() {
+    if(isInvalid())
+        return ControlChar::Invalid;
+
     auto b = readAtom();
     if(b == rt_uint8_t(ControlChar::Head))
         return ControlChar::Head;
 
     if(b == rt_uint8_t(ControlChar::Escape)) {
         b = readAtom();
-        if(b != rt_uint8_t(ControlChar::Head) && b != rt_uint8_t(ControlChar::Escape))
+        if(b != rt_uint8_t(ControlChar::Head) && b != rt_uint8_t(ControlChar::Escape)) {
+#ifdef __cpp_exceptions
             throw invalid_escape_error{""};
+#endif
+            invalidate();
+        }
     }
     return b;
 };
@@ -144,3 +186,10 @@ bool Packet::Absorber::check() {
     return crcExpect == crcActual;
 }
 
+void Packet::Absorber::invalidate() {
+    invalid = true;
+}
+
+bool Packet::Absorber::isInvalid() {
+    return invalid;
+}

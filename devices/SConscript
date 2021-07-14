@@ -3,10 +3,27 @@ Import('rtconfig')
 from building import *
 
 cwd = GetCurrentDir()
-src = Glob('*.cxx')
+src = []
 CPPPATH = [
     cwd,
 ]
+
+
+if GetDepend(['USE_UPPER_END']):
+    src += Glob('*.cxx')
+
+if GetDepend(['USE_LOWER_END']):
+    src += [
+        'hlw8112.cxx',
+        'load_detector.cxx',
+        'output_pin.cxx',
+        'queued_uart.cxx',
+        'relay.cxx',
+        'spi_hlw8112.cxx',
+    ]
+    src += Glob('things/decos/*.cxx')
+    src += Glob('things/decos/params/*.cxx')
+
 
 group = DefineGroup('Devices', src, depend = [''], CPPPATH = CPPPATH)
 

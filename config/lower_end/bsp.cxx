@@ -6,7 +6,7 @@
 #include <devices/load_detector.hxx>
 #include <devices/uart_hlw8112.hxx>
 #include <devices/spi_hlw8112.hxx>
-#include <components/persistent_storage.hxx>
+// #include <components/persistent_storage.hxx>
 #include <components/packet.hxx>
 #include <devices/real_rgb_light.hxx>
 #include <devices/ws2812.hxx>

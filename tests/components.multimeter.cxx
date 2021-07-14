@@ -6,12 +6,8 @@
 #include <utilities/inner_port.hxx>
 #include <utilities/nat_port.hxx>
 
-#define LOG_TAG "test.multimeter"
-#define LOG_LVL LOG_LVL_DBG
-#include <ulog.h>
-
 static void test_multimeter() {
-    LOG_I("if cur and vol output is ok, then test passed");
+    rt_kprintf("if cur and vol output is ok, then test passed");
 }
 
 static int init_test_multimeter() {

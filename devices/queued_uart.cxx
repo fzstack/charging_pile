@@ -26,17 +26,21 @@ rt_size_t QueuedUart::send(void* data, int len) const {
     return rt_device_write(device, 0, data, len);
 }
 
-void QueuedUart::recv(void* data, int len, rt_int32_t timeout) {
+int QueuedUart::recv(void* data, int len, rt_int32_t timeout) {
     rt_err_t retval;
     while(rx_remain < len) {
         if((retval = rt_event_recv(event, Events::UartIndicate, RT_EVENT_FLAG_AND | RT_EVENT_FLAG_CLEAR, timeout, RT_NULL)) != RT_EOK) {
+#ifdef __cpp_exceptions
             throw timeout_error{"timeout recv data from "s + deviceName};
+#endif
+            return -1;
         }
     }
     rt_base_t level = rt_hw_interrupt_disable();
     rx_remain -= len;
     rt_hw_interrupt_enable(level);
     rt_device_read(device, 0, data, len);
+    return 0;
 }
 
 void QueuedUart::clear() {

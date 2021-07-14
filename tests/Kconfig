@@ -79,6 +79,15 @@ menu "Test Config"
                 config TEST_COMPONENTS_VOICE_NOTIFIER
                     bool "Enable VoiceNotifier test"
                     default n
+                config TEST_COMPONENTS_FAL
+                    bool "Enable Fal test"
+                    default n
+                config TEST_COMPONENTS_LOWER_CONF
+                    bool "Enable LowerConf test"
+                    default n
+                config TEST_COMPONENTS_LOWER_BACKUP
+                    bool "Enable LowerBackup test"
+                    default n
             endmenu
             menu "Devices"
                 config TEST_DEVICES_AIR724

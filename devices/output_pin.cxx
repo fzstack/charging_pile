@@ -2,10 +2,6 @@
 #include <rtdevice.h>
 #include <functional>
 
-#define LOG_TAG "dev.opin"
-#define LOG_LVL LOG_LVL_DBG
-#include <ulog.h>
-
 OutputPin::OutputPin(rt_base_t pin): pin(pin) {
     inited.onChanged += [=](auto value) {
       if(value) {

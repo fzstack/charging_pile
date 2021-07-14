@@ -2,10 +2,6 @@
 #include <rtthread.h>
 #include <utilities/tiny_type_id.hxx>
 
-#define LOG_TAG "com.multimeter"
-#define LOG_LVL LOG_LVL_DBG
-#include <ulog.h>
-
 using namespace std;
 
 Multimeter::Multimeter(std::shared_ptr<Hlw8112> device): device(device) {
@@ -13,7 +9,9 @@ Multimeter::Multimeter(std::shared_ptr<Hlw8112> device): device(device) {
         if(!value) return;
         this->device->init();
         timer.onRun += [this]{
+#ifdef __cpp_exceptions
             try {
+#endif
                 auto& device = this->device;
                 auto valA = *device->makeSess<rms_i_a>();
                 auto valB = *device->makeSess<rms_i_b>();
@@ -29,9 +27,11 @@ Multimeter::Multimeter(std::shared_ptr<Hlw8112> device): device(device) {
                 vol = int(calcVoltage(valU.data, volC));
                 this->angleA = angleA;
                 this->angleB = angleB;
+#ifdef __cpp_exceptions
             } catch(const exception& e) {
                 rt_kprintf("\033[39m %s\n\033[0m", e.what());
             }
+#endif
         };
 
         curCChA = *this->device->makeSess<rms_i_a_c>();

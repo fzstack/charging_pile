@@ -53,6 +53,7 @@ private:
     enum class ControlChar: rt_uint8_t {
         Head = 0xa5,
         Escape = 0xff,
+        Invalid = 0,
     };
 
     class Emitter: public Nested<Packet>, public OStream {
@@ -81,10 +82,16 @@ private:
         virtual int readData(rt_uint8_t* data, int len) override;
         std::variant<rt_uint8_t, ControlChar> readByte();
         rt_uint8_t readAtom();
+
+        virtual bool isInvalid() override;
+    private:
+        void invalidate();
+
     private:
         std::size_t hash;
         Crc16 crc;
         bool first = true;
+        bool invalid = false;
     };
     friend class Absorber;
 

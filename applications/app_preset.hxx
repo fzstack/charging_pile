@@ -2,9 +2,13 @@
 
 #include <utilities/singleton.hxx>
 #include "app.hxx"
-#include "upper_app.hxx"
-#include "lower_app.hxx"
 #include <rtthread.h>
+
+#ifdef UPPER_END
+#include "upper_app.hxx"
+#else
+#include "lower_app.hxx"
+#endif
 
 namespace Preset {
 

@@ -4,9 +4,21 @@ from building import *
 
 cwd = GetCurrentDir()
 src = Glob('*.c')
-src += Glob('*.cxx')
-src += Glob('things/decos/*.cxx')
-src += Glob('things/decos/params/*.cxx')
+
+if GetDepend(['USE_UPPER_END']):
+    src += Glob('*.cxx')
+    src += Glob('things/decos/*.cxx')
+    src += Glob('things/decos/params/*.cxx')
+
+if GetDepend(['USE_LOWER_END']):
+    src += [
+        'app.cxx',
+        'lower_app.cxx',
+        'thing.cxx',
+        'local_thing.cxx',
+    ]
+    src += Glob('things/decos/*.cxx')
+    src += Glob('things/decos/params/*.cxx')
 
 CPPPATH = [
     cwd,

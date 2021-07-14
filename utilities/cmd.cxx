@@ -37,28 +37,38 @@ Cmd::Cmd(int argc, char** argv) {
 }
 
 void Cmd::operator()(std::function<void(Cmd& cmd)> cb) {
+#ifdef __cpp_exceptions
     try {
+#endif
         cb(*this);
+#ifdef __cpp_exceptions
     } catch(const exception& e) {
         F{} << "error: "_r << (char*)e.what() << endln;
     }
+#endif
 }
 
 void Cmd::assertV(bool predict, string msg) {
     if(!predict) {
+#ifdef __cpp_exceptions
         throw out_of_range{msg};
+#endif
     }
 }
 
 void Cmd::assertV(bool predict, std::function<std::string()> gen) {
     if(!predict) {
+#ifdef __cpp_exceptions
         throw out_of_range{gen()};
+#endif
     }
 }
 
 char* Cmd::getFromPos() {
     if(q.empty()) {
+#ifdef __cpp_exceptions
         throw out_of_range{"too few args"};
+#endif
     }
     auto front = q.front();
     q.pop_front();
