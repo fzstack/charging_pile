@@ -6,8 +6,6 @@
 #include <config/bsp.hxx>
 #include <components/timer.hxx>
 #include <utilities/count_down.hxx>
-#include "conf_man.hxx"
-#include "params/data_setter.hxx"
 
 namespace Things::Decos {
 /**
@@ -20,13 +18,9 @@ class DataSetter: public Base {
     virtual void query() override;
     virtual void onStateChanged(InnerPort port, State::Value state) override;
     virtual void onCurrentChanged(InnerPort port, int value) override;
-    virtual void config(DevConfig conf) override;
 
 private:
     void emitPortData(InnerPort port);
-
-public:
-
 
 private:
     struct Spec {
@@ -37,7 +31,6 @@ private:
     };
 
 private:
-    ConfMan<Params::DataSetter> params = {getMutex()};
     std::array<Spec, Config::Bsp::kPortNum> specs;
 
     Timer timer = {kDuration, kTimer};

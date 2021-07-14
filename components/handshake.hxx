@@ -13,12 +13,20 @@
 #include <memory>
 #include <components/timer.hxx>
 #include <utilities/signals.hxx>
+#include <utilities/observable.hxx>
+#include <utilities/observer.hxx>
+
+class Packet;
 
 class Handshake {
 public:
     Handshake(std::shared_ptr<Packet> packet);
     void hello();
-    Signals<void()> done;
+
+private:
+    Observable<bool> connected;
+public:
+    Observer<bool> oConnected = {connected};
 
 private:
     std::shared_ptr<Packet> packet;
@@ -31,7 +39,7 @@ private:
 namespace Preset {
 class Handshake: public Singleton<Handshake>, public ::Handshake {
     friend singleton_t;
-    Handshake(): ::Handshake(Packet::get()) {}
+    Handshake();
 };
 }
 

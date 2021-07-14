@@ -17,7 +17,8 @@ Handshake::Handshake(std::shared_ptr<Packet> packet): packet(packet) {
     packet->on<Packets::Handshake>([this](auto p){
         responsed = true;
         if(p->sync) {
-            done();
+            connected = false;
+            connected = true;
         }
     });
 
@@ -33,4 +34,10 @@ void Handshake::hello() {
     while(!responsed) {
         rt_thread_mdelay(100);
     }
+}
+
+namespace Preset {
+Handshake::Handshake(): ::Handshake(Packet::get()) {
+
+}
 }

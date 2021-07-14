@@ -18,10 +18,14 @@ menu "App Config"
 
     config UPPER_VERSION
         string "Upper version"
+        depends on USE_UPPER_END
         default "0.1.0"
+        
 
     config LOWER_VERSION
         string "Lower version"
+        depends on USE_LOWER_END
         default "0.1.0"
+       
 
 endmenu

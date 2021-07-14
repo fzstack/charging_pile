@@ -15,7 +15,6 @@ class FuseDetecter: public Base {
     friend outer_t;
     FuseDetecter(outer_t* outer);
     virtual void init() override;
-    virtual void config(DevConfig conf) override;
 
 public:
     struct Params {

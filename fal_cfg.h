@@ -59,7 +59,7 @@ extern struct fal_flash_dev nor_flash0;
 {                                                                                    \
     {FAL_PART_MAGIC_WORD,        "bl",     "onchip_flash",         0,   36*1024, 0}, \
     {FAL_PART_MAGIC_WORD,       "app",     "onchip_flash",   36*1024,  476*1024, 0}, \
-    {FAL_PART_MAGIC_WORD, "fdb_kvdb", NOR_FLASH_DEV_NAME,         0, 1024*1024, 0}, \
+    {FAL_PART_MAGIC_WORD, "fdb_kvdb", NOR_FLASH_DEV_NAME,         0, 8*1024, 0}, \
     {FAL_PART_MAGIC_WORD,  "download", NOR_FLASH_DEV_NAME, 1024*1024, 1024*1024, 0}, \
 }
 #endif

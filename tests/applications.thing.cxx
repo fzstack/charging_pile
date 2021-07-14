@@ -6,22 +6,15 @@
 #include <string>
 #include <utilities/nat_port.hxx>
 #include <utilities/f.hxx>
-#include <utilities/json.hxx>
-#include <components/persistent_storage_preset.hxx>
 #include <components/state_store_preset.hxx>
 #include <utilities/mp.hxx>
 #include <components/handshake.hxx>
-#include <components/backup_man_preset.hxx>
 #include <rtthread.h>
-
-#define LOG_TAG "test.thing"
-#define LOG_LVL LOG_LVL_DBG
-#include <ulog.h>
 
 using namespace std;
 
 // test_thing control [port] [timer_id] [minutes]
-void test_thing(int argc, char** argv) {
+static void thing(int argc, char** argv) {
    Cmd{argc, argv}([](Cmd& cmd) {
        auto thing = Preset::Thing::get();
        cmd.select<string>({
@@ -40,7 +33,7 @@ void test_thing(int argc, char** argv) {
        });
    });
 }
-MSH_CMD_EXPORT(test_thing, );
+MSH_CMD_EXPORT(thing, );
 
 #if !defined(ENABLE_REMOTE) || (defined(ENABLE_REMOTE) && defined(UPPER_END))
 void reset_config(int argc, char** argv) {
@@ -50,20 +43,14 @@ void reset_config(int argc, char** argv) {
 MSH_CMD_EXPORT(reset_config, );
 #endif
 
-int init_test_thing() {
-
+static int init_test_thing() {
     auto thing = Preset::Thing::get();
-
 #if defined(ENABLE_REMOTE)
-    Preset::BackupMan::get();
-    Preset::PersistentStorage::get();
-    Preset::Rpc::get();
-    auto handshake = Preset::Handshake::get();
-    rt_kprintf("handshaking...\n");
-    handshake->hello();
-    rt_kprintf("hello!\n");
+    // auto handshake = Preset::Handshake::get();
+    // rt_kprintf("handshaking...\n");
+    // handshake->hello();
+    // rt_kprintf("hello!\n");
 #endif
-
     thing->init();
 
 

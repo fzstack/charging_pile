@@ -1,5 +1,4 @@
 #include <config/bsp.hxx>
-#include <components/persistent_storage_preset.hxx>
 #include "noload_detecter.hxx"
 #include <algorithm>
 
@@ -10,7 +9,6 @@ using namespace std;
 
 NoloadDetecter::NoloadDetecter(outer_t* outer): Base(outer) {
     timer.onRun += [this]{
-        params.refresh();
         auto port = currPort;
         currPort++;
         currPort %= Config::Bsp::kPortNum;
@@ -60,14 +58,12 @@ void NoloadDetecter::onCurrentChanged(InnerPort port, int value) {
 
 void NoloadDetecter::checkCurrent(InnerPort port, int value) {
     auto& spec = specs[port.get()];
-    if(params == nullopt) {
-        return;
-    }
+    auto conf = getConfig();
 #ifdef LOG_NLD_SET_CUR
-    rt_kprintf("[%d] cur: %dmA, noloadCurrThr: %dmA\n", NatPort{port}.get(), value, params->noloadCurrThr);
+    rt_kprintf("[%d] cur: %dmA, noloadCurrThr: %dmA\n", NatPort{port}.get(), value, conf.noloadCurrThr);
 #endif
 
-    if(value < params->noloadCurrThr) {
+    if(value < conf.noloadCurrThr) {
         rt_kprintf("[%d] noload trigger\n", NatPort{port}.get());
         spec.noloadCount.trigger();
     } else {
@@ -75,14 +71,9 @@ void NoloadDetecter::checkCurrent(InnerPort port, int value) {
         spec.noloadCount.reset();
     }
 
-    if(value < params->doneCurrThr) {
+    if(value < conf.doneCurrThr) {
         spec.doneCount.trigger();
     } else {
         spec.doneCount.reset();
     }
 }
-
-void NoloadDetecter::config(DevConfig conf) {
-    params.save({conf.noloadCurrThr, conf.doneCurrThr});
-}
-

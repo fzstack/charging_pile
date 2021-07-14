@@ -6,8 +6,10 @@ using namespace std;
 using namespace string_literals;
 using namespace rtthread;
 
-Thing::Thing(array<shared_ptr<Charger>, Config::Bsp::kPortNum> chargers):
-    infos() {
+Thing::Thing(array<shared_ptr<Charger>, Config::Bsp::kPortNum> chargers, std::shared_ptr<LowerConf> lowerConf):
+    infos(), lowerConf(lowerConf) {
+    
+    conf = lowerConf->read();
 
     transform(chargers.begin(), chargers.end(), infos.begin(), [](auto charger) {
         return ChargerInfo {
@@ -90,33 +92,32 @@ void Thing::stop(InnerPort port, int timerId) {
 }
 
 void Thing::config(DevConfig conf) {
-    for(auto deco: decos) {
-        deco->config(conf);
-    }
+    this->conf = conf;
+    lowerConf->write(conf);
 }
 
 DevConfig Thing::readConfig() {
-    return {};
+    return conf;
     // throw not_implemented{"read conf in upper end pls"};
 }
 
 #include <rtconfig.h>
 #ifdef LOWER_END
-// #include <things/decos/counter.hxx>
-// #include <things/decos/current_limiter.hxx>
-// #include <things/decos/backuper.hxx>
-// #include <things/decos/data_setter.hxx>
-// #include <things/decos/consumption_measurer.hxx>
-// #include <things/decos/noload_detecter.hxx>
+#include <things/decos/counter.hxx>
+#include <things/decos/current_limiter.hxx>
+#include <things/decos/backuper.hxx>
+#include <things/decos/data_setter.hxx>
+#include <things/decos/consumption_measurer.hxx>
+#include <things/decos/noload_detecter.hxx>
 using namespace Things::Decos;
 namespace Preset {
-ThingPre::ThingPre(): ::Thing(Chargers::get()) {
-    // addDeco<Counter>(); //定时断电功能
-    // addDeco<CurrentLimiter>(); //限流功能 √
-    // addDeco<NoloadDetecter>(); //空载检测功能 T √
-    // addDeco<Backuper>(); //端口状态备份功能 T
-    // addDeco<DataSetter>(); //端口状态上报功能
-    // addDeco<ConsumptionMeasurer>(); //功耗测量功能 T
+ThingPre::ThingPre(): ::Thing(Chargers::get(), LowerConf::get()) {
+    addDeco<Counter>(); //定时断电功能
+    addDeco<CurrentLimiter>(); //限流功能 √
+    addDeco<NoloadDetecter>(); //空载检测功能 T √
+    addDeco<Backuper>(); //端口状态备份功能 T
+    addDeco<DataSetter>(); //端口状态上报功能
+    addDeco<ConsumptionMeasurer>(); //功耗测量功能 T
 }
 }
 #endif

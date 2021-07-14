@@ -5,7 +5,6 @@
 using namespace std;
 
 UpperApp::UpperApp() {
-    rt_kprintf("new FW3\r\n");
     auto storage = Preset::PersistentStorage::get(); //~15.4k RAM
     auto ver = storage->read<Config::Version<4>>();
     if(ver.updated == false) {
@@ -129,12 +128,4 @@ void UpperApp::run() {
     rt_kprintf("init cloud...\n");
     cloud->init();
 }
-
-#if defined(RUN_APP) && (!defined(ENABLE_REMOTE) || (defined(ENABLE_REMOTE) && defined(UPPER_END)))
-void reset_config(int argc, char** argv) {
-    auto storage = Preset::PersistentStorage::get();
-    storage->reset();
-}
-MSH_CMD_EXPORT(reset_config, );
-#endif
 

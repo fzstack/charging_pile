@@ -13,3 +13,7 @@ rtthread::Lock Base::getLock() {
 rtthread::Mutex& Base::getMutex() {
     return outer->mutex;
 }
+
+DevConfig Base::getConfig() {
+    return outer->readConfig();
+}

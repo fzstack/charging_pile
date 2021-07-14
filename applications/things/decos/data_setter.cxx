@@ -1,5 +1,4 @@
 #include <config/bsp.hxx>
-#include <components/persistent_storage_preset.hxx>
 #include "data_setter.hxx"
 
 using namespace std;
@@ -7,10 +6,6 @@ using namespace Things::Decos;
 
 DataSetter::DataSetter(outer_t* outer): Base(outer) {
     timer.onRun += [this] {
-        {
-            auto guard = getLock();
-            params.refresh();
-        }
         auto willEmit = false;
         auto port = rt_uint8_t{};
         {
@@ -101,15 +96,11 @@ void DataSetter::onCurrentChanged(InnerPort port, int value) {
     auto& spec = specs[port.get()];
     auto& prevCurrMiA = spec.prevCurrMiA;
     auto guard = getLock();
-    if(*charger->stateStore->oState != State::Charging || params == nullopt) {
+    if(*charger->stateStore->oState != State::Charging) {
         return;
     }
-    if(abs(value - prevCurrMiA) >= params->currDiffThrMiA) {
+    if(abs(value - prevCurrMiA) >= getConfig().uploadThr) {
         prevCurrMiA = value;
         spec.count.retrigger();
     }
-}
-
-void DataSetter::config(DevConfig conf) {
-    params.save({conf.uploadThr});
 }

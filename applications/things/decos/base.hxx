@@ -17,12 +17,12 @@ protected:
     using nested_t::Nested;
     virtual void init() {};
     virtual void query() {};
-    virtual void config(DevConfig conf) {};
     virtual void onStateChanged(InnerPort port, State::Value state) {};
     virtual void onCurrentChanged(InnerPort port, int value) {};
     virtual void onVoltageChanged(InnerPort port, int value) {};
     ChargerInfo& getInfo(InnerPort port);
     rtthread::Lock getLock();
     rtthread::Mutex& getMutex();
+    DevConfig getConfig();
 };
 }

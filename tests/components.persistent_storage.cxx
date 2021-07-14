@@ -12,7 +12,6 @@
 
 using namespace std;
 
-
 struct TestConfigInt {
     int value = 233;
 };
@@ -27,6 +26,14 @@ static void test_persistent_storage_int() {
         LOG_E(e.what());
     }
 }
+
+static void reset_config(int argc, char** argv) {
+    auto storage = Preset::FalPersistentStorage::get();
+    storage->reset();
+}
+MSH_CMD_EXPORT(reset_config, );
+
+
 
 //static int init_test_persistent_storage_int() {
 //    auto storage = Preset::FalPersistentStorage::get();

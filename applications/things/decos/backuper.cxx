@@ -39,11 +39,12 @@ Backuper::Backuper(outer_t* outer): Base(outer) {
                             if(charger->stateStore->oState.value() == State::Charging) {
                                 spec.backupCount.retrigger();
                             }
-                            man->write(port, Backup {
+                            auto backup = Backup {
                                 leftSeconds: info.leftSeconds,
                                 timerId: info.timerId,
                                 consumption: info.consumption,
-                            });
+                            };
+                            man->write(port, backup);
                             rt_kprintf("backup port%d, {ls: %d, it: %d, cs: %d}\n", NatPort{port}.get(), info.leftSeconds, info.timerId, (int)info.consumption);
                         } else  {
                             spec.backupCount.forceTrigger();
@@ -84,25 +85,20 @@ void Backuper::resume(InnerPort port) {
     if(spec.stateHasTransitioned) return;
     auto charger = info.charger;
     auto state = charger->stateStore->oState.value().value_or(State::Error);
-    man->read(port, [this, charger, &info, &spec, port, state](auto backup) mutable {
-        if(backup == nullopt) {
-            rt_kprintf("[%d]retry res\n", NatPort{port}.get());
-            spec.fResume.retrigger();
-            return;
-        }
-        auto guard = getLock();
-        spec.stateHasTransitioned = true;
-        info.timerId = backup->timerId;
-        if(backup->leftSeconds != 0) {
-            info.leftSeconds = backup->leftSeconds;
-            info.consumption = backup->consumption;
-            rt_kprintf("resumed port%d, {ls: %d, it: %d, cs: %d}\n", NatPort{port}.get(), info.leftSeconds, info.timerId, (int)info.consumption);
-            charger->start();
-        } else {
-            info.leftSeconds = 0;
-            info.consumption = 0;
-            spec.backupCount.trigger();
-        }
-    });
+    auto backup = man->read(port);
+
+    auto guard = getLock();
+    spec.stateHasTransitioned = true;
+    info.timerId = backup.timerId;
+    if(backup.leftSeconds != 0) {
+        info.leftSeconds = backup.leftSeconds;
+        info.consumption = backup.consumption;
+        rt_kprintf("resumed port%d, {ls: %d, it: %d, cs: %d}\n", NatPort{port}.get(), info.leftSeconds, info.timerId, (int)info.consumption);
+        charger->start();
+    } else {
+        info.leftSeconds = 0;
+        info.consumption = 0;
+        spec.backupCount.trigger();
+    }
 }
 

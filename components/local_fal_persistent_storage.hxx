@@ -68,21 +68,12 @@ private:
 };
 
 #include <utilities/singleton.hxx>
-#include <applications/things/decos/params/current_limiter.hxx>
-#include <applications/things/decos/params/data_setter.hxx>
-//#include <applications/things/decos/fuse_detecter.hxx>
-#include <applications/things/decos/params/noload_detecter.hxx>
 
 namespace Preset {
 class LocalFalPersistentStorage: public Singleton<LocalFalPersistentStorage>, public ::LocalFalPersistentStorage {
     friend singleton_t;
     LocalFalPersistentStorage(): ::LocalFalPersistentStorage(FalPersistentStorage::get(), Rpc::get(), Packet::get(), SharedThread<Priority::Middle>::get()) {
-        using namespace Things::Decos;
 
-        def<Params::CurrentLimiter>(); //0.64kB per config
-        def<Params::DataSetter>();
-        //def<FuseDetecter::Params>();
-        def<Params::NoloadDetecter>();
     }
 };
 }

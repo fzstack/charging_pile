@@ -8,6 +8,7 @@
 #include "things/decos/base.hxx"
 #include <Mutex.h>
 #include "thing_base.hxx"
+#include <components/lower/lower_conf.hxx>
 
 namespace Things::Decos {
 class Base;
@@ -24,7 +25,7 @@ struct ChargerInfo {
 class Thing: public ThingBase {
 public:
     friend class Things::Decos::Base;
-    Thing(std::array<std::shared_ptr<Charger>, Config::Bsp::kPortNum> chargers);
+    Thing(std::array<std::shared_ptr<Charger>, Config::Bsp::kPortNum> chargers, std::shared_ptr<LowerConf> lowerConf);
     virtual void init() override;
 
     template<class T>
@@ -39,12 +40,14 @@ public:
     virtual DevConfig readConfig() override;
 
 private:
+    std::shared_ptr<LowerConf> lowerConf;
+    DevConfig conf;
+    
     std::array<ChargerInfo, Config::Bsp::kPortNum> infos;
     std::list<std::shared_ptr<Things::Decos::Base>> decos = {};
     rtthread::Mutex mutex = {kMutex};
 
     Observable<bool> inited = {false};
-
     static const char* kMutex;
 };
 

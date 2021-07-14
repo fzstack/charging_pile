@@ -12,7 +12,8 @@ LocalStateStore::LocalStateStore(int idx, std::shared_ptr<Packet> packet, std::s
         send(idx, *value);
     };
 
-    handshake->done += [this, idx] {
+    handshake->oConnected += [this, idx](auto value) {
+        if(!value) return;
         auto state = oState.value();
         if(!state) return;
         send(idx, *state);

@@ -18,10 +18,9 @@
 #error "Only one of LOWER_END or UPPER_END can be defined"
 #endif
 
+#include "co_handshake.hxx"
+
 namespace Packets {
-struct Handshake {
-    bool sync;
-};
 
 struct Reboot {
 
@@ -102,6 +101,10 @@ struct Stop {
 struct Config {
     DevConfig conf;
 };
+
+struct ReadConfig {
+
+};
 }
 
 namespace PersistentStorage {
@@ -150,6 +153,11 @@ struct RpcTrait<Rpcs::BackupMan::Read> {
 template<>
 struct RpcTrait<Rpcs::Ota::GetVersion> {
     using result_t = std::string;
+};
+
+template<>
+struct RpcTrait<Rpcs::Services::ReadConfig> {
+    using result_t = DevConfig;
 };
 
 #endif /* CONFIG_CO_HXX_ */

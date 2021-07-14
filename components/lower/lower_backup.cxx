@@ -5,7 +5,7 @@ static Backup defaultBackup = {
 };
 
 #define ITEM(x) { \
-    key: #x, \
+    key: (char*)#x, \
     value: &defaultBackup, \
     value_len: sizeof(defaultBackup), \
 }

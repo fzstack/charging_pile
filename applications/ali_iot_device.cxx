@@ -135,7 +135,6 @@ AliIotDevice::AliIotDevice(std::shared_ptr<CommDev> commDev, shared_ptr<HttpClie
 //TODO: 无返回值的Post无参数返回值回调
 void AliIotDevice::login(string_view deviceName, string_view productKey, string_view productSecret) {
     this->deviceName = deviceName;
-    rt_kprintf("device name: from %s to %s\n", deviceName.data(), this->deviceName.data());
     this->productKey = productKey;
     this->productSecret = productSecret;
     

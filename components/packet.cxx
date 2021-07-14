@@ -134,11 +134,11 @@ std::size_t Packet::Absorber::getHash() {
 
 int Packet::Absorber::readData(rt_uint8_t* data, int len) {
     if(isInvalid())
-        return;
+        return 0;
     for(auto i = 0; i < len; i++) {
         auto d = readByte();
         if(isInvalid()) //失败就返回
-            return;
+            return 0;
         data[i] = get<rt_uint8_t>(d);
     }
     return len;
@@ -192,4 +192,14 @@ void Packet::Absorber::invalidate() {
 
 bool Packet::Absorber::isInvalid() {
     return invalid;
+}
+
+bool Packet::checkConnected() {
+    return Preset::Handshake::get()->oConnected;
+}
+
+namespace Preset {
+Packet::Packet(): ::Packet(std::make_shared<QueuedUart>(kUart, getConf()), std::make_shared<::Thread>(kThreadStack, kThreadPrio, kThreadTick, kThread)) {
+
+}
 }

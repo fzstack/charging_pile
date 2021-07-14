@@ -38,6 +38,10 @@ LocalThing::LocalThing(
         });
     });
 
+    rpc->def<Services::ReadConfig>([this](auto p) {
+        return readConfig();
+    });
+
     thing->onPortAccess += [this](auto port) {
         onPortAccess(port);
         this->packet->emit<Events::PortAccess>({port});

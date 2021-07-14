@@ -1,4 +1,3 @@
-#include <components/persistent_storage_preset.hxx>
 #include "fuse_detecter.hxx"
 #include <numeric>
 #include <cmath>
@@ -38,10 +37,5 @@ FuseDetecter::FuseDetecter(outer_t* outer): Base(outer) {
 
 void FuseDetecter::init() {
     inited = true;
-}
-
-void FuseDetecter::config(DevConfig conf) {
-//    auto params = Preset::PersistentStorage::get()->make<Params>();
-//    params->fuzedS2Thr = fuzedThr;
 }
 

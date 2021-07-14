@@ -7,9 +7,6 @@
 #include <config/bsp.hxx>
 #include <utilities/count_down.hxx>
 #include <optional>
-#include <components/persistent_storage_preset.hxx>
-#include <things/decos/params/noload_detecter.hxx>
-#include "conf_man.hxx"
 
 namespace Things::Decos {
 /**
@@ -21,9 +18,6 @@ class NoloadDetecter: public Base {
     virtual void init() override;
     virtual void onStateChanged(InnerPort port, State::Value state) override;
     virtual void onCurrentChanged(InnerPort port, int value) override;
-    virtual void config(DevConfig conf) override;
-
-public:
 
 private:
     struct ChargerSpec {
@@ -33,7 +27,6 @@ private:
 
     void checkCurrent(InnerPort port, int value);
 
-    ConfMan<Params::NoloadDetecter> params = {getMutex()};
     Timer timer = {kDuration, kTimer};
     Observable<bool> inited = false;
     std::array<ChargerSpec, Config::Bsp::kPortNum> specs;

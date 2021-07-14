@@ -5,7 +5,7 @@
 #include <config/bsp.hxx>
 #include <components/timer.hxx>
 #include <utilities/count_down.hxx>
-#include <components/backup_man_preset.hxx>
+#include <components/lower/lower_backup.hxx>
 
 namespace Things::Decos {
 /**
@@ -25,7 +25,7 @@ private:
         CountDown<> fResume = {};
     };
 
-    std::shared_ptr<BackupMan> man = Preset::BackupMan::get();
+    std::shared_ptr<LowerBackup> man = Preset::LowerBackup::get();
     Timer timer = {kDuration, kTimer};
     rt_uint8_t currResumePort = 0;
     rt_uint8_t currBackupPort = 0;
@@ -33,9 +33,9 @@ private:
     //CountDown<> backupCount = {kBackupCnt};
     CountDown<> nextCount = {kNextCnt};
 
-    static constexpr int kAutoBackupDur = 300 * 1000;
-    static constexpr int kNextPortDur = 5 * 1000;
-    static constexpr int kDuration = 1000;
+    static constexpr int kAutoBackupDur = 60 * 1000;
+    static constexpr int kNextPortDur = 3 * 1000;
+    static constexpr int kDuration = 100;
 
     static constexpr int kNextCnt = kNextPortDur / kDuration; //没计数这么多次触发下一个端口的备份
     static constexpr int kBackupCnt = kAutoBackupDur / kNextCnt / kDuration; //没计数这么多次触发一次备份

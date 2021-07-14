@@ -19,6 +19,8 @@
 #include <utilities/thread.hxx>
 #include <utilities/type.hxx>
 #include <utilities/tiny_type_id.hxx>
+#include <components/handshake.hxx>
+#include <config/co_handshake.hxx>
 
 //#define LOG_PKG_DEF
 //#define LOG_PKG_ABSORB
@@ -27,6 +29,8 @@
 
 //包头    类型         值          CRC
 //0xa5 4字节 结构体的值  xxx
+
+class Handshake;
 
 //需要一个packet线程来获得数据
 class Packet {
@@ -128,6 +132,12 @@ public:
 
     template<class T>
     void emit(T&& t, std::function<void(std::shared_ptr<void>, rt_uint8_t index)> holder = nullptr) {
+
+        //在握手完成之前只允许发送握手包
+        
+        if(!checkConnected() && (TypeId<T>::get() != TypeId<Packets::Handshake>::get()))
+            return;
+
 #ifdef LOG_PKG_EMIT
         rt_kprintf("emit %08x\n", TypeId<T>::get());
 #endif
@@ -148,6 +158,7 @@ public:
 
 private:
     void handleFrame();
+    bool checkConnected();
 
 private:
     class invalid_escape_error: public std::runtime_error {
@@ -178,9 +189,7 @@ private:
 namespace Preset {
 class Packet: public Singleton<Packet>, public ::Packet {
     friend singleton_t;
-    Packet(): ::Packet(std::make_shared<QueuedUart>(kUart, getConf()), std::make_shared<::Thread>(kThreadStack, kThreadPrio, kThreadTick, kThread)) {
-
-    }
+    Packet();
 
     static serial_configure* getConf() {
         static serial_configure conf = RT_SERIAL_CONFIG_DEFAULT;

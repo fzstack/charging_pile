@@ -2,7 +2,6 @@
 
 #include "app.hxx"
 #include "thing_preset.hxx"
-#include "components/backup_man_preset.hxx"
 #include "components/handshake.hxx"
 #include <components/rebooter_preset.hxx>
 #include <components/ota_lower.hxx>
