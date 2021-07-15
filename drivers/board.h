@@ -259,7 +259,7 @@ extern "C"
  *                 such as     #define HAL_RTC_MODULE_ENABLED
  *
  */
-/*#define BSP_USING_ONCHIP_RTC*/
+#define BSP_USING_ONCHIP_RTC
 
 /*-------------------------- RTC CONFIG END --------------------------*/
 

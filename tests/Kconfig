@@ -21,6 +21,9 @@ menu "Test Config"
                 config TEST_APPLICATIONS_OTA
                     bool "Enable Ota test"
                     default n
+                config TEST_APPLICATIONS_LOADER
+                    bool "Enable Loader test"
+                    default n
             endmenu
             menu "Boost"
                 config TEST_BOOST_PFR
@@ -198,6 +201,11 @@ menu "Test Config"
             menu "Std"
                 config TEST_STD_STL
                     bool "Enable Stl test"
+                    default n
+            endmenu
+            menu "Hal"
+                config TEST_HAL_BACKUP_REG
+                    bool "Enable BackupReg test"
                     default n
             endmenu
         endif

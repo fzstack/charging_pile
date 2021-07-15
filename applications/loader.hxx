@@ -15,6 +15,12 @@ void runLoader();
 #include <memory>
 class Loader {
 public:
+    Loader();
     virtual std::shared_ptr<App> createApp() = 0;
+protected:
+    int getStartMethod();
+    void restart(int method);
+private:
+    int startMethod;
 };
 #endif

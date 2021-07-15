@@ -19,15 +19,12 @@
 #define RT_USING_TIMER_SOFT
 #define RT_TIMER_THREAD_PRIO 4
 #define RT_TIMER_THREAD_STACK_SIZE 2048
-#define RT_DEBUG
-#define RT_DEBUG_COLOR
 
 /* Inter-Thread communication */
 
 #define RT_USING_SEMAPHORE
 #define RT_USING_MUTEX
 #define RT_USING_EVENT
-#define RT_USING_MAILBOX
 #define RT_USING_MESSAGEQUEUE
 
 /* Memory Management */
@@ -52,7 +49,7 @@
 
 #define RT_USING_COMPONENTS_INIT
 #define RT_USING_USER_MAIN
-#define RT_MAIN_THREAD_STACK_SIZE 2400
+#define RT_MAIN_THREAD_STACK_SIZE 2048
 #define RT_MAIN_THREAD_PRIORITY 10
 
 /* C++ features */
@@ -68,21 +65,16 @@
 /* Device Drivers */
 
 #define RT_USING_DEVICE_IPC
-#define RT_PIPE_BUFSZ 512
+#define RT_PIPE_BUFSZ 128
 #define RT_USING_SERIAL
 #define RT_SERIAL_USING_DMA
 #define RT_SERIAL_RB_BUFSZ 1024
 #define RT_USING_I2C
 #define RT_USING_I2C_BITOPS
 #define RT_USING_PIN
+#define RT_USING_RTC
 #define RT_USING_SPI
-#define RT_USING_SFUD
-#define RT_SFUD_USING_SFDP
-#define RT_SFUD_USING_FLASH_INFO_TABLE
-#define RT_SFUD_SPI_MAX_HZ 1000000
 #define RT_USING_WDT
-#define RT_USING_SENSOR
-#define RT_USING_SENSOR_CMD
 
 /* Using USB */
 
@@ -104,38 +96,17 @@
 
 /* AT commands */
 
-#define RT_USING_AT
-#define AT_USING_CLIENT
-#define AT_CLIENT_NUM_MAX 1
-#define AT_CMD_MAX_LEN 2048
-#define AT_SW_VERSION_NUM 0x10300
 
 /* VBUS(Virtual Software BUS) */
 
 
 /* Utilities */
 
-#define RT_USING_ULOG
-#define ULOG_OUTPUT_LVL_D
-#define ULOG_OUTPUT_LVL 7
-#define ULOG_USING_ISR_LOG
-#define ULOG_ASSERT_ENABLE
-#define ULOG_LINE_BUF_SIZE 128
-
-/* log format */
-
-#define ULOG_USING_COLOR
-#define ULOG_OUTPUT_TIME
-#define ULOG_OUTPUT_LEVEL
-#define ULOG_OUTPUT_TAG
-#define ULOG_BACKEND_USING_CONSOLE
 
 /* RT-Thread online packages */
 
 /* IoT - internet of things */
 
-#define PKG_USING_CJSON
-#define PKG_USING_CJSON_V102
 
 /* Wi-Fi */
 
@@ -150,14 +121,6 @@
 
 /* security packages */
 
-#define PKG_USING_TINYCRYPT
-#define PKG_USING_TINYCRYPT_V100
-#define TINY_CRYPT_MD5
-#define TINY_CRYPT_BASE64
-#define TINY_CRYPT_AES
-#define TINY_CRYPT_AES_ROM_TABLES
-#define TINY_CRYPT_SHA1
-#define TINY_CRYPT_SHA256
 
 /* language packages */
 
@@ -174,15 +137,13 @@
 #define FAL_DEBUG_CONFIG
 #define FAL_DEBUG 1
 #define FAL_PART_HAS_TABLE_CFG
-#define FAL_USING_SFUD_PORT
-#define FAL_USING_NOR_FLASH_DEV_NAME "norflash0"
 #define PKG_USING_FAL_V00500
 #define PKG_FAL_VER_NUM 0x00500
 #define PKG_USING_FLASHDB
 #define FDB_USING_KVDB
 #define FDB_USING_FAL_MODE
-#define FDB_WRITE_GRAN_1BIT
-#define FDB_WRITE_GRAN 1
+#define FDB_WRITE_GRAN_32BITS
+#define FDB_WRITE_GRAN 32
 #define FDB_DEBUG_ENABLE
 #define PKG_USING_FLASHDB_V10000
 #define PKG_FLASHDB_VER_NUM 0x10000
@@ -192,13 +153,6 @@
 
 /* peripheral libraries and drivers */
 
-#define PKG_USING_SENSORS_DRIVERS
-#define PKG_USING_DHTXX
-#define PKG_USING_DHTXX_TYPE_DHT11
-#define PKG_USING_DHTXX_LATEST_VERSION
-#define PKG_DHTXX_VER_NUM 0x99999
-#define PKG_USING_AT24CXX
-#define PKG_USING_AT24CXX_LATEST_VERSION
 
 /* AI packages */
 
@@ -232,8 +186,8 @@
 
 #define RUN_APP
 #define ENABLE_REMOTE
-#define USE_UPPER_END
-#define UPPER_VERSION "0.2.22a"
+#define USE_LOWER_END
+#define LOWER_VERSION "0.2.22a"
 
 /* Test Config */
 
