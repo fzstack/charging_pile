@@ -44,6 +44,7 @@
                 "${workspaceFolder}/rt-thread/components/cplusplus",
                 "${workspaceFolder}/rt-thread/components/drivers/include",
                 "${workspaceFolder}/rt-thread/components/drivers/spi",
+                "${workspaceFolder}/rt-thread/components/finsh",
                 "${workspaceFolder}/rt-thread/components/libc/compilers/newlib",
                 "${workspaceFolder}/rt-thread/include",
                 "${workspaceFolder}/rt-thread/libcpu/arm/common",

@@ -29,15 +29,5 @@ Present::Present(std::shared_ptr<LoadingWidget> loading, std::shared_ptr<StateNo
             loading->hide();
         }
     };
-
-    appState->progress.onChanged += [progress](auto value) {
-        if(!value) {
-            progress->hide();
-            progress->setProgress(0);
-        } else {
-            progress->show();
-            progress->setProgress(*value);
-        }
-    };
 }
 

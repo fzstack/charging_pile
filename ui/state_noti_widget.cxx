@@ -9,13 +9,16 @@
  */
 
 #include "state_noti_widget.hxx"
+#include <utilities/math.hxx>
 
 StateNotiWidget::StateNotiWidget(int x, int y, int zIndex, std::shared_ptr<AppState> appState): p_t(x, y, zIndex), appState(appState) {
     appState->portStateChanged += [this](NatPort port, auto state) {
+        if(state != State::Charging && state != State::LoadNotInsert) return;
+        rt_kprintf("[%d] port %d -> %d\n", rt_tick_get(), port.get(), state);
         auto& noti = notis[port.get() - NatPort::min().get()];
-        noti.blink.retrigger();
+        noti.blink.forceTrigger();
         noti.dir = false;
-        noti.vel.setTarget(state == State::Charging ? kGreen: kWhite);
+        noti.vel.setTarget(state == State::Charging ? getChargingColor(port): kWhite);
     };
 }
 
@@ -31,14 +34,20 @@ void StateNotiWidget::onTick() {
         if(noti.blink.updateAndCheck()) {
             auto port = NatPort{rt_uint8_t(i + NatPort::min().get())};
             auto s = appState->getPortState(port);
-            auto color = noti.dir ? (s == State::Charging ? kGreen: kWhite): Colors::Argb::kBlack;
+            auto color = noti.dir ? (s == State::Charging ? getChargingColor(port): kWhite): Colors::Argb::kBlack;
             noti.blink.retrigger();
             noti.vel.setTarget(color);
             noti.dir = !noti.dir;
         }
-        notis[i].vel.update();
+        noti.vel.update();
     }
     invalid();
+}
+
+Colors::Argb StateNotiWidget::getChargingColor(InnerPort port) {
+    auto current = appState->getCurrent(port);
+    auto pos = saturate(current / 2000.f, 0.f, 1.f);
+    return Colors::Argb::intepl(kGreen, kRed, pos);
 }
 
 Colors::Argb

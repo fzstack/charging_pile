@@ -37,3 +37,11 @@ AppState::AppState(std::shared_ptr<Packet> packet, std::shared_ptr<Air724> air, 
 State::Value AppState::getPortState(InnerPort port) {
     return portStates[port.get()].state;
 }
+
+void AppState::setCurrent(InnerPort port, int current) {
+    portStates[port.get()].current = current;
+}
+
+int AppState::getCurrent(InnerPort port) {
+    return portStates[port.get()].current;
+}

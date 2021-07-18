@@ -36,6 +36,14 @@ struct OTA {
     std::map<std::string, ModuleSpec> offsets;
 };
 
+namespace Loader {
+struct OtaParams {
+    std::string module;
+    std::string version;
+    std::string url;
+    int size;
+};
+}
 }
 
 struct State {

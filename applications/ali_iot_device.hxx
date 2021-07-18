@@ -79,7 +79,7 @@ private:
 public:
     std::unordered_map<std::string, Signals<Json(const Json)>> services = {};
     std::unordered_map<std::string, Signals<void(const Json)>> properties = {};
-    Signals<void(std::string version, std::string module, std::shared_ptr<IStream>, int size)> ota;
+    Signals<void(std::string version, std::string module, std::string url, int size)> ota;
     Observer<bool> oConnected;
 
 private:

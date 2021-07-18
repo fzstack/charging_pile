@@ -40,6 +40,15 @@ struct Argb {
         return {r, g, b};
     }
 
+    static Argb intepl(const Colors::Argb& originVal, const Colors::Argb& targetVal, float pos) {
+        return Colors::Argb{
+            a: between(originVal.a, targetVal.a, pos),
+            r: between(originVal.r, targetVal.r, pos),
+            g: between(originVal.g, targetVal.g, pos),
+            b: between(originVal.b, targetVal.b, pos),
+        };
+    }
+
 private:
 
     template<class T>

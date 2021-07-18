@@ -26,6 +26,7 @@ void RemoteThing::init() {
 }
 
 void RemoteThing::query() {
+    rt_kprintf("calling query func..., obj: %08x\n", packet.get());
     packet->emit<Services::Query>({});
 }
 

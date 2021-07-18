@@ -13,10 +13,12 @@ if GetDepend(['USE_UPPER_END']):
 if GetDepend(['USE_LOWER_END']):
     src += [
         'app.cxx',
-        'lower_app.cxx',
+        'lower_major_app.cxx',
         'thing.cxx',
         'local_thing.cxx',
         'loader.cxx',
+        'lower_loader.cxx',
+        'lower_ota_app.cxx'
     ]
     src += Glob('things/decos/*.cxx')
     src += Glob('things/decos/params/*.cxx')

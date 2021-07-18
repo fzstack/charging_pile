@@ -30,6 +30,8 @@ protected:
     };
 
 private:
+    Colors::Argb getChargingColor(InnerPort port);
+
     std::array<NotiPixel, Config::Bsp::kPortNum> notis; //自然端口顺序
     std::shared_ptr<AppState> appState;
 

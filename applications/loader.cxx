@@ -5,6 +5,8 @@
 
 void runLoader() {
     auto loader = Preset::Loader::get();
+    static auto app = loader->createApp();
+    app->run();
 }
 
 Loader::Loader() {

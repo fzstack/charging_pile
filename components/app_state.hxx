@@ -29,6 +29,9 @@ public:
     Signals<void(InnerPort, State::Value)> portStateChanged;
     State::Value getPortState(InnerPort port);
 
+    void setCurrent(InnerPort port, int current);
+    int getCurrent(InnerPort port);
+
     Observable<bool> cloudConnected = {false};
     Observable<int> signal = {17};
     Observable<std::optional<int>> progress;
@@ -39,8 +42,10 @@ public:
 private:
     struct Wrapper {
         State::Value state = State::LoadNotInsert;
+        int current = 0;
     };
     std::array<Wrapper, Config::Bsp::kPortNum> portStates;
+
     Timer timer = {5 * 1000, "appst"};
 };
 

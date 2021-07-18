@@ -1,11 +1,7 @@
 #include <rtthread.h>
-
-#define DBG_TAG "main"
-#define DBG_LVL DBG_LOG
-#include <rtdbg.h>
-#include "app.hxx"
+#include "loader.hxx"
 
 int main(void) {
-    runApp();
+    runLoader();
     return RT_EOK;
 }

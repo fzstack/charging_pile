@@ -32,6 +32,8 @@
 
 class Handshake;
 
+// extern bool todo_emit_log_flag;
+
 //需要一个packet线程来获得数据
 class Packet {
 public:
@@ -134,9 +136,19 @@ public:
     void emit(T&& t, std::function<void(std::shared_ptr<void>, rt_uint8_t index)> holder = nullptr) {
 
         //在握手完成之前只允许发送握手包
-        
+        // if(todo_emit_log_flag) {
+        //     rt_uint32_t used;
+        //     rt_memory_info(nullptr, &used, nullptr);
+        //     rt_kprintf("emiting, used: %d\n", used);
+        // }
+
+
         if(!checkConnected() && (TypeId<T>::get() != TypeId<Packets::Handshake>::get()))
             return;
+
+        // if(todo_emit_log_flag) {
+        //     rt_kprintf("conn check passed\n");
+        // }
 
 #ifdef LOG_PKG_EMIT
         rt_kprintf("emit %08x\n", TypeId<T>::get());

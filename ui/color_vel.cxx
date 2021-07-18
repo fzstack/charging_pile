@@ -15,10 +15,5 @@ float ColorVel::ease(float x) {
 }
 
 Colors::Argb ColorVel::intepl(const Colors::Argb& originVal, const Colors::Argb& targetVal, float pos) {
-    return Colors::Argb{
-        a: between(originVal.a, targetVal.a, pos),
-        r: between(originVal.r, targetVal.r, pos),
-        g: between(originVal.g, targetVal.g, pos),
-        b: between(originVal.b, targetVal.b, pos),
-    };
+    return Colors::Argb::intepl(originVal, targetVal, pos);
 }

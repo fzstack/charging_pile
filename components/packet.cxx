@@ -26,7 +26,7 @@ Packet::Packet(std::shared_ptr<QueuedUart> uart, std::shared_ptr<Thread> pktThre
 void Packet::handleFrame() {
     auto absorber = make_shared<Absorber>(this);
     if(absorber->isInvalid()) {
-        rt_kprintf("type info not found");
+        rt_kprintf("type info not found\n");
         return;
     }
     auto hash = absorber->getHash();
@@ -195,6 +195,7 @@ bool Packet::Absorber::isInvalid() {
 }
 
 bool Packet::checkConnected() {
+    //FIXME: bug来自这里
     return Preset::Handshake::get()->oConnected;
 }
 

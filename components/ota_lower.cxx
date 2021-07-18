@@ -37,13 +37,13 @@ OtaLower::OtaLower(std::shared_ptr<Fal> fal, std::shared_ptr<Rpc> rpc, std::shar
     });
 
     rpc->def<Rpcs::Ota::Write>([this](auto p, auto r) {
-        this->thread->exec([=]{
-            rt_kprintf("%d\n", p->addr);
+        rt_kprintf("before invoke\n");
+        rt_kprintf("call back invoked! size: %d\n", p->data.size());
+        this->thread->exec([=] {
+            // auto v = vector<uint8_t>(p->data.size(), '\xff');
+            // rt_kprintf("call back invoked! size: %d\n", p->data.size());
             fal_partition_write(parti, p->addr, &p->data[0], p->data.size());
-//            if(res < 0) {
-//                r(make_exception_ptr(runtime_error{"write err"}));
-//                return;
-//            }
+            rt_kprintf("%d\n", p->addr);
             r(Void{});
         });
     });

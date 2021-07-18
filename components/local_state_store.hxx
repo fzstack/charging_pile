@@ -18,7 +18,7 @@ private:
     std::shared_ptr<Handshake> handshake;
     std::shared_ptr<SharedThread> thread;
     std::shared_ptr<Rpc> rpc;
-    Timer timer = {5 * 1000, "lss"};
+    // Timer timer = {5 * 1000, "lss"};
 
 };
 

@@ -43,7 +43,7 @@ public:
     Signals<void(DevConfig conf)> onConfig = {};
     Signals<DevConfig()> onReadConfig = {};
     Signals<void(int balance, BroadcastType type)> onBroadcast = {};
-    Signals<void(std::string version, std::string module, std::shared_ptr<IStream>, int size)> onOta = {};
+    Signals<void(std::string version, std::string module, std::string url, int size)> onOta = {};
     Signals<void()> onHeartbeat = {};
 
 private:

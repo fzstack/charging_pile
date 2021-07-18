@@ -15,7 +15,7 @@ void OtaLowerModule::start(std::string_view version, std::shared_ptr<IStream> st
                 //重新写入数据
                 rt_uint32_t memUsed;
                 rt_memory_info(nullptr, &memUsed, nullptr);
-                rpc->invoke<Rpcs::Ota::Write>({currPos, buf}, cb, 1000); //low线程返回
+                rpc->invoke<Rpcs::Ota::Write>({currPos, buf}, cb, 5000); //low线程返回
             } else {
                 //读取下一个数据
                 currPos += recvedLen;

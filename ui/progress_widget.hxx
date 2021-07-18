@@ -15,7 +15,7 @@ class ProgressWidget: public CSizeWidget<5, 2> {
     using p_t = CSizeWidget<5, 2>;
     using p_t::p_t;
 public:
-    void show();
+    void show(Colors::Argb color = kForeColor);
     void hide();
     void setProgress(int value);
 protected:

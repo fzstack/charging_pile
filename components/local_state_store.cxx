@@ -19,9 +19,9 @@ LocalStateStore::LocalStateStore(int idx, std::shared_ptr<Packet> packet, std::s
         send(idx, *state);
     };
 
-    timer.onRun += [this, idx](){
-        send(idx, oState.value().value_or(State::LoadNotInsert));
-    };
+    // timer.onRun += [this, idx](){
+    //     send(idx, oState.value().value_or(State::LoadNotInsert));
+    // };
 }
 
 void LocalStateStore::send(int idx, State::Value state) {

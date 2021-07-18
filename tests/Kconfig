@@ -208,6 +208,11 @@ menu "Test Config"
                     bool "Enable BackupReg test"
                     default n
             endmenu
+            menu "Temp"
+                config TEST_TEMP_CRASH
+                    bool "Enable Crash test"
+                    default n
+            endmenu
         endif
 endmenu
 

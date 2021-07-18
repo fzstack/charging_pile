@@ -166,9 +166,9 @@ AliCloud::AliCloud(std::shared_ptr<AliIotDevice> device, std::shared_ptr<Air724>
         };
 
         rt_kprintf("register ota callback\n");
-        this->device->ota += [this](std::string version, std::string module, std::shared_ptr<IStream> stream, int size) {
+        this->device->ota += [this](std::string version, std::string module, std::string url, int size) {
             rt_kprintf("ali cloud ota cb called\n");
-            onOta(version, module, stream, size);
+            onOta(move(version), move(module), move(url), size);
         };
 
         this->air->init();

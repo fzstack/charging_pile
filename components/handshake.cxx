@@ -13,8 +13,13 @@
 
 //在接受到第一次responsed的时候，下次发送一个带done req的handshake出去
 
-Handshake::Handshake(std::shared_ptr<Packet> packet): packet(packet) {
+Handshake::Handshake(std::shared_ptr<Packet> packet, HandshakeType type): packet(packet), type(type) {
+    rt_kprintf("handshake ctor! type: %d\n", type);
     packet->on<Packets::Handshake>([this](auto p){
+        onHandshake(p->type);
+        if(p->type != this->type) {
+            return;
+        }
         responsed = true;
         if(p->sync) {
             connected = false;
@@ -25,7 +30,7 @@ Handshake::Handshake(std::shared_ptr<Packet> packet): packet(packet) {
     timer.onRun += [this]{
         auto cond = !once && responsed;
         if(cond) once = true;
-        this->packet->emit<Packets::Handshake>({cond});
+        this->packet->emit<Packets::Handshake>({cond, this->type});
     };
 }
 
@@ -37,7 +42,10 @@ void Handshake::hello() {
 }
 
 namespace Preset {
-Handshake::Handshake(): ::Handshake(Packet::get()) {
-
+Handshake::Handshake(): ::Handshake(Packet::get(), HandshakeType::Major) { 
+    rt_kprintf("NEVER CALL THIS FUNC\n");
+    RT_ASSERT(0);
 }
+Handshake::Handshake(HandshakeType type): ::Handshake(Packet::get(), type) { }
+// OtaHandshake::OtaHandshake(): ::Handshake(Packet::get(), HandshakeType::Ota) { }
 }

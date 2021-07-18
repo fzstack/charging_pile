@@ -52,17 +52,13 @@ AliIotDevice::AliIotDevice(std::shared_ptr<CommDev> commDev, shared_ptr<HttpClie
             const auto d = reply.getData();
             rt_kprintf("\nOTA UPGRADE, NEW VERSION: %s\n", d["version"_s].c_str());
             rt_kprintf("creating stream...\n");
-            auto stream = this->http->stream(
-                std::make_shared<HttpRequest>()
-                ->setUrl(d["url"_s])
-                ->setMethod(HttpMethod::Get));
             rt_kprintf("invoking ota cb...\n");
             auto module = "default"s;
             if(d.contains("module")) {
                 module = d["module"_s];
             }
             otaRunning = true;
-            ota(d["version"_s], module, stream, d["size"_i]);
+            ota(d["version"_s], module, d["url"_s], d["size"_i]);
             rt_kprintf("ota cb returned\n");
             return;
         }

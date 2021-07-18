@@ -12,8 +12,8 @@
 #include <utilities/math.hxx>
 #include <cmath>
 
-void ProgressWidget::show() {
-    foreColor.setTarget(kForeColor);
+void ProgressWidget::show(Colors::Argb color) {
+    foreColor.setTarget(color);
     backColor.setTarget(kBackColor);
 }
 

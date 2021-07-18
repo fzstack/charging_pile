@@ -2,6 +2,9 @@
 #include <rtthread.h>
 #include <utilities/f.hxx>
 
+#include <config/co.hxx>
+#include <components/packet.hxx>
+
 using namespace std;
 
 UpperApp::UpperApp() {
@@ -54,8 +57,8 @@ void UpperApp::run() {
         user->boradcast(balance, type);
     };
 
-    cloud->onOta += [=](std::string version, std::string module, std::shared_ptr<IStream> stream, int size) {
-        ota->start(version, module, stream, size);
+    cloud->onOta += [=](std::string version, std::string module, std::string url, int size) {
+        loader->ota(move(module), move(version), move(url), size);
     };
 
     cloud->onHeartbeat += [=] {
@@ -105,9 +108,12 @@ void UpperApp::run() {
     thing->onCurrentLimit += [=](auto port) {
         cloud->emitCurrentLimit(port);
     };
+
     thing->onCurrentData += [=](auto data){
+        state->setCurrent(data.port, data.current);
         cloud->emitCurrentData(std::move(data));
     };
+
     state->cloudConnected.onChanged += [this](auto value) {
         //watchDog->cancel();
         cloud->setIccid(state->iccid);
@@ -123,6 +129,7 @@ void UpperApp::run() {
     };
     //watchDog->resetAfter(60);
     handshake->hello();
+    rt_kprintf("handshake OK!\n");
     thing->init();
 
     rt_kprintf("init cloud...\n");

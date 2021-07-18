@@ -30,6 +30,7 @@ WatchDog::WatchDog(uint32_t timeout): wdtDev(rt_device_find("wdt")) {
     timer.start();
 }
 
+//TODO: 只允许越变越短
 void WatchDog::resetAfter(rt_uint8_t durationS) {
     f.setInitial(durationS);
     f.reset();
