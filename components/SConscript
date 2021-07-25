@@ -30,6 +30,7 @@ if GetDepend(['USE_LOWER_END']):
         'watch_dog.cxx',
         'fal.cxx',
         'virtual_load_detector.cxx',
+        'remote_debugger.cxx',
     ]
     src += Glob('lower/*.cxx')
     CPPPATH += [

@@ -45,9 +45,9 @@ void UpperApp::run() {
         thing->query();
     };
 
-    cloud->onReboot += [=]{
-        rebooter->rebootAll();
-    };
+    // cloud->onReboot += [=]{
+    //     rebooter->rebootAll();
+    // };
 
     cloud->onReadConfig += [=] {
         return thing->readConfig();
@@ -55,6 +55,10 @@ void UpperApp::run() {
 
     cloud->onBroadcast += [=](auto balance, auto type) {
         user->boradcast(balance, type);
+    };
+
+    cloud->onDebug += [=](auto type) {
+        debugger->debug(type);
     };
 
     cloud->onOta += [=](std::string version, std::string module, std::string url, int size) {
@@ -72,26 +76,6 @@ void UpperApp::run() {
             smoke: 0,
             timestamp: (int)rt_tick_get(),
         }));
-    };
-
-    ota->onError += [=](auto module, auto e, auto desc) {
-        cloud->emitOtaProgress((int)e, desc, module);
-        state->progress = std::nullopt;
-    };
-
-    ota->onProgress += [=](auto module, auto value) {
-        // cloud->emitOtaProgress(value, "download", module);
-        state->progress = value;
-    };
-
-    state->progress.onChanged += [=](auto value) {
-        if(value == std::nullopt) return;
-        rt_kprintf("%d\n", *value);
-    };
-
-    ota->onDone += [=](auto module){
-        rt_kprintf("OTA REBOOTING...\n");
-        rebooter->rebootModule(module);
     };
 
     user->onInputConfirm += [=](auto port, auto icNumber) {

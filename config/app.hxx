@@ -104,6 +104,13 @@ enum class BroadcastType {
     DeviceAbnormal,
 };
 
+enum class DebugType {
+    Reboot,
+    ClearFlash,
+    CrashUpper,
+    CrashLower,
+};
+
 std::string getStateStr(State::Value state);
 
 

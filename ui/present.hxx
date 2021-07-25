@@ -10,19 +10,18 @@
 #pragma once
 #include "loading_widget.hxx"
 #include "state_noti_widget.hxx"
-#include "progress_widget.hxx"
 #include <components/app_state.hxx>
 
 class Present {
 public:
-    Present(std::shared_ptr<LoadingWidget> loading, std::shared_ptr<StateNotiWidget> stateNoti, std::shared_ptr<ProgressWidget> progress, std::shared_ptr<AppState> appState);
+    Present(std::shared_ptr<LoadingWidget> loading, std::shared_ptr<StateNotiWidget> stateNoti, std::shared_ptr<AppState> appState);
 };
 
 #include <utilities/singleton.hxx>
 namespace Preset {
 class Present: public Singleton<Present>, public ::Present {
     friend singleton_t;
-    Present(): ::Present(LoadingWidget::get(), StateNotiWidget::get(), ProgressWidget::get(), AppState::get()) {
+    Present(): ::Present(LoadingWidget::get(), StateNotiWidget::get(), AppState::get()) {
 
     }
 };

@@ -10,7 +10,7 @@
 
 #include "present.hxx"
 
-Present::Present(std::shared_ptr<LoadingWidget> loading, std::shared_ptr<StateNotiWidget> stateNoti, std::shared_ptr<ProgressWidget> progress, std::shared_ptr<AppState> appState) {
+Present::Present(std::shared_ptr<LoadingWidget> loading, std::shared_ptr<StateNotiWidget> stateNoti, std::shared_ptr<AppState> appState) {
     appState->cloudConnected.onChanged += [loading](auto value) {
         if(value) {
             loading->hide();

@@ -66,6 +66,11 @@ struct CurrentData {
     ::CurrentData value;
 };
 }
+
+struct Debugger {
+    DebugType type;
+};
+
 }
 
 namespace Rpcs {

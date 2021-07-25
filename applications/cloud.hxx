@@ -43,6 +43,8 @@ public:
     Signals<void(DevConfig conf)> onConfig = {};
     Signals<DevConfig()> onReadConfig = {};
     Signals<void(int balance, BroadcastType type)> onBroadcast = {};
+    Signals<void(DebugType type)> onDebug = {};
+    
     Signals<void(std::string version, std::string module, std::string url, int size)> onOta = {};
     Signals<void()> onHeartbeat = {};
 
